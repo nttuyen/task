@@ -155,10 +155,11 @@ public final class TaskUtil {
     org.exoplatform.task.model.User currentUser = userService.loadUser(username);
     taskModel.setCurrentUser(currentUser);
     
-    String breadcumbs = bundle.getString("label.noProject");
+    String breadcumbs = "<li>" + bundle.getString("label.noProject") + "</li>";
     if (task.getStatus() != null) {
       Project p = task.getStatus().getProject();
-      breadcumbs = ProjectUtil.buildBreadcumbs(p.getId(), projectService, bundle);
+      //breadcumbs = ProjectUtil.buildBreadcumbs(p.getId(), projectService, bundle);
+      breadcumbs = "<li>" + p.getName() + "</li>";
     }
     taskModel.setBreadcumbs(breadcumbs);
 
