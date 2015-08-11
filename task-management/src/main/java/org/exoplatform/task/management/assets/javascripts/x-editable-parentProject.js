@@ -86,7 +86,7 @@ define('x_editable_select3', ['SHARED/jquery', 'SHARED/edit_inline_js'], functio
                 var options = this.options;
                 $(element).data('value', value);
                 $(element).jzLoad('ProjectController.getBreadCumbs()', {id: value, isBreadcrumb: options.breadcrumb}, function() {
-                    if(!options.breadcrumb) {
+                    if(!options.breadcrumb && value > 0) {
                         var $close = $('<a class="removeProject" href="javascript:void(0)"><i class="uiIconClose"></i></a>');
                         $(element).find('li').append($close);
                     }

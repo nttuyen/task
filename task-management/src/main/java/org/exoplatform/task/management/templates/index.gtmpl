@@ -9,6 +9,7 @@
 #{param name=filter /}
 #{param name=projects/}
 #{param name=userSetting/}
+#{param name=userTimezone/}
 #{param name=bundle/}
 #{param name=taskId/}
 #{param name=taskModel/}

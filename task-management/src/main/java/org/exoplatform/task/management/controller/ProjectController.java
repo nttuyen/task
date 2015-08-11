@@ -470,7 +470,10 @@ public class ProjectController {
                           .append("</a></li>")
                           .toString();
       } catch (ProjectNotFoundException ex) {
-        breadcrumbs = bundle.getString("label.noProject");
+        breadcrumbs = new StringBuilder("<li class=\"muted\">")
+                .append(bundle.getString("label.noProject"))
+                .append("</li>")
+                .toString();
       }
     }
     return Response.ok(breadcrumbs.toString()).withCharset(Tools.UTF_8);
