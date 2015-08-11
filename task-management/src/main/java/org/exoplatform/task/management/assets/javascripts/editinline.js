@@ -598,7 +598,8 @@ define('ta_edit_inline',
                                 data: {taskId: taskId, name: 'project', value: 0},
                                 method: 'POST',
                                 success: function(e) {
-                                    $editable.find('li').html('No Project').removeClass('active');
+                                    $editable.find('li').html('No Project').removeClass('active').addClass('muted');
+                                    $editable.editable('setValue', 0);
                                     enableEditProject($editable);
                                 }
                             });

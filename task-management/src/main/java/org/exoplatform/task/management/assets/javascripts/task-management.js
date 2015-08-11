@@ -365,7 +365,7 @@ $(document).ready(function() {
         var $icon = $a.find('.uiIconLightGray');
         var $list = $a.closest('.dropdown').find('> .list-projects');
         $list.slideToggle(300, 'linear', function() {
-            $icon.toggleClass('uiIconArrowDown').toggleClass('uiIconArrowRight');
+            $icon.toggleClass('uiIconArrowDownMini').toggleClass('uiIconArrowRightMini');
         });
     });
     $leftPanel.on('click', 'a.collapseSubProject', function(e){

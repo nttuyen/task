@@ -10,6 +10,7 @@ def displayListProjectItem(project, level) {
     def hasChildClass = hasChild  ? 'has-child' : '';
 	def indent = (level - 1) * 20;
     def isHidden = userSetting.isHiddenProject(project);
+    def canEdit = project.canEdit(identity);
     def isAllChildHidden = true;
     if (hasChild) {
         project.children.each {p ->
