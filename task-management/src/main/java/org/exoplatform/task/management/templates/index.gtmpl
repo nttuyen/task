@@ -21,11 +21,6 @@
 	<div id="taskManagement" class="row-fluid">
 	    <div class="leftPanel uiAccordion span3">
 	        <ul class="left-menu">
-	        		<%if (!isInSpace) {%>
-	            <li class="accordion-heading active" style="display: none">
-	                <a class="project-name" data-id="-1" href="@{TaskManagement.index()}">&{label.incoming}&nbsp;<span class="badgeDefault badgePrimary mini top">1</span></a>
-	            </li>
-	            <%} %>
                 <li class="accordion-heading dropdown">
                     <div class="item">
                         <a class="dropdownIcon collapseTree pull-right" href="javascript:void(0)">

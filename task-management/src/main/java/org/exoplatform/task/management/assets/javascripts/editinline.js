@@ -615,7 +615,7 @@ define('ta_edit_inline',
                     var val = $this.editable('getValue', true);
                     if (val > 0) {
                         if ($this.find('a.removeProject').length == 0) {
-                            var $close = $('<a class="removeProject" href="javascript:void(0)" style="float: right"><i class="uiIconClose"></i></a>');
+                            var $close = $('<a class="removeProject" href="javascript:void(0)"><i class="uiIconClose"></i></a>');
                             $this.find('li').addClass('active').append($close);
                         }
                         disableEditProject($this);

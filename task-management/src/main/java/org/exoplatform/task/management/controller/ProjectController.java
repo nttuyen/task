@@ -465,9 +465,9 @@ public class ProjectController {
     } else {
       try {
         Project p = projectService.getProjectById(id);
-        breadcrumbs = new StringBuilder("<li class=\"active\">")
+        breadcrumbs = new StringBuilder("<li class=\"active\"><a class=\"project-name\" href=\"javascript:void(0)\">")
                           .append(p.getName())
-                          .append("</li>")
+                          .append("</a></li>")
                           .toString();
       } catch (ProjectNotFoundException ex) {
         breadcrumbs = bundle.getString("label.noProject");

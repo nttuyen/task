@@ -99,7 +99,7 @@
                         <div class="column-item column-checkbox">
                             <span class="project-color ${task.status != null ? task.status.project.color : ''}">&nbsp;</span>
                             <span class="inline-block-hide dragable">&nbsp;</span>
-                            <span class="status-task inline-block-show">
+                            <span class="status-task block-hide">
                                 <i class="${colorClass}">&nbsp;</i>
                             </span>
                         </div>
