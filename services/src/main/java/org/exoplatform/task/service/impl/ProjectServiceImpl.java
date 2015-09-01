@@ -147,6 +147,44 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   @ExoTransactional
+  public Project createProject(Project project, boolean createDefaultStatus) {
+    Project proj = daoHandler.getProjectHandler().create(project);
+    if (createDefaultStatus) {
+      for (String s : statusService.getDefaultStatus()) {
+        statusService.createStatus(proj, s);
+      }
+    }
+    return proj;
+  }
+
+  @Override
+  public Project createProject(Project project, long parentId) throws ProjectNotFoundException {
+    Project parentProject = daoHandler.getProjectHandler().find(parentId);
+    if (parentProject != null) {
+      project.setParent(parentProject);
+      //If parent, list of members/participators of parents override the list of members/participators in parameter
+      project.setParticipator(new HashSet<String>(parentProject.getParticipator()));
+      //If parent, list of manager of parents override the list of managers in parameter
+      project.setManager(new HashSet<String>(parentProject.getManager()));
+
+      //persist project
+      project = createProject(project);
+
+      //inherit status from parent
+      List<Status> prSt = new LinkedList<Status>(parentProject.getStatus());
+      Collections.sort(prSt);
+      for (Status st : prSt) {
+        statusService.createStatus(project, st.getName());
+      }
+      return project;
+    } else {
+      LOG.info("Can not find project for parent with ID: " + parentId);
+      throw new ProjectNotFoundException(parentId);
+    }
+  }
+
+  @Override
+  @ExoTransactional
   public Project updateProjectInfo(long id, String param, String[] values)
       throws ProjectNotFoundException, ParameterEntityException {
 
@@ -222,14 +260,18 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   @ExoTransactional
   public void deleteProjectById(long id, boolean deleteChild) throws ProjectNotFoundException {
-    Project project = getProjectById(id); //Can throw ProjectNotFoundException
-
-    deleteProject(project, deleteChild);
+    deleteProject(id, deleteChild);
   }
 
   @Override
   @ExoTransactional
-  public void deleteProject(Project project, boolean deleteChild) {    
+  public void deleteProject(long id, boolean deleteChild) throws ProjectNotFoundException {
+    deleteProject(getProjectById(id), deleteChild);
+  }
+
+  @Override
+  @ExoTransactional
+  public void deleteProject(Project project, boolean deleteChild) {
     if (!deleteChild && project.getChildren() != null) {
       Project parent = project.getParent();
       for (Project child : project.getChildren()) {

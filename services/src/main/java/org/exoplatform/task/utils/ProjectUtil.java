@@ -17,6 +17,7 @@
 package org.exoplatform.task.utils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -33,6 +34,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.task.domain.Project;
+import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.service.ProjectService;
@@ -237,6 +239,16 @@ public final class ProjectUtil {
       }
     }
     return taskId;
+  }
+
+  public static Project newProjectInstance(String name, String description, String username) {
+    Set<String> managers = new HashSet<String>();
+    managers.add(username);
+    return newProjectInstance(name, description, managers, Collections.<String>emptySet());
+  }
+  public static Project newProjectInstance(String name, String description, Set<String> managers, Set<String> participators) {
+    Project p = new Project(name, description, new HashSet<Status>(), managers, participators);
+    return p;
   }
 }
 
