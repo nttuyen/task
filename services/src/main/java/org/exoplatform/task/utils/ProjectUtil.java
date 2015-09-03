@@ -33,11 +33,13 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.service.ProjectService;
+import org.exoplatform.task.service.TaskService;
 import org.exoplatform.web.controller.router.Router;
 
 /**
@@ -69,8 +71,12 @@ public final class ProjectUtil {
     }
     calendar.setDescription(project.getDescription());
     calendar.setEditPermission(null);
-    ProjectService service = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ProjectService.class);
-    List<Task> tasks = service.getTasksByProjectId(Arrays.asList(project.getId()), null);
+    //ProjectService service = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ProjectService.class);
+    TaskService taskService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(TaskService.class);
+    TaskQuery taskQuery = new TaskQuery();
+    taskQuery.setProjectIds(Arrays.asList(project.getId()));
+    //List<Task> tasks = service.getTasksByProjectId(Arrays.asList(project.getId()), null);
+    List<Task> tasks = taskService.findTaskByQuery(taskQuery);
     calendar.setHasChildren(tasks.size() > 0);    
     calendar.setId(String.valueOf(project.getId()));
     calendar.setName(project.getName());

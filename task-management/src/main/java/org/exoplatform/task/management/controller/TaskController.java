@@ -50,6 +50,7 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.task.dao.OrderBy;
+import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Comment;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
@@ -533,6 +534,8 @@ public class TaskController {
       tasks = taskService.getToDoTasksByUser(currentUser, spaceProjectIds, order, fromDueDate, toDueDate);
     }
     else {
+      TaskQuery taskQuery = new TaskQuery();
+      taskQuery.setKeyword(keyword);
       if (projectId == 0) {
         //. Default order by CreatedDate
         if (orderBy == null || orderBy.isEmpty()) {
@@ -541,9 +544,11 @@ public class TaskController {
         }
 
         if (spaceProjectIds != null) {
-          tasks = projectService.getTasksWithKeywordByProjectId(spaceProjectIds, order, keyword);                  
-        } else {          
-          tasks = projectService.getTasksWithKeywordByProjectId(allProjectIds, order, keyword);
+          taskQuery.setProjectIds(spaceProjectIds);
+          //tasks = projectService.getTasksWithKeywordByProjectId(spaceProjectIds, order, keyword);
+        } else {
+          taskQuery.setProjectIds(allProjectIds);
+          //tasks = projectService.getTasksWithKeywordByProjectId(allProjectIds, order, keyword);
         }
       } else {
         //. Default order by CreatedDate
@@ -551,9 +556,12 @@ public class TaskController {
           orderBy = TaskUtil.DUEDATE;
           order = new OrderBy.ASC(orderBy);
         }
-
-        tasks = projectService.getTasksWithKeywordByProjectId(Arrays.asList(projectId), order, keyword);
+        taskQuery.setProjectIds(Arrays.asList(projectId));
+        //tasks = projectService.getTasksWithKeywordByProjectId(Arrays.asList(projectId), order, keyword);
       }
+      taskQuery.setOrderBy(Arrays.asList(order));
+      tasks = taskService.findTaskByQuery(taskQuery);
+
       if (projectId > 0) {
         try {
           project = projectService.getProjectById(projectId);

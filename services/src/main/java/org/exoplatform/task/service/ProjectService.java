@@ -16,67 +16,13 @@ import org.exoplatform.task.exception.ProjectNotFoundException;
  */
 public interface ProjectService {
 
-  /**
-   * use {@link org.exoplatform.task.utils.ProjectUtil#newProjectInstance(String, String, java.util.Set, java.util.Set)}
-   * and {@link #createProject(org.exoplatform.task.domain.Project, long)}
-   * @param name
-   * @param description
-   * @param parentId
-   * @param username
-   * @return
-   * @throws ProjectNotFoundException
-   */
-  @Deprecated
-  Project createDefaultStatusProjectWithManager(String name, String description, Long parentId, String username)
-      throws ProjectNotFoundException;
-
-  /**
-   * use {@link org.exoplatform.task.utils.ProjectUtil#newProjectInstance(String, String, java.util.Set, java.util.Set)}
-   * and {@link #createProject(org.exoplatform.task.domain.Project, long)}
-   * @param parentId
-   * @param name
-   * @param description
-   * @param managers
-   * @param participators
-   * @return
-   * @throws ProjectNotFoundException
-   */
-  @Deprecated
-  Project createDefaultStatusProjectWithAttributes(Long parentId, String name, String description,
-                                                   Set<String> managers, Set<String> participators)
-      throws ProjectNotFoundException;
-
-  /**
-   * use {@link #createProject(org.exoplatform.task.domain.Project, boolean)}
-   * @param project
-   * @return
-   */
-  @Deprecated
-  Project createDefaultStatusProject(Project project);
-
-  /**
-   * use {@link #createProject(org.exoplatform.task.domain.Project, boolean)}
-   * @param project
-   * @return
-   */
-  @Deprecated
-  Project createProject(Project project);
   Project createProject(Project project, boolean createDefaultStatus);
   Project createProject(Project project, long parentId) throws ProjectNotFoundException;
 
   Project updateProjectInfo(long id, String param, String[] values)
       throws ProjectNotFoundException, ParameterEntityException;
 
-  /**
-   * use {@link #deleteProject(long, boolean)}
-   * @param id
-   * @param deleteChild
-   * @throws ProjectNotFoundException
-   */
-  @Deprecated
-  void deleteProjectById(long id, boolean deleteChild) throws ProjectNotFoundException;
-
-  void deleteProject(long id, boolean deleteChild) throws ProjectNotFoundException;
+  void deleteProject(long projectId, boolean deleteChild) throws ProjectNotFoundException;
   void deleteProject(Project project, boolean deleteChild);
 
   Project cloneProjectById(long id, boolean cloneTask) throws ProjectNotFoundException;
@@ -87,25 +33,6 @@ public interface ProjectService {
   Task createTaskToProjectId(long id, Task task) throws ProjectNotFoundException;
 
   /**
-   * Use {@link org.exoplatform.task.service.TaskService#findTaskByQuery(org.exoplatform.task.dao.TaskQuery)}
-   * @param ids
-   * @param orderBy
-   * @return
-   */
-  @Deprecated
-  List<Task> getTasksByProjectId(List<Long> ids, OrderBy orderBy);
-
-  /**
-   * use {@link org.exoplatform.task.service.TaskService#findTaskByQuery(org.exoplatform.task.dao.TaskQuery)}
-   * @param ids
-   * @param orderBy
-   * @param keyword
-   * @return
-   */
-  @Deprecated
-  List<Task> getTasksWithKeywordByProjectId(List<Long> ids, OrderBy orderBy, String keyword);
-
-  /**
    * TODO: This method is not used any more
    * @param id
    * @param permission
@@ -114,9 +41,9 @@ public interface ProjectService {
    * @throws ProjectNotFoundException
    * @throws NotAllowedOperationOnEntityException
    */
-  @Deprecated
+  /*@Deprecated
   Project removePermissionFromProjectId(Long id, String permission, String type)
-      throws ProjectNotFoundException, NotAllowedOperationOnEntityException;
+      throws ProjectNotFoundException, NotAllowedOperationOnEntityException;*/
 
   /**
    * TODO: This method is not used any more
@@ -127,9 +54,9 @@ public interface ProjectService {
    * @throws ProjectNotFoundException
    * @throws NotAllowedOperationOnEntityException
    */
-  @Deprecated
+  /*@Deprecated
   Project addPermissionsFromProjectId(Long id, String permissions, String type)
-      throws ProjectNotFoundException, NotAllowedOperationOnEntityException;
+      throws ProjectNotFoundException, NotAllowedOperationOnEntityException;*/
   
   List<Project> getProjectTreeByMembership(List<String> memberships);
  

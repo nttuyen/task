@@ -209,7 +209,7 @@ public class TaskInjector extends DataInjector {
           task.setStatus(randomStatus);
           randomStatus.getTasks().add(task);
         }
-        projectService.createProject(project);
+        projectService.createProject(project, false);
         //DAOHandler.getProjectHandler().create(project);
       }
 
@@ -262,7 +262,7 @@ public class TaskInjector extends DataInjector {
           task.setStatus(randomStatus);
           randomStatus.getTasks().add(task);
         }
-        projectService.createProject(project);
+        projectService.createProject(project, false);
         //DAOHandler.getProjectHandler().create(project);
       }
 

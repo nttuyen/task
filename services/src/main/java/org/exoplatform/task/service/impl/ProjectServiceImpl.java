@@ -82,71 +82,6 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   @ExoTransactional
-  public Project createDefaultStatusProjectWithManager(String name, String description, Long parentId, String username)
-      throws ProjectNotFoundException {
-
-    Set<String> managers = new HashSet<String>();
-    managers.add(username);
-
-    return createDefaultStatusProjectWithAttributes(parentId, name, description, managers, Collections.<String>emptySet());
-
-  }
-
-  @Override
-  @ExoTransactional
-  public Project createDefaultStatusProjectWithAttributes(Long parentId, String name, String description,
-                                                          Set<String> managers, Set<String> participators)
-      throws ProjectNotFoundException {
-    Project project = new Project(name, description, new HashSet<Status>(), managers, participators);
-
-    if (parentId != null && parentId != 0) {
-      Project parentProject = daoHandler.getProjectHandler().find(parentId);
-      if (parentProject != null) {
-        project.setParent(parentProject);
-        //If parent, list of members/participators of parents override the list of members/participators in parameter
-        project.setParticipator(new HashSet<String>(parentProject.getParticipator()));
-        //If parent, list of manager of parents override the list of managers in parameter
-        project.setManager(new HashSet<String>(parentProject.getManager()));
-        
-        //persist project
-        project = createProject(project);
-        
-        //inherit status from parent
-        List<Status> prSt = new LinkedList<Status>(parentProject.getStatus());
-        Collections.sort(prSt);
-        for (Status st : prSt) {
-          statusService.createStatus(project, st.getName());
-        }
-        return project;
-      } else {
-        LOG.info("Can not find project for parent with ID: " + parentId);
-        throw new ProjectNotFoundException(parentId);
-      }
-    } else {
-      return createDefaultStatusProject(project);      
-    }
-  }
-
-  @Override
-  @ExoTransactional
-  public Project createDefaultStatusProject(Project project) {
-    Project newProject = daoHandler.getProjectHandler().create(project);
-    
-    for (String s : statusService.getDefaultStatus()) {
-      statusService.createStatus(newProject, s);
-    }    
-    return newProject;
-  }
-
-  @Override
-  @ExoTransactional
-  public Project createProject(Project project) {
-    Project obj = daoHandler.getProjectHandler().create(project);
-    return obj;
-  }
-
-  @Override
-  @ExoTransactional
   public Project createProject(Project project, boolean createDefaultStatus) {
     Project proj = daoHandler.getProjectHandler().create(project);
     if (createDefaultStatus) {
@@ -168,7 +103,7 @@ public class ProjectServiceImpl implements ProjectService {
       project.setManager(new HashSet<String>(parentProject.getManager()));
 
       //persist project
-      project = createProject(project);
+      project = createProject(project, false);
 
       //inherit status from parent
       List<Status> prSt = new LinkedList<Status>(parentProject.getStatus());
@@ -259,12 +194,6 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   @ExoTransactional
-  public void deleteProjectById(long id, boolean deleteChild) throws ProjectNotFoundException {
-    deleteProject(id, deleteChild);
-  }
-
-  @Override
-  @ExoTransactional
   public void deleteProject(long id, boolean deleteChild) throws ProjectNotFoundException {
     deleteProject(getProjectById(id), deleteChild);
   }
@@ -289,7 +218,7 @@ public class ProjectServiceImpl implements ProjectService {
     Project project = getProjectById(id); //Can throw ProjectNotFoundException
 
     Project newProject = project.clone(cloneTask);
-    createProject(newProject);
+    createProject(newProject, false);
 
     return newProject;
 
@@ -314,23 +243,7 @@ public class ProjectServiceImpl implements ProjectService {
     return taskService.createTask(task);
   }
 
-  @Override
-  public List<Task> getTasksByProjectId(List<Long> ids, OrderBy orderBy) {
-    return getTasksWithKeywordByProjectId(ids, orderBy, null);
-  }
-
-  @Override
-  public List<Task> getTasksWithKeywordByProjectId(List<Long> ids, OrderBy orderBy, String keyword) {
-    TaskQuery taskQuery = new TaskQuery();
-    taskQuery.setProjectIds(ids);
-    taskQuery.setKeyword(keyword);
-    taskQuery.setOrderBy(orderBy == null ? null : Arrays.asList(orderBy));
-    taskQuery.setCompleted(false);
-
-    return daoHandler.getTaskHandler().findTaskByQuery(taskQuery);
-  }
-
-  @Override
+  /*@Override
   @ExoTransactional
   public Project removePermissionFromProjectId(Long id, String permission, String type)
       throws ProjectNotFoundException, NotAllowedOperationOnEntityException {
@@ -388,7 +301,7 @@ public class ProjectServiceImpl implements ProjectService {
       throw new NotAllowedOperationOnEntityException(id, "Project", "Add permission equal to null");
     }
 
-  }
+  }*/
   
   @Override
   public List<Project> getProjectTreeByMembership(List<String> memberships) {

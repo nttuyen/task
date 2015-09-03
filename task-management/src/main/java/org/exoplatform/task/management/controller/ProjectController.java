@@ -163,10 +163,19 @@ public class ProjectController {
         List<String> memberships = UserUtils.getSpaceMemberships(space_group_id);
         Set<String> managers = new HashSet<String>(Arrays.asList(currentUser, memberships.get(0)));
         Set<String> participators = new HashSet<String>(Arrays.asList(memberships.get(1)));
-        project = projectService.createDefaultStatusProjectWithAttributes(parentId, name, description, managers, participators);
+        //project = projectService.createDefaultStatusProjectWithAttributes(parentId, name, description, managers, participators);
+        project = ProjectUtil.newProjectInstance(name, description, managers, participators);
       } else {
-        project = projectService.createDefaultStatusProjectWithManager(name, description, parentId, currentUser); //Can throw ProjectNotFoundException        
+        project = ProjectUtil.newProjectInstance(name, description, currentUser);
+        //project = projectService.createDefaultStatusProjectWithManager(name, description, parentId, currentUser); //Can throw ProjectNotFoundException
       }
+
+      if (parentId != null && parentId > 0) {
+        project = projectService.createProject(project, parentId);
+      } else {
+        project = projectService.createProject(project, true);
+      }
+
       JSONObject result = new JSONObject();
       result.put("id", project.getId());//Can throw JSONException (same for all #json.put methods below)
       result.put("name", project.getName());
@@ -238,7 +247,7 @@ public class ProjectController {
     }
   }
 
-  @Resource
+  /*@Resource
   @Ajax
   @MimeType.HTML
   public Response removePermission(Long id, String permission, String type) {
@@ -251,7 +260,7 @@ public class ProjectController {
     } catch (AbstractEntityException e) {
       return Response.status(e.getHttpStatusCode()).body(e.getMessage());
     }
-  }
+  }*/
 
   @Resource
   @Ajax
@@ -617,7 +626,7 @@ public class ProjectController {
   @MimeType("text/plain")
   public Response deleteProject(Long projectId, Boolean deleteChild) {
     try {
-      projectService.deleteProjectById(projectId, deleteChild); //Can throw ProjectNotFoundException
+      projectService.deleteProject(projectId, deleteChild); //Can throw ProjectNotFoundException
       return Response.ok("Delete project successfully");
     } catch (AbstractEntityException e) {
       return Response.status(e.getHttpStatusCode()).body(e.getMessage());

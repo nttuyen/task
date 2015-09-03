@@ -42,6 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.task.dao.OrderBy;
+import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.UserSetting;
@@ -133,7 +134,9 @@ public class TaskManagement {
         if (taskModel.getTask().getStatus() != null) {
           project = taskModel.getTask().getStatus().getProject();
           currProject = project.getId();
-          tasks = projectService.getTasksByProjectId(Arrays.asList(currProject), null);      
+          TaskQuery taskQuery = new TaskQuery();
+          taskQuery.setProjectIds(Arrays.asList(currProject));
+          tasks = taskService.findTaskByQuery(taskQuery);
         }
       } catch (TaskNotFoundException e) {
         taskId = -1;
@@ -153,7 +156,9 @@ public class TaskManagement {
       if (space_group_id != null) {
         tasks = taskService.getToDoTasksByUser(username, spaceProjectIds, null, null, null);
       } else if (currProject > 0) {
-        tasks = projectService.getTasksByProjectId(Arrays.asList(currProject), null);
+        TaskQuery taskQuery = new TaskQuery();
+        taskQuery.setProjectIds(Arrays.asList(currProject));
+        tasks = taskService.findTaskByQuery(taskQuery);
       } else {
         tasks = taskService.getIncomingTasksByUser(username, new OrderBy.DESC("createdTime"));
       }

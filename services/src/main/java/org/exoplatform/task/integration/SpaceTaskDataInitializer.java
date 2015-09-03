@@ -27,12 +27,14 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
+import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.impl.ProjectServiceImpl;
 import org.exoplatform.task.service.impl.StatusServiceImpl;
+import org.exoplatform.task.utils.ProjectUtil;
 import org.exoplatform.task.utils.UserUtils;
 
 public class SpaceTaskDataInitializer extends SpaceListenerPlugin {
@@ -60,12 +62,9 @@ public class SpaceTaskDataInitializer extends SpaceListenerPlugin {
     Set<String> managers = new HashSet<String>(Arrays.asList(memberships.get(0)));
     Set<String> participators = new HashSet<String>(Arrays.asList(memberships.get(1)));
 
-    //
-    try {
-      projectService.createDefaultStatusProjectWithAttributes(0L, space.getDisplayName(), "", managers, participators);
-    } catch (ProjectNotFoundException e) {
-      log.error(e);
-    }
+    Project project = ProjectUtil.newProjectInstance(space.getDisplayName(), "", managers, participators);
+    projectService.createProject(project, true);
+
   }
 
   @Override
