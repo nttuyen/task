@@ -17,9 +17,12 @@
 
 package org.exoplatform.task.test.dao;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.task.utils.ListUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,9 +73,10 @@ public class TestCommentDAO extends AbstractTest {
     Comment comment = newDefaultSimpleComment(task);
     commentDAO.create(comment);
 
-    List<Comment> comments = commentDAO.findCommentsOfTask(task, 0, 0);
-    Assert.assertEquals(1, comments.size());
-    comment = comments.get(0);
+    ListAccess<Comment> listComments = commentDAO.findComments(task.getId());
+    Comment[] comments = ListUtil.load(listComments, 0, -1);
+    Assert.assertEquals(1, comments.length);
+    comment = comments[0];
     Assert.assertEquals(username, comment.getAuthor());
     Assert.assertEquals(task.getId(), comment.getTask().getId());
   }
@@ -91,9 +95,10 @@ public class TestCommentDAO extends AbstractTest {
     commentDAO.create(comment);
 
     // Load comment of task
-    List<Comment> comments = commentDAO.findCommentsOfTask(task, 0, 0);
-    Assert.assertEquals(1, comments.size());
-    comment = comments.get(0);
+    ListAccess<Comment> listComments = commentDAO.findComments(task.getId());
+    Comment[] comments = ListUtil.load(listComments, 0, -1);
+    Assert.assertEquals(1, comments.length);
+    comment = comments[0];
 
     // Update comment
     long id = comment.getId();
@@ -118,9 +123,10 @@ public class TestCommentDAO extends AbstractTest {
     commentDAO.create(comment);
 
     // Load comment of task
-    List<Comment> comments = commentDAO.findCommentsOfTask(task, 0, 0);
-    Assert.assertEquals(1, comments.size());
-    comment = comments.get(0);
+    ListAccess<Comment> listComments = commentDAO.findComments(task.getId());
+    Comment[] comments = ListUtil.load(listComments, 0, -1);
+    Assert.assertEquals(1, comments.length);
+    comment = comments[0];
 
     // Delete comment
     long id = comment.getId();
@@ -148,7 +154,8 @@ public class TestCommentDAO extends AbstractTest {
     }
 
     // Assure have 10 comment in task
-    long count = commentDAO.count(task);
+    ListAccess<Comment> listComments = commentDAO.findComments(task.getId());
+    long count = ListUtil.getSize(listComments);
 
     Assert.assertEquals(number, count);
   }
@@ -170,18 +177,20 @@ public class TestCommentDAO extends AbstractTest {
       commentDAO.create(comment);
     }
 
-    List<Comment> comments = commentDAO.findCommentsOfTask(task, 0, 5);
-    Assert.assertEquals(5, comments.size());
+    ListAccess<Comment> listComments = commentDAO.findComments(task.getId());
 
-    comments = commentDAO.findCommentsOfTask(task, 2, 5);
-    Assert.assertEquals(5, comments.size());
+    Comment[] comments = ListUtil.load(listComments, 0, 5); //commentDAO.findCommentsOfTask(task, 0, 5);
+    Assert.assertEquals(5, comments.length);
+
+    comments = ListUtil.load(listComments, 2, 5); //commentDAO.findCommentsOfTask(task, 2, 5);
+    Assert.assertEquals(5, comments.length);
 
     //. If does not pass limit number, start will be ignored
-    comments = commentDAO.findCommentsOfTask(task, 2, 0);
-    Assert.assertEquals(10, comments.size());
+    comments = ListUtil.load(listComments, 2, -1); //commentDAO.findCommentsOfTask(task, 2, 0);
+    Assert.assertEquals(10, comments.length);
 
-    comments = commentDAO.findCommentsOfTask(task, 8, 5);
-    Assert.assertEquals(2, comments.size());
+    comments = ListUtil.load(listComments, 8, 5); //commentDAO.findCommentsOfTask(task, 8, 5);
+    Assert.assertEquals(2, comments.length);
   }
 
   private Task newDefaultSimpleTask() {

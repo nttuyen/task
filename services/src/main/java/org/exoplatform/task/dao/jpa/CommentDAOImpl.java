@@ -41,41 +41,6 @@ import org.exoplatform.task.domain.Task;
  */
 public class CommentDAOImpl extends GenericDAOJPAImpl<Comment, Long> implements CommentHandler {
 
-  private EntityManagerService entityService;
-
-  public CommentDAOImpl(EntityManagerService entityService) {
-    this.entityService = entityService;
-  }
-  
-  @Override
-  public EntityManager getEntityManager() {
-    return entityService.getEntityManager();
-  }
-
-  @Override
-  public long count(Task task) {
-    Long count = getEntityManager().createNamedQuery("Comment.countCommentOfTask", Long.class)
-            .setParameter("taskId", task.getId())
-            .getSingleResult();
-    return count;
-  }
-
-  @Override
-  public List<Comment> findCommentsOfTask(Task task, int start, int limit) {
-    Query query = getEntityManager().createNamedQuery("Comment.findCommentsOfTask", Comment.class);
-    query.setParameter("taskId", task.getId());
-    if(limit > 0) {
-      query.setFirstResult(start);
-      query.setMaxResults(limit);
-    }
-    List<Comment> comments = query.getResultList();
-
-    //TODO: should re-order by java code or by query
-    Collections.reverse(comments);
-
-    return comments;
-  }
-
   @Override
   public ListAccess<Comment> findComments(long taskId) {
     TypedQuery<Comment> query = getEntityManager().createNamedQuery("Comment.findCommentsOfTask", Comment.class);
@@ -84,6 +49,6 @@ public class CommentDAOImpl extends GenericDAOJPAImpl<Comment, Long> implements 
     query.setParameter("taskId", taskId);
     count.setParameter("taskId", taskId);
 
-    return new JPAQueryListAccess<Comment>(count, query);
+    return new JPAQueryListAccess<Comment>(Comment.class, count, query);
   }
 }

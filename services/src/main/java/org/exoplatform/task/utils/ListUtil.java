@@ -17,18 +17,27 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.exoplatform.task.dao;
+package org.exoplatform.task.utils;
 
-import java.util.List;
-
-import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.task.domain.Comment;
-import org.exoplatform.task.domain.Task;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public interface CommentHandler extends GenericDAO<Comment, Long> {
-  ListAccess<Comment> findComments(long taskId);
+public class ListUtil {
+  public static <E> int getSize(ListAccess<E> list) {
+    try {
+      return list.getSize();
+    } catch (Exception ex) {
+      return 0;
+    }
+  }
+
+  public static <E> E[] load(ListAccess<E> list, int start, int limit) {
+    try {
+      return list.load(start, limit);
+    } catch (Exception ex) {
+      return (E[])(new Object[0]);
+    }
+  }
 }

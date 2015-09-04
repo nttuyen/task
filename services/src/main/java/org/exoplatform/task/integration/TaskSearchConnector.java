@@ -38,6 +38,7 @@ import org.exoplatform.task.domain.Priority;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.UserService;
+import org.exoplatform.task.utils.ListUtil;
 import org.exoplatform.task.utils.ResourceUtil;
 import org.exoplatform.task.utils.StringUtil;
 import org.exoplatform.task.utils.TaskUtil;
@@ -91,10 +92,10 @@ public class TaskSearchConnector extends SearchServiceConnector {
     if (orderBy != null) {
       taskQuery.setOrderBy(Arrays.asList(orderBy));      
     }
-    List<Task> tasks = taskService.findTaskByQuery(taskQuery);
-    
+
     SimpleDateFormat  df = new SimpleDateFormat("EEEEE, MMMMMMMM d, yyyy K:mm a");
     df.setTimeZone(userService.getUserTimezone(currentUser.getUserId()));
+    Task[] tasks = ListUtil.load(taskService.findTasks(taskQuery), 0, -1);
     for (Task t : tasks) {
       result.add(buildResult(t, df));
     }

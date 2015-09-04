@@ -287,28 +287,11 @@ public class TaskServiceImpl implements TaskService {
 
   @Override
   @ExoTransactional
-  public Task updateTaskCompleted(long id, Boolean completed)
-      throws TaskNotFoundException, ParameterEntityException, StatusNotFoundException {
-
-    String[] values = new String[1];
-    values[0] = completed.toString();
-    return updateTaskInfo(id, "completed", values, null);
-  }
-
-  @Override
-  @ExoTransactional
-  public void deleteTask(Task task) {    
-    daoHandler.getTaskHandler().delete(task);
-  }
-
-  @Override
-  @ExoTransactional
   public void deleteTaskById(long id) throws TaskNotFoundException {
 
     Task task = getTaskById(id);// Can throw TaskNotFoundException
 
-    deleteTask(task);
-
+    daoHandler.getTaskHandler().delete(task);
   }
 
   @Override
@@ -330,24 +313,6 @@ public class TaskServiceImpl implements TaskService {
       throw new TaskNotFoundException(id);
     }
     return task;
-  }
-
-  @Override
-  public Long getNbOfCommentsByTask(Task task) {
-    return daoHandler.getCommentHandler().count(task);
-  }
-
-  @Override
-  public List<Comment> getCommentsByTaskId(long id, int start, int limit) throws TaskNotFoundException {
-
-    Task task = getTaskById(id); //Can throws TaskNotFoundException
-
-    return getCommentsByTask(task, start, limit);
-  }
-
-  @Override
-  public List<Comment> getCommentsByTask(Task task, int start, int limit) {
-    return daoHandler.getCommentHandler().findCommentsOfTask(task, start, limit);
   }
 
   @Override
@@ -398,28 +363,13 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
-  public List<Task> getIncomingTasksByUser(String username, OrderBy orderBy) {
-    return daoHandler.getTaskHandler().getIncomingTask(username, orderBy);
-  }
-
-  @Override
   public ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy) {
     return daoHandler.getTaskHandler().getIncomingTasks(username, orderBy);
   }
 
   @Override
-  public List<Task> getToDoTasksByUser(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate) {
-    return daoHandler.getTaskHandler().getToDoTask(username, projectIds, orderBy, fromDueDate, toDueDate);
-  }
-
-  @Override
   public ListAccess<Task> getTodoTasks(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate) {
     return daoHandler.getTaskHandler().getToDoTasks(username, projectIds, orderBy, fromDueDate, toDueDate);
-  }
-
-  @Override
-  public List<Task> findTaskByQuery(TaskQuery query) {
-    return daoHandler.getTaskHandler().findTaskByQuery(query);
   }
 
   @Override

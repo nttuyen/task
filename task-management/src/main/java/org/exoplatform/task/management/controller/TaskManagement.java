@@ -35,6 +35,7 @@ import juzu.View;
 import juzu.impl.common.Tools;
 import juzu.request.SecurityContext;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
 import org.exoplatform.portal.webui.util.Util;
@@ -54,6 +55,7 @@ import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.TaskParser;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.UserService;
+import org.exoplatform.task.utils.ListUtil;
 import org.exoplatform.task.utils.ProjectUtil;
 import org.exoplatform.task.utils.TaskUtil;
 
@@ -136,7 +138,8 @@ public class TaskManagement {
           currProject = project.getId();
           TaskQuery taskQuery = new TaskQuery();
           taskQuery.setProjectIds(Arrays.asList(currProject));
-          tasks = taskService.findTaskByQuery(taskQuery);
+          ListAccess<Task> listTasks = taskService.findTasks(taskQuery);
+          tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.findTaskByQuery(taskQuery);
         }
       } catch (TaskNotFoundException e) {
         taskId = -1;
@@ -154,13 +157,16 @@ public class TaskManagement {
     
     if (tasks == null) {
       if (space_group_id != null) {
-        tasks = taskService.getToDoTasksByUser(username, spaceProjectIds, null, null, null);
+        ListAccess<Task> listTasks = taskService.getTodoTasks(username, spaceProjectIds, null, null, null);
+        tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getToDoTasksByUser(username, spaceProjectIds, null, null, null);
       } else if (currProject > 0) {
         TaskQuery taskQuery = new TaskQuery();
         taskQuery.setProjectIds(Arrays.asList(currProject));
-        tasks = taskService.findTaskByQuery(taskQuery);
+        ListAccess<Task> listTasks = taskService.findTasks(taskQuery);
+        tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.findTaskByQuery(taskQuery);
       } else {
-        tasks = taskService.getIncomingTasksByUser(username, new OrderBy.DESC("createdTime"));
+        ListAccess<Task> listTasks = taskService.getIncomingTasks(username, new OrderBy.DESC("createdTime"));
+        tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getIncomingTasksByUser(username, new OrderBy.DESC("createdTime"));
       }
     }
 

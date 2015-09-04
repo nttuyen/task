@@ -44,6 +44,7 @@ import juzu.impl.common.Tools;
 import juzu.request.SecurityContext;
 
 import org.exoplatform.commons.juzu.ajax.Ajax;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
@@ -71,6 +72,7 @@ import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.UserService;
 import org.exoplatform.task.utils.CommentUtils;
 import org.exoplatform.task.utils.DateUtil;
+import org.exoplatform.task.utils.ListUtil;
 import org.exoplatform.task.utils.ProjectUtil;
 import org.exoplatform.task.utils.TaskUtil;
 import org.json.JSONException;
@@ -293,7 +295,8 @@ public class TaskController {
 
     try {
 
-      taskService.updateTaskCompleted(taskId, completed); //Can throw TaskNotFoundException & ParameterEntityException
+      taskService.updateTaskInfo(taskId, "completed", new String[]{String.valueOf(completed)});
+      //taskService.updateTaskCompleted(taskId, completed); //Can throw TaskNotFoundException & ParameterEntityException
       return Response.ok("Update successfully");
 
     } catch (AbstractEntityException e) {
@@ -349,9 +352,13 @@ public class TaskController {
 
     try {
 
-      List<Comment> cmts = taskService.getCommentsByTaskId(taskId, 0, -1); //Can throw TaskNotFoundException
+      // Verify task exists
+      Task task = taskService.getTaskById(taskId);
 
-      List<CommentModel> listComments = new ArrayList<CommentModel>(cmts.size());
+      ListAccess<Comment> cmtAccessList = taskService.getComments(task.getId());
+      Comment[] cmts = ListUtil.load(cmtAccessList, 0, -1); //Can throw TaskNotFoundException
+
+      List<CommentModel> listComments = new ArrayList<CommentModel>(cmts.length);
       for(Comment cmt : cmts) {
         org.exoplatform.task.model.User u = userService.loadUser(cmt.getAuthor());
         listComments.add(new CommentModel(cmt, u, CommentUtils.formatMention(cmt.getComment(), userService)));
@@ -360,7 +367,7 @@ public class TaskController {
       org.exoplatform.task.model.User currentUser = userService.loadUser(securityContext.getRemoteUser());
 
       return comments.with()
-          .commentCount(cmts.size())
+          .commentCount(cmts.length)
           .comments(listComments)
           .currentUser(currentUser)
           .ok()
@@ -459,7 +466,8 @@ public class TaskController {
         order = new OrderBy.DESC(orderBy);
       }
 
-      tasks = taskService.getIncomingTasksByUser(currentUser, order);
+      ListAccess<Task> listTasks = taskService.getIncomingTasks(currentUser, order);
+      tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getIncomingTasksByUser(currentUser, order);
     }
     else if (projectId == ProjectUtil.TODO_PROJECT_ID) {
       defGroupBys = TaskUtil.resolve(Arrays.asList(TaskUtil.NONE, TaskUtil.PROJECT, TaskUtil.DUEDATE), bundle);
@@ -530,8 +538,9 @@ public class TaskController {
       if (groupBy == null || !defGroupBys.containsKey(groupBy)) {
         groupBy = TaskUtil.DUEDATE;
       }
-      
-      tasks = taskService.getToDoTasksByUser(currentUser, spaceProjectIds, order, fromDueDate, toDueDate);
+
+      ListAccess<Task> listTasks = taskService.getTodoTasks(currentUser, spaceProjectIds, order, fromDueDate, toDueDate);
+      tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getToDoTasksByUser(currentUser, spaceProjectIds, order, fromDueDate, toDueDate);
     }
     else {
       TaskQuery taskQuery = new TaskQuery();
@@ -560,7 +569,7 @@ public class TaskController {
         //tasks = projectService.getTasksWithKeywordByProjectId(Arrays.asList(projectId), order, keyword);
       }
       taskQuery.setOrderBy(Arrays.asList(order));
-      tasks = taskService.findTaskByQuery(taskQuery);
+      tasks = Arrays.asList(ListUtil.load(taskService.findTasks(taskQuery), 0, -1)); //taskService.findTaskByQuery(taskQuery);
 
       if (projectId > 0) {
         try {

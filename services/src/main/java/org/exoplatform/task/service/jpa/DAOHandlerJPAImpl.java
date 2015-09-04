@@ -44,7 +44,7 @@ public class DAOHandlerJPAImpl extends AbstractDAOHandler implements DAOHandler 
     LOG.info("DAOHandlerJPAImpl is creating...");
     pHandler = new ProjectDAOImpl(entityService);
     tHandler = new TaskDAOImpl(entityService);
-    cHandler = new CommentDAOImpl(entityService);
+    cHandler = new CommentDAOImpl();
     sHandler = new StatusDAOImpl(entityService);
     uHandler = new UserSettingDAO(entityService);
     LOG.info("DAOHandlerJPAImpl is created");

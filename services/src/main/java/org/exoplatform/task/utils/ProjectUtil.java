@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.exoplatform.calendar.model.Calendar;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.mop.SiteKey;
@@ -76,8 +77,8 @@ public final class ProjectUtil {
     TaskQuery taskQuery = new TaskQuery();
     taskQuery.setProjectIds(Arrays.asList(project.getId()));
     //List<Task> tasks = service.getTasksByProjectId(Arrays.asList(project.getId()), null);
-    List<Task> tasks = taskService.findTaskByQuery(taskQuery);
-    calendar.setHasChildren(tasks.size() > 0);    
+    ListAccess<Task> listTask = taskService.findTasks(taskQuery);
+    calendar.setHasChildren(ListUtil.getSize(listTask) > 0);
     calendar.setId(String.valueOf(project.getId()));
     calendar.setName(project.getName());
     Set<String> permissions = new HashSet<String>();

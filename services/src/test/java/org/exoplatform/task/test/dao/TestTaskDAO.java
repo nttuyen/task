@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.dao.TaskQuery;
@@ -35,6 +36,7 @@ import org.exoplatform.task.service.ParserContext;
 import org.exoplatform.task.service.TaskParser;
 import org.exoplatform.task.service.impl.TaskParserImpl;
 import org.exoplatform.task.test.AbstractTest;
+import org.exoplatform.task.utils.ListUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -88,54 +90,63 @@ public class TestTaskDAO extends AbstractTest {
   }
 
   @Test
-  public void testFindTaskByQuery() {
+  public void testFindTaskByQuery() throws Exception {
     Task task = newTaskInstance("Test find task by query", "description of find task by query", "root");
     tDAO.create(task);
 
     TaskQuery query = new TaskQuery();
     query.setTitle("task");
-    List<Task> tasks = tDAO.findTaskByQuery(query);
-    Assert.assertTrue(tasks.size() > 0);
+    ListAccess<Task> tasks = tDAO.findTasks(query);
+    Assert.assertTrue(tasks.getSize() > 0);
 
     query = new TaskQuery();
     query.setTitle("testFindTaskByQuery0123456789");
-    tasks = tDAO.findTaskByQuery(query);
-    Assert.assertEquals(0, tasks.size());
+    tasks = tDAO.findTasks(query);
+    Assert.assertEquals(0, tasks.getSize());
+    Assert.assertEquals(0, ListUtil.load(tasks, 0, -1).length);
 
     query = new TaskQuery();
     query.setDescription("description of find task by query");
-    tasks = tDAO.findTaskByQuery(query);
-    Assert.assertTrue(tasks.size() > 0);
+    tasks = tDAO.findTasks(query);
+    Assert.assertTrue(tasks.getSize() > 0);
+    Assert.assertTrue(ListUtil.load(tasks, 0, -1).length > 0);
 
     query = new TaskQuery();
     query.setDescription("testFindTaskByQuery0123456789");
-    tasks = tDAO.findTaskByQuery(query);
-    Assert.assertEquals(0, tasks.size());
+    tasks = tDAO.findTasks(query);
+    Assert.assertEquals(0, tasks.getSize());
+    Assert.assertEquals(0, ListUtil.load(tasks, 0, -1).length);
 
     query = new TaskQuery();
     query.setAssignee("root");
-    tasks = tDAO.findTaskByQuery(query);
-    Assert.assertTrue(tasks.size() > 0);
+    tasks = tDAO.findTasks(query);
+    Assert.assertTrue(tasks.getSize() > 0);
+    Assert.assertTrue(ListUtil.load(tasks, 0, -1).length > 0);
 
     query = new TaskQuery();
     query.setAssignee("testFindTaskByQuery0123456789");
-    tasks = tDAO.findTaskByQuery(query);
-    Assert.assertEquals(0, tasks.size());
+    tasks = tDAO.findTasks(query);
+    Assert.assertEquals(0, tasks.getSize());
+    Assert.assertEquals(0, ListUtil.load(tasks, 0, -1).length);
 
     query = new TaskQuery();
     query.setKeyword("find task by query");
-    tasks = tDAO.findTaskByQuery(query);
-    Assert.assertTrue(tasks.size() > 0);
+    tasks = tDAO.findTasks(query);
+    Assert.assertTrue(tasks.getSize() > 0);
+    Assert.assertTrue(ListUtil.load(tasks, 0, -1).length > 0);
+
 
     query = new TaskQuery();
     query.setKeyword("testFindTaskByQuery0123456789");
-    tasks = tDAO.findTaskByQuery(query);
-    Assert.assertEquals(0, tasks.size());
+    tasks = tDAO.findTasks(query);
+    Assert.assertEquals(0, tasks.getSize());
+    Assert.assertEquals(0, ListUtil.load(tasks, 0, -1).length);
     
     query = new TaskQuery();
     query.setKeyword(" Find  QUERY");
-    tasks = tDAO.findTaskByQuery(query);
-    Assert.assertEquals(1, tasks.size());
+    tasks = tDAO.findTasks(query);
+    Assert.assertEquals(1, tasks.getSize());
+    Assert.assertEquals(1, ListUtil.load(tasks, 0, -1).length);
   }
   
   @Test
@@ -154,8 +165,9 @@ public class TestTaskDAO extends AbstractTest {
     
     TaskQuery query = new TaskQuery();
     query.setMemberships(Arrays.asList("root"));
-    List<Task> tasks = tDAO.findTaskByQuery(query);
-    Assert.assertEquals(1, tasks.size());
+    ListAccess<Task> listTasks = tDAO.findTasks(query);
+    //List<Task> tasks = tDAO.findTaskByQuery(query);
+    Assert.assertEquals(1, ListUtil.getSize(listTasks));
   }
 
   @Test
@@ -174,7 +186,8 @@ public class TestTaskDAO extends AbstractTest {
     task2.setStatus(status);
     tDAO.create(task2);
 
-    List<Task> tasks = tDAO.getIncomingTask(username, null);
+    ListAccess<Task> listTasks = tDAO.getIncomingTasks(username, null);
+    List<Task> tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //tDAO.getIncomingTask(username, null);
     assertContain(tasks, task1.getId());
     assertNotContain(tasks, task2.getId());
 
@@ -210,7 +223,8 @@ public class TestTaskDAO extends AbstractTest {
     task5.setCompleted(true);
     tDAO.create(task5);
 
-    List<Task> tasks = tDAO.getToDoTask(username, null, null, null, null);
+    ListAccess<Task> listTasks = tDAO.getToDoTasks(username, null, null, null, null);
+    List<Task> tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //tDAO.getToDoTask(username, null, null, null, null);
 
     assertContain(tasks, task3.getId());
     assertContain(tasks, task4.getId());

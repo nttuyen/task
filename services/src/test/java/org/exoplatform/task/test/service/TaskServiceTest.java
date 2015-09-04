@@ -159,7 +159,8 @@ public class TaskServiceTest {
 
     Boolean newCompleted = true;
 
-    taskService.updateTaskCompleted(TestUtils.EXISTING_TASK_ID, newCompleted);
+    taskService.updateTaskInfo(TestUtils.EXISTING_TASK_ID, "completed", new String[]{String.valueOf(newCompleted)});
+    //taskService.updateTaskCompleted(TestUtils.EXISTING_TASK_ID, newCompleted);
     verify(taskHandler, times(1)).update(taskCaptor.capture());
 
     assertEquals(newCompleted, taskCaptor.getValue().isCompleted());

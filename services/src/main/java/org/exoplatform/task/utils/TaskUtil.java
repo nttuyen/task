@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.calendar.model.Event;
@@ -148,11 +149,12 @@ public final class TaskUtil {
     taskModel.setAssignee(assignee);
     taskModel.setNumberCoworkers(numberCoworkers);
 
-    long commentCount = taskService.getNbOfCommentsByTask(task);
+    ListAccess<Comment> listComments = taskService.getComments(task.getId());
+    long commentCount = ListUtil.getSize(listComments);
     taskModel.setCommentCount(commentCount);
 
     int limitComment = loadAllComment ? -1 : 2;
-    List<Comment> cmts = taskService.getCommentsByTask(task, 0, limitComment);
+    List<Comment> cmts = Arrays.asList(ListUtil.load(listComments, 0, limitComment));
     List<CommentModel> comments = new ArrayList<CommentModel>(cmts.size());
     for(Comment c : cmts) {
       org.exoplatform.task.model.User u = userService.loadUser(c.getAuthor());

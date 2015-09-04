@@ -36,6 +36,7 @@ import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.service.TaskService;
+import org.exoplatform.task.utils.ListUtil;
 import org.exoplatform.task.utils.ProjectUtil;
 import org.exoplatform.task.utils.TaskUtil;
 
@@ -117,11 +118,11 @@ public class TasksEventDAOImpl implements EventDAO {
      taskQuery.setCalendarIntegrated(true);
      taskQuery.setOrFields(Arrays.asList(TaskUtil.ASSIGNEE, TaskUtil.PROJECT));
 
-     List<Task> tasks = new LinkedList<Task>();
+     Task[] tasks = new Task[0];
      if ((query.getCategoryIds() == null || (query.getCategoryIds().length == 1 && 
          query.getCategoryIds()[0].equals(NewUserListener.DEFAULT_EVENTCATEGORY_ID_ALL))) &&  
          (query.getEventType() == null || query.getEventType().equals(Event.TYPE_TASK))) {
-       tasks = taskService.findTaskByQuery(taskQuery);
+       tasks = ListUtil.load(taskService.findTasks(taskQuery), 0, -1); //taskService.findTaskByQuery(taskQuery);
      }
      final List<Event> events = new LinkedList<Event>();
      for (Task t : tasks) {

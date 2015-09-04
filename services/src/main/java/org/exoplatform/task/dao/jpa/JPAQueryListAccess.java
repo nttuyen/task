@@ -23,27 +23,37 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.domain.Task;
 
 import javax.persistence.TypedQuery;
+import java.lang.reflect.Array;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
 public class JPAQueryListAccess<E> implements ListAccess<E> {
+  private final Class<E> clazz;
   private final TypedQuery<Long> countQuery;
   private final TypedQuery<E> selectQuery;
 
   private long size = -1;
 
-  public JPAQueryListAccess(TypedQuery<Long> countQuery, TypedQuery<E> selectQuery) {
+  public JPAQueryListAccess(Class<E> clazz, TypedQuery<Long> countQuery, TypedQuery<E> selectQuery) {
+    this.clazz = clazz;
     this.countQuery = countQuery;
     this.selectQuery = selectQuery;
   }
 
   @Override
   public E[] load(int index, int length) throws Exception, IllegalArgumentException {
-    return (E[])selectQuery
-            .setFirstResult(index)
-            .setMaxResults(length)
-            .getResultList().toArray();
+    if (length > 0) {
+      selectQuery.setFirstResult(index).setMaxResults(length);
+    } else {
+      // Load all
+      selectQuery.setFirstResult(0).setMaxResults(Integer.MAX_VALUE);
+    }
+    List<E> list = selectQuery.getResultList();
+
+    E[] e = (E[])Array.newInstance(clazz, list.size());
+    return list.toArray(e);
   }
 
   @Override

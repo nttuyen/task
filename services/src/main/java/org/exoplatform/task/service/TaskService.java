@@ -28,47 +28,11 @@ public interface TaskService {
 
   void updateTaskOrder(long currentTaskId, Status newStatus, long[] orders);
 
-  //TODO: switch updateTaskInfo()
-  @Deprecated
-  Task updateTaskCompleted(long id, Boolean completed)
-      throws TaskNotFoundException, ParameterEntityException, StatusNotFoundException;
-
-  void deleteTask(Task task);
-
   void deleteTaskById(long id) throws TaskNotFoundException;
 
   Task cloneTaskById(long id) throws TaskNotFoundException;
 
   Task getTaskById(long id) throws TaskNotFoundException;
-
-  /**
-   * use {@link #getComments(long)}
-   * @param task
-   * @return
-   */
-  @Deprecated
-  Long getNbOfCommentsByTask(Task task);
-
-  /**
-   * use {@link #getComments(long)}
-   * @param id
-   * @param start
-   * @param limit
-   * @return
-   * @throws TaskNotFoundException
-   */
-  @Deprecated
-  List<Comment> getCommentsByTaskId(long id, int start, int limit) throws TaskNotFoundException;
-
-  /**
-   * use {@link #getComments(long)}
-   * @param task
-   * @param start
-   * @param limit
-   * @return
-   */
-  @Deprecated
-  List<Comment> getCommentsByTask(Task task, int start, int limit);
 
   ListAccess<Comment> getComments(long taskId);
 
@@ -76,38 +40,9 @@ public interface TaskService {
 
   void deleteCommentById(long commentId) throws CommentNotFoundException;
 
-  /**
-   * use {@link #getIncomingTasks(String, org.exoplatform.task.dao.OrderBy)}
-   * @param username
-   * @param orderBy
-   * @return
-   */
-  @Deprecated
-  List<Task> getIncomingTasksByUser(String username, OrderBy orderBy);
-
   ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy);
 
-  /**
-   * use {@link #getTodoTasks(String, java.util.List, org.exoplatform.task.dao.OrderBy, java.util.Date, java.util.Date)}
-   * @param username
-   * @param projectIds
-   * @param orderBy
-   * @param fromDueDate
-   * @param toDueDate
-   * @return
-   */
-  @Deprecated
-  List<Task> getToDoTasksByUser(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate);
-
   ListAccess<Task> getTodoTasks(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate);
-
-  /**
-   * use {@link #findTasks(org.exoplatform.task.dao.TaskQuery)}
-   * @param query
-   * @return
-   */
-  @Deprecated
-  List<Task> findTaskByQuery(TaskQuery query);
 
   ListAccess<Task> findTasks(TaskQuery query);
 
