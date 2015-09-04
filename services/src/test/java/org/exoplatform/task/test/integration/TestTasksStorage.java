@@ -22,29 +22,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.exoplatform.calendar.model.Calendar;
-import org.exoplatform.calendar.model.query.CalendarQuery;
-import org.exoplatform.calendar.service.CalendarService;
-import org.exoplatform.calendar.storage.CalendarDAO;
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.security.Identity;
-import org.exoplatform.services.security.MembershipEntry;
-import org.exoplatform.task.dao.ProjectHandler;
-import org.exoplatform.task.domain.Project;
-import org.exoplatform.task.integration.calendar.TasksStorage;
-import org.exoplatform.task.service.DAOHandler;
-import org.exoplatform.task.service.ProjectService;
-import org.exoplatform.task.service.TaskService;
-import org.exoplatform.task.test.AbstractTest;
-import org.exoplatform.task.utils.ProjectUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.exoplatform.calendar.model.Calendar;
+import org.exoplatform.calendar.model.query.CalendarQuery;
+import org.exoplatform.calendar.storage.CalendarDAO;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.task.domain.Project;
+import org.exoplatform.task.integration.calendar.TasksStorage;
+import org.exoplatform.task.service.ProjectService;
+import org.exoplatform.task.service.TaskService;
+import org.exoplatform.task.test.AbstractTest;
+import org.exoplatform.task.utils.ProjectUtil;
+
 public class TestTasksStorage extends AbstractTest {
 
-  private ProjectHandler pDAO;
   private TasksStorage storage;
   private CalendarDAO calDAO;
   
@@ -61,26 +58,29 @@ public class TestTasksStorage extends AbstractTest {
     storage = new TasksStorage(projectService, taskService);
     calDAO = storage.getCalendarDAO();
     
-    DAOHandler daoHandler = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
-    pDAO = daoHandler.getProjectHandler();
     Set<String> users = new HashSet<String>();
     users.add("root");
     p1 = new Project("Test project 1", null, null, users, null);
     p1.setCalendarIntegrated(true);
-    pDAO.create(p1);
+    projectService.createProject(p1, false);
     p2 = new Project("Test project 2", null, null, null, users);
     p2.setCalendarIntegrated(true);    
-    pDAO.create(p2);
+    projectService.createProject(p2, false);
     Set<String> memberships = new HashSet<String>();
     memberships.add("*:/platform/administrators");
     p3 = new Project("Test project 3", null, null, memberships, null);
     p3.setCalendarIntegrated(true);
-    pDAO.create(p3);
+    projectService.createProject(p3, false);
   }
 
   @After
   public void tearDown() {
-    pDAO.deleteAll();
+    PortalContainer container = PortalContainer.getInstance();
+
+    ProjectService projectService = container.getComponentInstanceOfType(ProjectService.class);
+    projectService.deleteProject(p1, true);
+    projectService.deleteProject(p2, true);
+    projectService.deleteProject(p3, true);
   }
   
   @Test

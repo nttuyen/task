@@ -39,14 +39,14 @@ import org.exoplatform.task.test.AbstractTest;
 public class TestProjectDAO extends AbstractTest {
 
   private ProjectHandler pDAO;
-  private DAOHandler taskService;
+  private DAOHandler daoHandler;
 
   @Before
   public void setup() {
     PortalContainer container = PortalContainer.getInstance();
     
-    taskService = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
-    pDAO = taskService.getProjectHandler();
+    daoHandler = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
+    pDAO = daoHandler.getProjectHandler();
   }
 
   @After

@@ -48,7 +48,7 @@ public class TestPermission extends AbstractTest {
 
   private TaskHandler tDAO;
   private ProjectHandler pDAO;
-  private DAOHandler taskService;
+  private DAOHandler daoHandler;
   private TaskParser parser = new TaskParserImpl();
   private ParserContext context = new ParserContext(TimeZone.getDefault());
 
@@ -56,10 +56,10 @@ public class TestPermission extends AbstractTest {
   public void setup() {
     PortalContainer container = PortalContainer.getInstance();
     
-    taskService = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
-    pDAO = taskService.getProjectHandler();
-    tDAO = taskService.getTaskHandler();
-    pDAO = taskService.getProjectHandler();
+    daoHandler = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
+    pDAO = daoHandler.getProjectHandler();
+    tDAO = daoHandler.getTaskHandler();
+    pDAO = daoHandler.getProjectHandler();
   }
 
   @After

@@ -56,4 +56,6 @@ public interface TaskService {
   long getTaskNum(String username, List<Long> projectIds);
 
   TaskLog addTaskLog(long taskId, String username, String msg, String target) throws TaskNotFoundException;
+
+  Task findTaskByActivityId(String id);
 }

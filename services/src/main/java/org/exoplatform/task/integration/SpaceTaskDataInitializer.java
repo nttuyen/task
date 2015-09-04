@@ -28,12 +28,7 @@ import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.task.domain.Project;
-import org.exoplatform.task.exception.ProjectNotFoundException;
-import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.service.ProjectService;
-import org.exoplatform.task.service.StatusService;
-import org.exoplatform.task.service.impl.ProjectServiceImpl;
-import org.exoplatform.task.service.impl.StatusServiceImpl;
 import org.exoplatform.task.utils.ProjectUtil;
 import org.exoplatform.task.utils.UserUtils;
 
@@ -43,10 +38,8 @@ public class SpaceTaskDataInitializer extends SpaceListenerPlugin {
   
   private ProjectService projectService;
 
-  public SpaceTaskDataInitializer(DAOHandler daoHandler) {
-    //workaround for now, util the service is declared in configuration.xml
-    StatusService statusService = new StatusServiceImpl(daoHandler);
-    projectService = new ProjectServiceImpl(statusService, null, daoHandler);
+  public SpaceTaskDataInitializer(ProjectService pServ) {
+    this.projectService = pServ;
   }
 
   @Override

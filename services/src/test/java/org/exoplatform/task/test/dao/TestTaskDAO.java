@@ -49,7 +49,7 @@ import org.junit.Test;
 public class TestTaskDAO extends AbstractTest {
 
   private TaskHandler tDAO;
-  private DAOHandler taskService;
+  private DAOHandler daoHandler;
   private TaskParser parser = new TaskParserImpl();
   private ParserContext context = new ParserContext(TimeZone.getDefault());
 
@@ -59,8 +59,8 @@ public class TestTaskDAO extends AbstractTest {
   public void setup() {
     PortalContainer container = PortalContainer.getInstance();
     
-    taskService = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
-    tDAO = taskService.getTaskHandler();
+    daoHandler = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
+    tDAO = daoHandler.getTaskHandler();
   }
 
   @After
@@ -157,7 +157,7 @@ public class TestTaskDAO extends AbstractTest {
     Status status = newStatusInstance("TO DO", 1);
     status.setProject(project);
     project.getStatus().add(status);
-    taskService.getProjectHandler().create(project);
+    daoHandler.getProjectHandler().create(project);
     
     Task task1 = newTaskInstance("Task 1", "", username);
     task1.setStatus(status);
@@ -177,7 +177,7 @@ public class TestTaskDAO extends AbstractTest {
     Status status = newStatusInstance("TO DO", 1);
     status.setProject(project);
     project.getStatus().add(status);
-    taskService.getProjectHandler().create(project);
+    daoHandler.getProjectHandler().create(project);
 
     Task task1 = newTaskInstance("Task 1", "", username);
     tDAO.create(task1);
@@ -200,7 +200,7 @@ public class TestTaskDAO extends AbstractTest {
     Status status = newStatusInstance("TO DO", 1);
     status.setProject(project);
     project.getStatus().add(status);
-    taskService.getProjectHandler().create(project);
+    daoHandler.getProjectHandler().create(project);
 
     Task task1 = newTaskInstance("Task 1", "", null);
     tDAO.create(task1);
@@ -240,7 +240,7 @@ public class TestTaskDAO extends AbstractTest {
     Status status = newStatusInstance("TO DO", 1);
     status.setProject(project);
     project.getStatus().add(status);
-    taskService.getProjectHandler().create(project);
+    daoHandler.getProjectHandler().create(project);
 
     Task task1 = newTaskInstance("Task 1", "", null);
     task1.setStatus(status);

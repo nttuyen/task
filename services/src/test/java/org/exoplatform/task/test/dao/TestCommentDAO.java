@@ -45,15 +45,15 @@ public class TestCommentDAO extends AbstractTest {
   private TaskHandler taskDAO;
 
   private final String username = "root";
-  private DAOHandler taskService;
+  private DAOHandler daoHandler;
 
   @Before
   public void initDAOs() {
     PortalContainer container = PortalContainer.getInstance();
     
-    taskService = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
-    taskDAO = taskService.getTaskHandler();
-    commentDAO = taskService.getCommentHandler();
+    daoHandler = (DAOHandler) container.getComponentInstanceOfType(DAOHandler.class);
+    taskDAO = daoHandler.getTaskHandler();
+    commentDAO = daoHandler.getCommentHandler();
   }
 
   @After

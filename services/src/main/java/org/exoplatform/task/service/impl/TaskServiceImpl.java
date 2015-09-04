@@ -392,4 +392,9 @@ public class TaskServiceImpl implements TaskService {
     }
   }
 
+  @Override
+  public Task findTaskByActivityId(String id) {
+    return daoHandler.getTaskHandler().findTaskByActivityId(id);
+  }
+
 }
