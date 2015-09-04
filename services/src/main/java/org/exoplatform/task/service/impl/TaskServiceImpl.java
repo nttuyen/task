@@ -30,8 +30,11 @@ import java.util.TimeZone;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.task.dao.OrderBy;
@@ -348,6 +351,11 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
+  public ListAccess<Comment> getComments(long taskId) {
+    return daoHandler.getCommentHandler().findComments(taskId);
+  }
+
+  @Override
   @ExoTransactional
   public Comment addCommentToTaskId(long id, String username, String comment) throws TaskNotFoundException {
 
@@ -395,13 +403,28 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
+  public ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy) {
+    return daoHandler.getTaskHandler().getIncomingTasks(username, orderBy);
+  }
+
+  @Override
   public List<Task> getToDoTasksByUser(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate) {
     return daoHandler.getTaskHandler().getToDoTask(username, projectIds, orderBy, fromDueDate, toDueDate);
   }
-  
+
+  @Override
+  public ListAccess<Task> getTodoTasks(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate) {
+    return daoHandler.getTaskHandler().getToDoTasks(username, projectIds, orderBy, fromDueDate, toDueDate);
+  }
+
   @Override
   public List<Task> findTaskByQuery(TaskQuery query) {
     return daoHandler.getTaskHandler().findTaskByQuery(query);
+  }
+
+  @Override
+  public ListAccess<Task> findTasks(TaskQuery query) {
+    return daoHandler.getTaskHandler().findTasks(query);
   }
 
   @Override

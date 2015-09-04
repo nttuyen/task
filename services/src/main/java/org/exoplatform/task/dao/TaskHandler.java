@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 
@@ -41,9 +42,15 @@ public interface TaskHandler extends GenericDAO<Task, Long> {
 
   List<Task> findTaskByQuery(TaskQuery query);
 
+  ListAccess<Task> findTasks(TaskQuery query);
+
   List<Task> getIncomingTask(String username, OrderBy orderBy);
 
+  ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy);
+
   List<Task> getToDoTask(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate);
+
+  ListAccess<Task> getToDoTasks(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate);
 
   Task findTaskByActivityId(String activityId);
 

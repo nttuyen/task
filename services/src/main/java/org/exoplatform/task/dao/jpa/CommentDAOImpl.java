@@ -27,9 +27,11 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.dao.CommentHandler;
 import org.exoplatform.task.domain.Comment;
 import org.exoplatform.task.domain.Task;
@@ -72,5 +74,16 @@ public class CommentDAOImpl extends GenericDAOJPAImpl<Comment, Long> implements 
     Collections.reverse(comments);
 
     return comments;
+  }
+
+  @Override
+  public ListAccess<Comment> findComments(long taskId) {
+    TypedQuery<Comment> query = getEntityManager().createNamedQuery("Comment.findCommentsOfTask", Comment.class);
+    TypedQuery<Long> count = getEntityManager().createNamedQuery("Comment.countCommentOfTask", Long.class);
+
+    query.setParameter("taskId", taskId);
+    count.setParameter("taskId", taskId);
+
+    return new JPAQueryListAccess<Comment>(count, query);
   }
 }
