@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +39,7 @@ import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
+import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Comment;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
@@ -176,15 +177,6 @@ public final class TaskUtil {
     return taskModel;
   }
 
-  private static User findUserByName(String userName, OrganizationService orgService) {
-    try {
-      return orgService.getUserHandler().findUserByName(userName);
-    } catch (Exception e) {
-      LOG.error(e);
-      return null;
-    }
-  }
-
   public static Map<GroupKey, List<Task>> groupTasks(List<Task> tasks, String groupBy, TimeZone userTimezone, ResourceBundle bundle) {
     Map<GroupKey, List<Task>> maps = new TreeMap<GroupKey, List<Task>>();
     for(Task task : tasks) {
@@ -195,6 +187,156 @@ public final class TaskUtil {
           maps.put(key, list);
         }
         list.add(task);
+      }
+    }
+    return maps;
+  }
+
+  public static Map<GroupKey, ListAccess<Task>> findTasks(TaskService taskService, TaskQuery query, String groupBy, TimeZone userTimezone) {
+    Map<GroupKey, ListAccess<Task>> maps = new HashMap<GroupKey, ListAccess<Task>>();
+    TaskQuery selectFieldQuery = query.clone();
+    if (groupBy == null || groupBy.trim().isEmpty()) {
+
+      ListAccess<Task> tasks = taskService.findTasks(query);
+      GroupKey key = new GroupKey("", null, 0);
+      maps.put(key, tasks);
+      return maps;
+
+    } else if (DUEDATE.equalsIgnoreCase(groupBy)) {
+      Calendar c = Calendar.getInstance(userTimezone);
+      c.set(Calendar.HOUR_OF_DAY, 0);
+      c.set(Calendar.MINUTE, 0);
+      c.set(Calendar.SECOND, 0);
+      c.set(Calendar.MILLISECOND, 0);
+
+      Date fromDueDate = null;
+      Date toDueDate = null;
+      TaskQuery q;
+
+      GroupKey<Date> key;
+      ListAccess<Task> tasks;
+
+      // Overdue
+      c.add(Calendar.MILLISECOND, -1);
+      toDueDate = c.getTime();
+      q = query.clone();
+      q.setDueDateTo(toDueDate);
+      key = new GroupKey<Date>("Overdue", toDueDate, 0);
+      tasks = taskService.findTasks(q);
+      maps.put(key, tasks);
+
+      // Today
+      c.add(Calendar.MILLISECOND, 1);
+      fromDueDate = c.getTime();
+      c.add(Calendar.HOUR_OF_DAY, 24);
+      c.add(Calendar.MILLISECOND, -1);
+      toDueDate = c.getTime();
+
+      q = query.clone();
+      q.setDueDateFrom(fromDueDate);
+      q.setDueDateTo(toDueDate);
+
+      key = new GroupKey<Date>("Today", fromDueDate, 1);
+      tasks = taskService.findTasks(q);
+      maps.put(key, tasks);
+
+      // Tomorrow
+      c.add(Calendar.MILLISECOND, 1);
+      fromDueDate = c.getTime();
+      c.add(Calendar.HOUR_OF_DAY, 24);
+      c.add(Calendar.MILLISECOND, -1);
+      toDueDate = c.getTime();
+
+      q = query.clone();
+      q.setDueDateFrom(fromDueDate);
+      q.setDueDateTo(toDueDate);
+
+      key = new GroupKey<Date>("Tomorrow", fromDueDate, 2);
+      tasks = taskService.findTasks(q);
+      maps.put(key, tasks);
+
+      // Upcoming
+      c.add(Calendar.MILLISECOND, 1);
+      fromDueDate = c.getTime();
+      toDueDate = null;
+
+      q = query.clone();
+      q.setDueDateFrom(fromDueDate);
+      q.setDueDateTo(toDueDate);
+
+      key = new GroupKey<Date>("Upcoming", fromDueDate, 3);
+      tasks = taskService.findTasks(q);
+      maps.put(key, tasks);
+
+
+      // No Due date
+      q = query.clone();
+      q.setNullField(DUEDATE);
+      key = new GroupKey<Date>("No Due date", null, 4);
+      tasks = taskService.findTasks(q);
+      maps.put(key, tasks);
+
+    } else if (PROJECT.equalsIgnoreCase(groupBy)) {
+      List<Project> projects = taskService.selectTaskField(selectFieldQuery, "status.project");
+      for (int i = 0; i < projects.size(); i++) {
+        Project p = projects.get(i);
+        GroupKey<Project> key = new GroupKey<Project>(p.getName(), p, i);
+        TaskQuery q = query.clone();
+        q.setProjectIds(Arrays.asList(p.getId()));
+        ListAccess<Task> tasks = taskService.findTasks(q);
+        maps.put(key, tasks);
+      }
+
+      //
+      if (query.getProjectIds() == null || query.getProjectIds().isEmpty()) {
+        GroupKey<Project> key = new GroupKey<Project>("No Project", null, Integer.MAX_VALUE);
+        TaskQuery q = query.clone();
+        q.setNullField(STATUS);
+        ListAccess<Task> tasks = taskService.findTasks(q);
+        maps.put(key, tasks);
+      }
+
+    } else if (STATUS.equalsIgnoreCase(groupBy)) {
+      List<Status> statuses = taskService.selectTaskField(selectFieldQuery, STATUS);
+      TaskQuery q;
+      GroupKey<Status> key;
+      ListAccess<Task> tasks;
+
+      for (Status st : statuses) {
+        q = query.clone();
+        q.setStatus(st);
+        key = new GroupKey<Status>(st.getName(), st, st.getRank());
+        tasks = taskService.findTasks(q);
+        maps.put(key, tasks);
+      }
+      if (query.getProjectIds() == null || query.getProjectIds().isEmpty()) {
+        q = query.clone();
+        q.setNullField(STATUS);
+        key = new GroupKey<Status>("No Status", null, Integer.MAX_VALUE);
+        tasks = taskService.findTasks(q);
+        maps.put(key, tasks);
+      }
+
+    } else if (ASSIGNEE.equalsIgnoreCase(groupBy)) {
+      List<String> assignees = taskService.selectTaskField(selectFieldQuery, ASSIGNEE);
+      GroupKey<String> key;
+      ListAccess<Task> tasks;
+      TaskQuery q;
+
+      for (String assignee : assignees) {
+        q = query.clone();
+        q.setAssignee(assignee);
+        key = new GroupKey<String>(assignee, assignee, 0);
+        tasks = taskService.findTasks(q);
+        maps.put(key, tasks);
+      }
+
+      if (query.getAssignee() == null) {
+        q = query.clone();
+        q.setNullField(ASSIGNEE);
+        key = new GroupKey<String>("No Assignee", null, Integer.MAX_VALUE);
+        tasks = taskService.findTasks(q);
+        maps.put(key, tasks);
       }
     }
     return maps;

@@ -17,11 +17,13 @@
 package org.exoplatform.task.dao.jpa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -30,6 +32,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
@@ -65,13 +68,7 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
     return entityService.getEntityManager();
   }
 
-  @Override
-  public List<Task> findByProject(Long projectId) {
-    EntityManager em = getEntityManager();
-    Query query = em.createNamedQuery("Task.findTaskByProject", Task.class);
-    query.setParameter("projectId", projectId);
-    return query.getResultList();
-  }
+
 
   @Override
   public List<Task> findByUser(String user) {
@@ -82,7 +79,6 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
     return  findAllByMembership(user, memberships);
   }
 
-  @Override
   public List<Task> findAllByMembership(String user, List<String> memberships) {
 
     Query query = getEntityManager().createNamedQuery("Task.findByMemberships", Task.class);
@@ -93,16 +89,6 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
   }
 
   @Override
-  public List<Task> findByTag(String tag) {
-    return null;
-  }
-
-  @Override
-  public List<Task> findByTags(List<String> tags) {
-    return null;
-  }
-
-  @Override
   public ListAccess<Task> findTasks(TaskQuery query) {
     EntityManager em = getEntityManager();
     CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -110,105 +96,10 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
 
     Root<Task> task = q.from(Task.class);
 
-    List<Predicate> predicates = new ArrayList<Predicate>();
+    List<Predicate> predicates = this.buildPredicate(query, task, cb);
 
-    if(query.getTaskId() > 0) {
-      predicates.add(cb.equal(task.get("id"), query.getTaskId()));
-    }
-
-    if (query.getTitle() != null && !query.getTitle().isEmpty()) {
-      predicates.add(cb.like(task.<String>get("title"), "%" + query.getTitle() + "%"));
-    }
-
-    if (query.getDescription() != null && !query.getDescription().isEmpty()) {
-      predicates.add(cb.like(task.<String>get("description"), '%' + query.getDescription() + '%'));
-    }
-
-    Predicate assignPred = null;
-    if (query.getAssignee() != null && !query.getAssignee().isEmpty()) {
-      assignPred = cb.like(task.<String>get("assignee"), '%' + query.getAssignee() + '%');
-    }
-
-    Predicate msPred = null;
-    if (query.getMemberships() != null) {
-      msPred = cb.or(task.join("status").join("project").join("manager", JoinType.LEFT).in(query.getMemberships()),
-              task.join("status").join("project").join("participator", JoinType.LEFT).in(query.getMemberships()));
-    }
-
-    Predicate projectPred = null;
-    if (query.getProjectIds() != null) {
-      if (query.getProjectIds().size() == 1 && query.getProjectIds().get(0) == 0) {
-        projectPred = cb.isNotNull(task.get("status"));
-      } else if (query.getProjectIds().isEmpty()) {
-        return EMPTY;
-      } else {
-        projectPred = task.get("status").get("project").get("id").in(query.getProjectIds());
-      }
-    }
-
-    List<Predicate> tmp = new LinkedList<Predicate>();
-    for (String or : query.getOrFields()) {
-      if (or.equals(TaskUtil.ASSIGNEE)) {
-        tmp.add(assignPred);
-      }
-      if (or.equals(TaskUtil.MEMBERSHIP)) {
-        tmp.add(msPred);
-      }
-      if (or.equals(TaskUtil.PROJECT)) {
-        tmp.add(projectPred);
-      }
-    }
-
-    if (!tmp.isEmpty()) {
-      predicates.add(cb.or(tmp.toArray(new Predicate[tmp.size()])));
-    }
-
-    if (!query.getOrFields().contains(TaskUtil.ASSIGNEE) && assignPred != null) {
-      predicates.add(assignPred);
-    }
-    if (!query.getOrFields().contains(TaskUtil.MEMBERSHIP) && msPred != null) {
-      predicates.add(msPred);
-    }
-    if (!query.getOrFields().contains(TaskUtil.PROJECT) && projectPred != null) {
-      predicates.add(projectPred);
-    }
-
-    if(query.getKeyword() != null && !query.getKeyword().isEmpty()) {
-      List<Predicate> keyConditions = new LinkedList<Predicate>();
-      for (String k : query.getKeyword().split(" ")) {
-        if (!(k = k.trim()).isEmpty()) {
-          k = "%" + k.toLowerCase() + "%";
-          keyConditions.add(cb.or(
-                  cb.like(cb.lower(task.<String>get("title")), k),
-                  cb.like(cb.lower(task.<String>get("description")), k),
-                  cb.like(cb.lower(task.<String>get("assignee")), k)
-          ));
-        }
-      }
-      predicates.add(cb.or(keyConditions.toArray(new Predicate[keyConditions.size()])));
-    }
-
-    if (query.getCompleted() != null) {
-      if (query.getCompleted()) {
-        predicates.add(cb.equal(task.get("completed"), query.getCompleted()));
-      } else {
-        predicates.add(cb.notEqual(task.get("completed"), !query.getCompleted()));
-      }
-    }
-
-    if (query.getCalendarIntegrated() != null) {
-      if (query.getCalendarIntegrated()) {
-        predicates.add(cb.equal(task.get("calendarIntegrated"), query.getCalendarIntegrated()));
-      } else {
-        predicates.add(cb.notEqual(task.get("calendarIntegrated"), !query.getCalendarIntegrated()));
-      }
-    }
-
-    if (query.getStartDate() != null) {
-      predicates.add(cb.greaterThanOrEqualTo(task.<Date>get("endDate"), query.getStartDate()));
-    }
-    if (query.getEndDate() != null) {
-      predicates.add(cb.lessThanOrEqualTo(task.<Date>get("startDate"), query.getEndDate()));
+    if (predicates == null) {
+      return EMPTY;
     }
 
     if(predicates.size() > 0) {
@@ -244,8 +135,234 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
   }
 
   @Override
-  public ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy) {
+  public <T> List<T> selectTaskField(TaskQuery query, String fieldName) {
+    EntityManager em = getEntityManager();
+    CriteriaBuilder cb = em.getCriteriaBuilder();
+    CriteriaQuery q = cb.createQuery();
+
+    Root<Task> task = q.from(Task.class);
+
+    List<Predicate> predicates = this.buildPredicate(query, task, cb);
+
+    if (predicates == null) {
+      return Collections.emptyList();
+    }
+
+    if(predicates.size() > 0) {
+      Iterator<Predicate> it = predicates.iterator();
+      Predicate p = it.next();
+      while(it.hasNext()) {
+        p = cb.and(p, it.next());
+      }
+      q.where(p);
+    }
+
     //
+    Path path = null;
+    if (fieldName.indexOf('.') != -1) {
+      String[] strs = fieldName.split("\\.");
+      for (String s : strs) {
+        if (s.isEmpty()) {
+          break;
+        }
+        if (path == null) {
+          path = task.get(s);
+        } else {
+          path = path.get(s);
+        }
+      }
+    } else {
+      path = task.get(fieldName);
+    }
+    q.select(path).distinct(true);
+
+    if(query.getOrderBy() != null && !query.getOrderBy().isEmpty()) {
+      List<OrderBy> orderBies = query.getOrderBy();
+      Order[] orders = new Order[orderBies.size()];
+      for(int i = 0; i < orders.length; i++) {
+        OrderBy orderBy = orderBies.get(i);
+        Path p = task.get(orderBy.getFieldName());
+        orders[i] = orderBy.isAscending() ? cb.asc(p) : cb.desc(p);
+      }
+      q.orderBy(orders);
+    }
+
+    final TypedQuery<T> selectQuery = em.createQuery(q);
+    return selectQuery.getResultList();
+  }
+
+  private List<Predicate> buildPredicate(TaskQuery query, Root<Task> task, CriteriaBuilder cb) {
+    List<Predicate> predicates = new ArrayList<Predicate>();
+
+    // Incoming?
+    final String username = query.getUsername();
+    if (query.getIsIncoming() != null && query.getIsIncoming()) {
+      // Case query for IN-COMING tasks
+      Join<Task, String> join = task.join("coworker", JoinType.LEFT);
+
+      Predicate nullStatus = cb.isNull(task.get("status"));
+      Predicate isAssingee = cb.equal(task.get("assignee"), username);
+      Predicate isCreator = cb.equal(task.get("createdBy"), username);
+      Predicate isCoworker = cb.equal(join, username);
+
+      predicates.add(cb.and(nullStatus, cb.or(isAssingee, isCreator, isCoworker)));
+
+
+    } else if (query.getIsTodo() != null && query.getIsTodo()) {
+      // Case TO-DO tasks
+      Predicate isAssignee = cb.equal(task.get("assignee"), username);
+      predicates.add(isAssignee);
+    }
+
+    //.
+    if(query.getTaskId() > 0) {
+      predicates.add(cb.equal(task.get("id"), query.getTaskId()));
+    }
+
+    //
+    if (query.getTitle() != null && !query.getTitle().isEmpty()) {
+      predicates.add(cb.like(task.<String>get("title"), "%" + query.getTitle() + "%"));
+    }
+
+    //
+    if (query.getDescription() != null && !query.getDescription().isEmpty()) {
+      predicates.add(cb.like(task.<String>get("description"), '%' + query.getDescription() + '%'));
+    }
+
+    //
+    if(query.getKeyword() != null && !query.getKeyword().isEmpty()) {
+      List<Predicate> keyConditions = new LinkedList<Predicate>();
+      for (String k : query.getKeyword().split(" ")) {
+        if (!(k = k.trim()).isEmpty()) {
+          k = "%" + k.toLowerCase() + "%";
+          keyConditions.add(cb.or(
+                  cb.like(cb.lower(task.<String>get("title")), k),
+                  cb.like(cb.lower(task.<String>get("description")), k),
+                  cb.like(cb.lower(task.<String>get("assignee")), k)
+          ));
+        }
+      }
+      predicates.add(cb.or(keyConditions.toArray(new Predicate[keyConditions.size()])));
+    }
+
+    //
+    Predicate assignPred = null;
+    if (query.getAssignee() != null && !query.getAssignee().isEmpty()) {
+      assignPred = cb.like(task.<String>get("assignee"), '%' + query.getAssignee() + '%');
+    }
+
+    //
+    Predicate msPred = null;
+    if (query.getMemberships() != null) {
+      msPred = cb.or(task.join("status").join("project").join("manager", JoinType.LEFT).in(query.getMemberships()),
+              task.join("status").join("project").join("participator", JoinType.LEFT).in(query.getMemberships()));
+    }
+
+    //
+    Predicate projectPred = null;
+    if (query.getProjectIds() != null) {
+      if (query.getProjectIds().isEmpty()) {
+        //TODO: How is this case?
+        return null;
+      } else if (query.getProjectIds().size() == 1 && query.getProjectIds().get(0) == 0) {
+        projectPred = cb.isNotNull(task.get("status"));
+      } else {
+        projectPred = task.get("status").get("project").get("id").in(query.getProjectIds());
+      }
+    }
+
+    //
+    List<Predicate> tmp = new LinkedList<Predicate>();
+    for (String or : query.getOrFields()) {
+      if (or.equals(TaskUtil.ASSIGNEE)) {
+        tmp.add(assignPred);
+      }
+      if (or.equals(TaskUtil.MEMBERSHIP)) {
+        tmp.add(msPred);
+      }
+      if (or.equals(TaskUtil.PROJECT)) {
+        tmp.add(projectPred);
+      }
+    }
+
+    if (!tmp.isEmpty()) {
+      predicates.add(cb.or(tmp.toArray(new Predicate[tmp.size()])));
+    }
+
+    if (!query.getOrFields().contains(TaskUtil.ASSIGNEE) && assignPred != null) {
+      predicates.add(assignPred);
+    }
+    if (!query.getOrFields().contains(TaskUtil.MEMBERSHIP) && msPred != null) {
+      predicates.add(msPred);
+    }
+    if (!query.getOrFields().contains(TaskUtil.PROJECT) && projectPred != null) {
+      predicates.add(projectPred);
+    }
+
+    //
+    if (query.getCompleted() != null) {
+      if (query.getCompleted()) {
+        predicates.add(cb.equal(task.get("completed"), query.getCompleted()));
+      } else {
+        predicates.add(cb.notEqual(task.get("completed"), !query.getCompleted()));
+      }
+    }
+
+    //
+    if (query.getCalendarIntegrated() != null) {
+      if (query.getCalendarIntegrated()) {
+        predicates.add(cb.equal(task.get("calendarIntegrated"), query.getCalendarIntegrated()));
+      } else {
+        predicates.add(cb.notEqual(task.get("calendarIntegrated"), !query.getCalendarIntegrated()));
+      }
+    }
+
+    //
+    if (query.getStartDate() != null) {
+      predicates.add(cb.greaterThanOrEqualTo(task.<Date>get("endDate"), query.getStartDate()));
+    }
+    if (query.getEndDate() != null) {
+      predicates.add(cb.lessThanOrEqualTo(task.<Date>get("startDate"), query.getEndDate()));
+    }
+
+    //
+    if (query.getDueDateFrom() != null || query.getDueDateTo() != null) {
+      predicates.add(cb.isNotNull(task.get("dueDate")));
+    }
+    if (query.getDueDateFrom() != null) {
+      predicates.add(cb.greaterThanOrEqualTo(task.<Date>get("dueDate"), query.getDueDateFrom()));
+    }
+    if (query.getDueDateTo() != null) {
+      predicates.add(cb.lessThanOrEqualTo(task.<Date>get("dueDate"), query.getDueDateTo()));
+    }
+
+    //
+    if (query.getStatus() != null) {
+      predicates.add(cb.equal(task.get("status").<Long>get("id"), query.getStatus().getId()));
+    }
+
+    //
+    if (query.getNullField() != null) {
+      predicates.add(cb.isNull(task.get(query.getNullField())));
+    }
+
+    return predicates;
+  }
+
+  @Override
+  public ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy) {
+
+    TaskQuery taskQuery = new TaskQuery();
+    taskQuery.setCompleted(false);
+    taskQuery.setIsIncoming(Boolean.TRUE);
+    taskQuery.setUsername(username);
+    if (orderBy != null) {
+      taskQuery.setOrderBy(Arrays.asList(orderBy));
+    }
+
+    return findTasks(taskQuery);
+
+    /*//
     StringBuilder from = new StringBuilder("FROM Task ta LEFT JOIN ta.coworker cowoker ");
     StringBuilder where = new StringBuilder()
             .append("WHERE ta.status.id is null ")
@@ -273,12 +390,36 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
     TypedQuery<Task> task = em.createQuery(jql.toString(), Task.class);
     count.setParameter("userName", username);
     task.setParameter("userName", username);
-    return new JPAQueryListAccess<Task>(Task.class, count, task);
+    return new JPAQueryListAccess<Task>(Task.class, count, task);*/
   }
 
   @Override
   public ListAccess<Task> getToDoTasks(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate) {
-    //
+
+    TaskQuery query = new TaskQuery();
+    query.setIsTodo(Boolean.TRUE);
+    query.setUsername(username);
+    query.setCompleted(false);
+
+    if (projectIds != null && !projectIds.isEmpty()) {
+      query.setProjectIds(projectIds);
+    }
+
+    if (fromDueDate != null) {
+      query.setDueDateFrom(fromDueDate);
+    }
+
+    if (toDueDate != null) {
+      query.setDueDateTo(toDueDate);
+    }
+
+    if (orderBy != null) {
+      query.setOrderBy(Arrays.asList(orderBy));
+    }
+
+    return findTasks(query);
+
+    /*//
     StringBuilder from = new StringBuilder("FROM Task ta LEFT JOIN ta.status st");
     StringBuilder where = new StringBuilder();
     where.append(" WHERE ta.assignee = :userName AND ta.completed = FALSE ");
@@ -336,7 +477,7 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
       count.setParameter("toDueDate", toDueDate);
     }
 
-    return new JPAQueryListAccess<Task>(Task.class, count, query);
+    return new JPAQueryListAccess<Task>(Task.class, count, query);*/
   }
 
   @Override

@@ -378,6 +378,11 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
+  public <T> List<T> selectTaskField(TaskQuery query, String fieldName) {
+    return daoHandler.getTaskHandler().selectTaskField(query, fieldName);
+  }
+
+  @Override
   public long getTaskNum(String username, List<Long> projectIds) {
     return daoHandler.getTaskHandler().getTaskNum(username, projectIds);
   }

@@ -40,11 +40,30 @@ public interface TaskService {
 
   void deleteCommentById(long commentId) throws CommentNotFoundException;
 
+  /**
+   * use {@link #findTasks(org.exoplatform.task.dao.TaskQuery)}
+   * @param username
+   * @param orderBy
+   * @return
+   */
+  @Deprecated
   ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy);
 
+  /**
+   * use {@link #findTasks(org.exoplatform.task.dao.TaskQuery)}
+   * @param username
+   * @param projectIds
+   * @param orderBy
+   * @param fromDueDate
+   * @param toDueDate
+   * @return
+   */
+  @Deprecated
   ListAccess<Task> getTodoTasks(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate);
 
   ListAccess<Task> findTasks(TaskQuery query);
+
+  public <T> List<T> selectTaskField(TaskQuery query, String fieldName);
 
   /**
    * use {@link #findTasks(org.exoplatform.task.dao.TaskQuery)}

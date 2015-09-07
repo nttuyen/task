@@ -267,6 +267,52 @@ public class TestTaskDAO extends AbstractTest {
     Assert.assertEquals(1,  task.getTaskLogs().size());
   }
 
+  @Test
+  public void testSelectFieldInTask() {
+    Project project = new Project();
+    project.setName("Project1");
+    Status status = newStatusInstance("TO DO", 1);
+    status.setProject(project);
+    project.getStatus().add(status);
+    Status status1 = newStatusInstance("IN Progress", 2);
+    status1.setProject(project);
+    project.getStatus().add(status1);
+    taskService.getProjectHandler().create(project);
+
+    Task task1 = newTaskInstance("Task 1", "", null);
+    tDAO.create(task1);
+
+    Task task2 = newTaskInstance("Task 2", "", null);
+    task2.setStatus(status);
+    tDAO.create(task2);
+
+    Task task3 = newTaskInstance("Task 3", "", username);
+    task3.setDueDate(new Date());
+    tDAO.create(task3);
+
+    Task task4 = newTaskInstance("Task 4", "", username);
+    task4.setDueDate(new Date());
+    task4.setStatus(status1);
+    tDAO.create(task4);
+
+    Task task5 = newTaskInstance("Task 4", "", username);
+    task5.setStatus(status1);
+    task5.setCompleted(true);
+    tDAO.create(task5);
+
+    TaskQuery taskQuery = new TaskQuery();
+    taskQuery.setProjectIds(Arrays.asList(project.getId()));
+
+    List<Status> statuses = tDAO.selectTaskField(taskQuery, "status");
+    Assert.assertEquals(2, statuses.size());
+
+    taskQuery = new TaskQuery();
+    taskQuery.setAssignee(username);
+
+    List<Project> projects = tDAO.selectTaskField(taskQuery, "status.project");
+    Assert.assertEquals(1, projects.size());
+  }
+
   private Task newTaskInstance(String taskTitle, String description, String assignee) {
     Task task = new Task();
     task.setTitle(taskTitle);

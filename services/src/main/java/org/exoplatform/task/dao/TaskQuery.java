@@ -19,10 +19,14 @@
 
 package org.exoplatform.task.dao;
 
+import org.exoplatform.task.domain.Status;
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
@@ -31,17 +35,41 @@ public class TaskQuery {
   private long taskId = 0;
   private String title = null;
   private String description = null;
-  private List<Long> projectIds;
-  private String assignee = null;
   private String keyword = null;
+
+  //
+  private Boolean isIncoming = null;
+  private Boolean isTodo = null;
+  private String username = null;
+
+  //
+  private List<Long> projectIds;
+  private Status status = null;
+
+  private String assignee = null;
+  private List<String> memberships;
+
   private Boolean calendarIntegrated;
+
   private Boolean completed;
+
   private Date startDate;
   private Date endDate;
+
+  //
+  private Date dueDateFrom = null;
+  private Date dueDateTo = null;
+
+  //
+  private String nullField = null;
   
   private List<OrderBy> orderBy = new ArrayList<OrderBy>();
-  private List<String> memberships;
-  private List<String> orFields = new LinkedList<String>();  
+
+  private List<String> orFields = new LinkedList<String>();
+
+  public TaskQuery() {
+
+  }
 
   public long getTaskId() {
     return taskId;
@@ -145,5 +173,93 @@ public class TaskQuery {
 
   public void setOrFields(List<String> orFields) {
     this.orFields = orFields;
+  }
+
+  public Status getStatus() {
+    return status;
+  }
+
+  public void setStatus(Status status) {
+    this.status = status;
+  }
+
+  public Date getDueDateFrom() {
+    return dueDateFrom;
+  }
+
+  public void setDueDateFrom(Date dueDateFrom) {
+    this.dueDateFrom = dueDateFrom;
+  }
+
+  public Date getDueDateTo() {
+    return dueDateTo;
+  }
+
+  public void setDueDateTo(Date dueDateTo) {
+    this.dueDateTo = dueDateTo;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public Boolean getIsIncoming() {
+    return isIncoming;
+  }
+
+  public void setIsIncoming(Boolean isIncoming) {
+    this.isIncoming = isIncoming;
+  }
+
+  public Boolean getIsTodo() {
+    return isTodo;
+  }
+
+  public void setIsTodo(Boolean isTodo) {
+    this.isTodo = isTodo;
+  }
+
+  public String getNullField() {
+    return nullField;
+  }
+
+  public void setNullField(String nullField) {
+    this.nullField = nullField;
+  }
+
+  public TaskQuery clone() {
+    TaskQuery q = new TaskQuery();
+    q.setTaskId(taskId);
+    q.setTitle(title);
+    q.setDescription(description);
+    q.setKeyword(keyword);
+
+    q.setIsIncoming(isIncoming);
+    q.setIsTodo(isTodo);
+    q.setUsername(username);
+
+    q.setProjectIds(projectIds);
+    q.setStatus(status);
+    q.setAssignee(assignee);
+    q.setMemberships(memberships);
+
+    q.setCalendarIntegrated(calendarIntegrated);
+
+    q.setCompleted(completed);
+
+    q.setStartDate(startDate);
+    q.setEndDate(endDate);
+
+    q.setDueDateFrom(dueDateFrom);
+    q.setDueDateTo(dueDateTo);
+
+    q.setOrderBy(orderBy);
+    q.setOrFields(orFields);
+
+    return q;
   }
 }
