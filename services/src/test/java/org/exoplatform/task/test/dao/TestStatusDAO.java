@@ -25,12 +25,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.ProjectHandler;
 import org.exoplatform.task.dao.StatusHandler;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.test.AbstractTest;
 
 public class TestStatusDAO extends AbstractTest {

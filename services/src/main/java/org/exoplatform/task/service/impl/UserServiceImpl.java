@@ -32,12 +32,12 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.service.LinkProvider;
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.UserSetting;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
 import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.model.User;
-import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.service.UserService;
 
 import java.util.TimeZone;

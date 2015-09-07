@@ -24,6 +24,7 @@ import java.util.TimeZone;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Priority;
@@ -31,12 +32,12 @@ import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.TaskLog;
-import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.service.ParserContext;
 import org.exoplatform.task.service.TaskParser;
 import org.exoplatform.task.service.impl.TaskParserImpl;
 import org.exoplatform.task.test.AbstractTest;
 import org.exoplatform.task.utils.ListUtil;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

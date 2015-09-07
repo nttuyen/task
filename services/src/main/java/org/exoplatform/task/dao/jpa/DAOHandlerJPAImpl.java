@@ -14,19 +14,14 @@
 * You should have received a copy of the GNU Lesser General Public License
 * along with this program. If not, see http://www.gnu.org/licenses/ .
 */
-package org.exoplatform.task.service.jpa;
+package org.exoplatform.task.dao.jpa;
 
 import javax.inject.Singleton;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.task.dao.jpa.CommentDAOImpl;
-import org.exoplatform.task.dao.jpa.ProjectDAOImpl;
-import org.exoplatform.task.dao.jpa.StatusDAOImpl;
-import org.exoplatform.task.dao.jpa.TaskDAOImpl;
-import org.exoplatform.task.dao.jpa.UserSettingDAO;
-import org.exoplatform.task.service.DAOHandler;
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.service.impl.AbstractDAOHandler;
 
 /**

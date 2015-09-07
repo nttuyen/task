@@ -33,13 +33,13 @@ import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.StatusHandler;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
 import org.exoplatform.task.exception.StatusNotFoundException;
-import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.service.StatusService;
 
 @Singleton

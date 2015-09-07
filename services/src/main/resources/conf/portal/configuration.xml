@@ -14,8 +14,8 @@
   </component>
 
   <component>
-    <key>org.exoplatform.task.service.DAOHandler</key>
-    <type>org.exoplatform.task.service.jpa.DAOHandlerJPAImpl</type>
+    <key>org.exoplatform.task.dao.DAOHandler</key>
+    <type>org.exoplatform.task.dao.jpa.DAOHandlerJPAImpl</type>
   </component>
 
   <component>

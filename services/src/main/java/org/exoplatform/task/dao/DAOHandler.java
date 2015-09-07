@@ -17,13 +17,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.exoplatform.task.service;
+package org.exoplatform.task.dao;
 
-import org.exoplatform.task.dao.CommentHandler;
-import org.exoplatform.task.dao.ProjectHandler;
-import org.exoplatform.task.dao.StatusHandler;
-import org.exoplatform.task.dao.TaskHandler;
-import org.exoplatform.task.dao.UserSettingHandler;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.

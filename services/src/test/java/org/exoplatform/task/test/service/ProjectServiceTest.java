@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.exoplatform.task.utils.ProjectUtil;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +50,7 @@ import org.exoplatform.task.dao.ProjectHandler;
 import org.exoplatform.task.dao.StatusHandler;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.dao.TaskQuery;
+import org.exoplatform.task.dao.jpa.DAOHandlerJPAImpl;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
@@ -59,7 +61,6 @@ import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.impl.ProjectServiceImpl;
-import org.exoplatform.task.service.jpa.DAOHandlerJPAImpl;
 import org.exoplatform.task.test.TestUtils;
 
 /**

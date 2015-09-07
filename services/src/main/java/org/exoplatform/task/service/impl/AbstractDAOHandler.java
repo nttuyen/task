@@ -17,11 +17,11 @@
 package org.exoplatform.task.service.impl;
 
 import org.exoplatform.task.dao.CommentHandler;
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.ProjectHandler;
 import org.exoplatform.task.dao.StatusHandler;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.dao.UserSettingHandler;
-import org.exoplatform.task.service.DAOHandler;
 
 /**
  * @author <a href="trongtt@gmail.com">Trong Tran</a>

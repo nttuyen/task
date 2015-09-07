@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.StatusHandler;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.domain.Project;
@@ -39,7 +40,6 @@ import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
 import org.exoplatform.task.exception.StatusNotFoundException;
-import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.impl.StatusServiceImpl;
 import org.exoplatform.task.test.TestUtils;

@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.utils.ListUtil;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,10 +31,10 @@ import org.junit.Test;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.task.dao.CommentHandler;
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.domain.Comment;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.test.AbstractTest;
 
 /**

@@ -84,9 +84,9 @@ import juzu.plugin.webjars.WebJars;
 
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.management.controller.NavigationState;
 import org.exoplatform.task.management.controller.TaskManagement;
-import org.exoplatform.task.service.DAOHandler;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskParser;
