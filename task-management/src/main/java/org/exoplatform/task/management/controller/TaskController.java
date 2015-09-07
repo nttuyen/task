@@ -459,6 +459,11 @@ public class TaskController {
       order = TaskUtil.TITLE.equals(orderBy) || TaskUtil.DUEDATE.equals(orderBy) ? new OrderBy.ASC(orderBy) : new OrderBy.DESC(orderBy);
     }
 
+    TaskQuery taskQuery = new TaskQuery();
+    if (spaceProjectIds != null && !spaceProjectIds.isEmpty()) {
+      taskQuery.setProjectIds(spaceProjectIds);
+    }
+
     //Get Tasks in good order
     if(projectId == ProjectUtil.INCOMING_PROJECT_ID) {
       //. Default order by CreatedDate
@@ -467,13 +472,20 @@ public class TaskController {
         order = new OrderBy.DESC(orderBy);
       }
 
-      ListAccess<Task> listTasks = taskService.getIncomingTasks(currentUser, order);
-      tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getIncomingTasksByUser(currentUser, order);
+      taskQuery.setIsIncoming(Boolean.TRUE);
+      taskQuery.setUsername(currentUser);
+      taskQuery.setOrderBy(Arrays.asList(order));
+
+      //ListAccess<Task> listTasks = taskService.getIncomingTasks(currentUser, order);
+      //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getIncomingTasksByUser(currentUser, order);
     }
     else if (projectId == ProjectUtil.TODO_PROJECT_ID) {
       defGroupBys = TaskUtil.resolve(Arrays.asList(TaskUtil.NONE, TaskUtil.PROJECT, TaskUtil.DUEDATE), bundle);
       defOrders = TaskUtil.resolve(Arrays.asList(TaskUtil.TITLE, TaskUtil.STATUS, TaskUtil.DUEDATE, TaskUtil.PRIORITY, TaskUtil.RANK), bundle);
-      
+
+      taskQuery.setIsTodo(Boolean.TRUE);
+      taskQuery.setUsername(currentUser);
+
       //TODO: process fiter here
       Date fromDueDate = null;
       Date toDueDate = null;
@@ -540,11 +552,15 @@ public class TaskController {
         groupBy = TaskUtil.DUEDATE;
       }
 
-      ListAccess<Task> listTasks = taskService.getTodoTasks(currentUser, spaceProjectIds, order, fromDueDate, toDueDate);
-      tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getToDoTasksByUser(currentUser, spaceProjectIds, order, fromDueDate, toDueDate);
+      taskQuery.setDueDateFrom(fromDueDate);
+      taskQuery.setDueDateTo(toDueDate);
+      taskQuery.setOrderBy(Arrays.asList(order));
+
+      //ListAccess<Task> listTasks = taskService.getTodoTasks(currentUser, spaceProjectIds, order, fromDueDate, toDueDate);
+      //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getToDoTasksByUser(currentUser, spaceProjectIds, order, fromDueDate, toDueDate);
     }
     else {
-      TaskQuery taskQuery = new TaskQuery();
+      //TaskQuery taskQuery = new TaskQuery();
       taskQuery.setKeyword(keyword);
       if (projectId == 0) {
         //. Default order by CreatedDate
@@ -570,7 +586,7 @@ public class TaskController {
         //tasks = projectService.getTasksWithKeywordByProjectId(Arrays.asList(projectId), order, keyword);
       }
       taskQuery.setOrderBy(Arrays.asList(order));
-      tasks = Arrays.asList(ListUtil.load(taskService.findTasks(taskQuery), 0, -1)); //taskService.findTaskByQuery(taskQuery);
+      //tasks = Arrays.asList(ListUtil.load(taskService.findTasks(taskQuery), 0, -1)); //taskService.findTaskByQuery(taskQuery);
 
       if (projectId > 0) {
         try {
@@ -581,27 +597,36 @@ public class TaskController {
       }
     }
 
-    if (tasks.size() < MIN_NUMBER_TASK_GROUPABLE) {
+    int countTasks = TaskUtil.countTasks(taskService, taskQuery);
+    //ListAccess<Task> listTask = taskService.findTasks(taskQuery);
+    //tasks = Arrays.asList(ListUtil.load(listTask, 0, -1));
+
+    if (countTasks < MIN_NUMBER_TASK_GROUPABLE) {
       //. We do not have enough tasks for grouping, so, set groupBy to empty
       groupBy = "";
     }
 
+    Map<GroupKey, ListAccess<Task>> groupTasks = TaskUtil.findTasks(taskService, taskQuery, groupBy, userTimezone, userService);
+
+    //TODO: this block code is not good
     // Count task by status
     Map<Long, Integer> numberTasks = new HashMap<Long, Integer>();
     if (isBoardView) {
-      for(Task task : tasks) {
-        Status st = task.getStatus();
-        int num = 0;
-        if (numberTasks.containsKey(st.getId())) {
-          num = numberTasks.get(st.getId());
+      for(ListAccess<Task> list : groupTasks.values()) {
+        for (Task task : ListUtil.load(list, 0, -1)) {
+          Status st = task.getStatus();
+          int num = 0;
+          if (numberTasks.containsKey(st.getId())) {
+            num = numberTasks.get(st.getId());
+          }
+          num++;
+          numberTasks.put(st.getId(), num);
         }
-        num++;
-        numberTasks.put(st.getId(), num);
       }
     }
 
     //Group Tasks
-    Map<String, org.exoplatform.task.model.User> userMap = null;
+    /*Map<String, org.exoplatform.task.model.User> userMap = null;
     Map<GroupKey, List<Task>> groupTasks = new HashMap<GroupKey, List<Task>>();
     if(groupBy != null && !groupBy.isEmpty()) {
       TimeZone tz = userService.getUserTimezone(currentUser);
@@ -617,14 +642,14 @@ public class TaskController {
     }
     if(groupTasks.isEmpty()) {
       groupTasks.put(new GroupKey("", null, 0), tasks);
-    }
+    }*/
     
-    long taskNum = 0;
-    if (allProjectIds != null) {
+    long taskNum = countTasks;
+    /*if (allProjectIds != null) {
       taskNum = TaskUtil.getTaskNum(currentUser, allProjectIds, projectId, taskService);
     } else {
       taskNum = TaskUtil.getTaskNum(currentUser, spaceProjectIds, projectId, taskService);
-    }
+    }*/
 
     return taskListView
         .with()
@@ -632,7 +657,7 @@ public class TaskController {
         .groups(defGroupBys)
         .currentProjectId(projectId)
         .project(project)
-        .tasks(tasks)
+        .tasks(new ArrayList<Task>())
         .taskNum(taskNum)
         .groupTasks(groupTasks)
         .keyword(keyword == null ? "" : keyword)
@@ -642,7 +667,7 @@ public class TaskController {
         .bundle(bundle)
         .viewType(viewType)
         .userTimezone(userTimezone)
-        .set("userMap", userMap)
+        .set("userMap", new HashMap<String, User>())
         .set("numberTasksByStatus", numberTasks)
         .ok()
         .withCharset(Tools.UTF_8);

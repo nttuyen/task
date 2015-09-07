@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -177,6 +176,8 @@ public final class TaskUtil {
     return taskModel;
   }
 
+  //TODO: remove this method
+  @Deprecated
   public static Map<GroupKey, List<Task>> groupTasks(List<Task> tasks, String groupBy, TimeZone userTimezone, ResourceBundle bundle) {
     Map<GroupKey, List<Task>> maps = new TreeMap<GroupKey, List<Task>>();
     for(Task task : tasks) {
@@ -192,10 +193,16 @@ public final class TaskUtil {
     return maps;
   }
 
-  public static Map<GroupKey, ListAccess<Task>> findTasks(TaskService taskService, TaskQuery query, String groupBy, TimeZone userTimezone) {
-    Map<GroupKey, ListAccess<Task>> maps = new HashMap<GroupKey, ListAccess<Task>>();
+  public static int countTasks(TaskService taskService, TaskQuery taskQuery) {
+    ListAccess<Task> list = taskService.findTasks(taskQuery);
+    return ListUtil.getSize(list);
+  }
+
+  public static Map<GroupKey, ListAccess<Task>> findTasks(TaskService taskService, TaskQuery query, String groupBy,
+                                                          TimeZone userTimezone, UserService userService) {
+    Map<GroupKey, ListAccess<Task>> maps = new TreeMap<GroupKey, ListAccess<Task>>();
     TaskQuery selectFieldQuery = query.clone();
-    if (groupBy == null || groupBy.trim().isEmpty()) {
+    if (groupBy == null || groupBy.trim().isEmpty() || NONE.equalsIgnoreCase(groupBy)) {
 
       ListAccess<Task> tasks = taskService.findTasks(query);
       GroupKey key = new GroupKey("", null, 0);
@@ -223,7 +230,9 @@ public final class TaskUtil {
       q.setDueDateTo(toDueDate);
       key = new GroupKey<Date>("Overdue", toDueDate, 0);
       tasks = taskService.findTasks(q);
-      maps.put(key, tasks);
+      if (ListUtil.getSize(tasks) > 0) {
+          maps.put(key, tasks);
+      }
 
       // Today
       c.add(Calendar.MILLISECOND, 1);
@@ -238,7 +247,9 @@ public final class TaskUtil {
 
       key = new GroupKey<Date>("Today", fromDueDate, 1);
       tasks = taskService.findTasks(q);
-      maps.put(key, tasks);
+      if (ListUtil.getSize(tasks) > 0) {
+        maps.put(key, tasks);
+      }
 
       // Tomorrow
       c.add(Calendar.MILLISECOND, 1);
@@ -253,7 +264,9 @@ public final class TaskUtil {
 
       key = new GroupKey<Date>("Tomorrow", fromDueDate, 2);
       tasks = taskService.findTasks(q);
-      maps.put(key, tasks);
+      if (ListUtil.getSize(tasks) > 0) {
+        maps.put(key, tasks);
+      }
 
       // Upcoming
       c.add(Calendar.MILLISECOND, 1);
@@ -266,7 +279,9 @@ public final class TaskUtil {
 
       key = new GroupKey<Date>("Upcoming", fromDueDate, 3);
       tasks = taskService.findTasks(q);
-      maps.put(key, tasks);
+      if (ListUtil.getSize(tasks) > 0) {
+        maps.put(key, tasks);
+      }
 
 
       // No Due date
@@ -274,7 +289,9 @@ public final class TaskUtil {
       q.setNullField(DUEDATE);
       key = new GroupKey<Date>("No Due date", null, 4);
       tasks = taskService.findTasks(q);
-      maps.put(key, tasks);
+      if (ListUtil.getSize(tasks) > 0) {
+        maps.put(key, tasks);
+      }
 
     } else if (PROJECT.equalsIgnoreCase(groupBy)) {
       List<Project> projects = taskService.selectTaskField(selectFieldQuery, "status.project");
@@ -284,7 +301,9 @@ public final class TaskUtil {
         TaskQuery q = query.clone();
         q.setProjectIds(Arrays.asList(p.getId()));
         ListAccess<Task> tasks = taskService.findTasks(q);
-        maps.put(key, tasks);
+        if (ListUtil.getSize(tasks) > 0) {
+          maps.put(key, tasks);
+        }
       }
 
       //
@@ -293,7 +312,9 @@ public final class TaskUtil {
         TaskQuery q = query.clone();
         q.setNullField(STATUS);
         ListAccess<Task> tasks = taskService.findTasks(q);
-        maps.put(key, tasks);
+        if (ListUtil.getSize(tasks) > 0) {
+          maps.put(key, tasks);
+        }
       }
 
     } else if (STATUS.equalsIgnoreCase(groupBy)) {
@@ -307,36 +328,46 @@ public final class TaskUtil {
         q.setStatus(st);
         key = new GroupKey<Status>(st.getName(), st, st.getRank());
         tasks = taskService.findTasks(q);
-        maps.put(key, tasks);
+        if (ListUtil.getSize(tasks) > 0) {
+          maps.put(key, tasks);
+        }
       }
       if (query.getProjectIds() == null || query.getProjectIds().isEmpty()) {
         q = query.clone();
         q.setNullField(STATUS);
         key = new GroupKey<Status>("No Status", null, Integer.MAX_VALUE);
         tasks = taskService.findTasks(q);
-        maps.put(key, tasks);
+        if (ListUtil.getSize(tasks) > 0) {
+          maps.put(key, tasks);
+        }
       }
 
     } else if (ASSIGNEE.equalsIgnoreCase(groupBy)) {
       List<String> assignees = taskService.selectTaskField(selectFieldQuery, ASSIGNEE);
-      GroupKey<String> key;
+      GroupKey<org.exoplatform.task.model.User> key;
       ListAccess<Task> tasks;
       TaskQuery q;
 
       for (String assignee : assignees) {
+        if (assignee == null) continue;
         q = query.clone();
         q.setAssignee(assignee);
-        key = new GroupKey<String>(assignee, assignee, 0);
+        org.exoplatform.task.model.User user = userService.loadUser(assignee);
+        key = new GroupKey<org.exoplatform.task.model.User>(user.getDisplayName(), user, 0);
         tasks = taskService.findTasks(q);
-        maps.put(key, tasks);
+        if (ListUtil.getSize(tasks) > 0) {
+          maps.put(key, tasks);
+        }
       }
 
       if (query.getAssignee() == null) {
         q = query.clone();
         q.setNullField(ASSIGNEE);
-        key = new GroupKey<String>("No Assignee", null, Integer.MAX_VALUE);
+        key = new GroupKey<org.exoplatform.task.model.User>("Unassigned", null, Integer.MAX_VALUE);
         tasks = taskService.findTasks(q);
-        maps.put(key, tasks);
+        if (ListUtil.getSize(tasks) > 0) {
+          maps.put(key, tasks);
+        }
       }
     }
     return maps;

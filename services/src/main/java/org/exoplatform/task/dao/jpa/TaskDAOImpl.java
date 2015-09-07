@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -178,13 +177,17 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
 
     if(query.getOrderBy() != null && !query.getOrderBy().isEmpty()) {
       List<OrderBy> orderBies = query.getOrderBy();
-      Order[] orders = new Order[orderBies.size()];
-      for(int i = 0; i < orders.length; i++) {
-        OrderBy orderBy = orderBies.get(i);
+      List<Order> orders = new ArrayList<Order>();
+      for(OrderBy orderBy : orderBies) {
+        if (!orderBy.getFieldName().equals(fieldName)) {
+          continue;
+        }
         Path p = task.get(orderBy.getFieldName());
-        orders[i] = orderBy.isAscending() ? cb.asc(p) : cb.desc(p);
+        orders.add(orderBy.isAscending() ? cb.asc(p) : cb.desc(p));
       }
-      q.orderBy(orders);
+      if (!orders.isEmpty()) {
+        q.orderBy(orders);
+      }
     }
 
     final TypedQuery<T> selectQuery = em.createQuery(q);

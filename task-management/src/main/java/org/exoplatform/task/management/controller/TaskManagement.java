@@ -20,7 +20,6 @@
 package org.exoplatform.task.management.controller;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -42,20 +41,19 @@ import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.UserSetting;
 import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.exception.TaskNotFoundException;
+import org.exoplatform.task.model.GroupKey;
 import org.exoplatform.task.model.TaskModel;
 import org.exoplatform.task.service.ParserContext;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.TaskParser;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.UserService;
-import org.exoplatform.task.util.ListUtil;
 import org.exoplatform.task.util.ProjectUtil;
 import org.exoplatform.task.util.TaskUtil;
 
@@ -128,6 +126,8 @@ public class TaskManagement {
       }
     }
 
+    TaskQuery taskQuery = new TaskQuery();
+
     //
     if (taskId != -1) {
       try {
@@ -136,10 +136,10 @@ public class TaskManagement {
         if (taskModel.getTask().getStatus() != null) {
           project = taskModel.getTask().getStatus().getProject();
           currProject = project.getId();
-          TaskQuery taskQuery = new TaskQuery();
+          //TaskQuery taskQuery = new TaskQuery();
           taskQuery.setProjectIds(Arrays.asList(currProject));
-          ListAccess<Task> listTasks = taskService.findTasks(taskQuery);
-          tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.findTaskByQuery(taskQuery);
+          //ListAccess<Task> listTasks = taskService.findTasks(taskQuery);
+          //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.findTaskByQuery(taskQuery);
         }
       } catch (TaskNotFoundException e) {
         taskId = -1;
@@ -155,28 +155,34 @@ public class TaskManagement {
       }            
     }
     
-    if (tasks == null) {
+    //if (tasks == null) {
+    if (taskId <= 0) {
       if (space_group_id != null) {
-        ListAccess<Task> listTasks = taskService.getTodoTasks(username, spaceProjectIds, null, null, null);
-        tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getToDoTasksByUser(username, spaceProjectIds, null, null, null);
+        taskQuery.setIsTodo(Boolean.TRUE);
+        taskQuery.setUsername(username);
+        taskQuery.setProjectIds(spaceProjectIds);
+        //ListAccess<Task> listTasks = taskService.getTodoTasks(username, spaceProjectIds, null, null, null);
+        //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getToDoTasksByUser(username, spaceProjectIds, null, null, null);
       } else if (currProject > 0) {
-        TaskQuery taskQuery = new TaskQuery();
+        //TaskQuery taskQuery = new TaskQuery();
         taskQuery.setProjectIds(Arrays.asList(currProject));
-        ListAccess<Task> listTasks = taskService.findTasks(taskQuery);
-        tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.findTaskByQuery(taskQuery);
+        //ListAccess<Task> listTasks = taskService.findTasks(taskQuery);
+        //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.findTaskByQuery(taskQuery);
       } else {
-        ListAccess<Task> listTasks = taskService.getIncomingTasks(username, new OrderBy.DESC("createdTime"));
-        tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getIncomingTasksByUser(username, new OrderBy.DESC("createdTime"));
+        taskQuery.setIsIncoming(Boolean.TRUE);
+        taskQuery.setUsername(username);
+        //ListAccess<Task> listTasks = taskService.getIncomingTasks(username, new OrderBy.DESC("createdTime"));
+        //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getIncomingTasksByUser(username, new OrderBy.DESC("createdTime"));
       }
     }
 
-    Map<String, List<Task>> groupTasks = new HashMap<String, List<Task>>();
-    groupTasks.put("", tasks);
+    Map<GroupKey, ListAccess<Task>> groupTasks = TaskUtil.findTasks(taskService, taskQuery, "", null, userService);
 
     UserSetting setting = userService.getUserSetting(username);
 
-    long taskNum = TaskUtil.getTaskNum(username, spaceProjectIds, currProject, taskService);
-    
+    //long taskNum = TaskUtil.getTaskNum(username, spaceProjectIds, currProject, taskService);
+    long taskNum = TaskUtil.countTasks(taskService, taskQuery);
+
     Map<String, String> defOrders = TaskUtil.getDefOrders(bundle);
     Map<String, String> defGroupBys = TaskUtil.getDefGroupBys(currProject, bundle);
     
