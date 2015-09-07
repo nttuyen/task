@@ -379,7 +379,7 @@ public class ProjectServiceTest {
     }
   }
 
-  @Test
+  /*@Test
   public void testCreateTaskToProjectId() throws ProjectNotFoundException {
 
     Status defaultStatus = TestUtils.getDefaultStatus();
@@ -391,7 +391,7 @@ public class ProjectServiceTest {
     verify(taskService, times(1)).createTask(taskCaptor.capture());
 
     assertEquals(defaultStatus.getId(), taskCaptor.getValue().getStatus().getId());
-  }
+  }*/
 
   /*@Test
   public void testGetTasksWithKeywordByProjectId() throws ProjectNotFoundException {

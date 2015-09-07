@@ -27,35 +27,6 @@ public interface ProjectService {
   Project cloneProjectById(long id, boolean cloneTask) throws ProjectNotFoundException;
 
   Project getProjectById(Long id) throws ProjectNotFoundException;
-
-  //TODO: move this method to TaskService?
-  Task createTaskToProjectId(long id, Task task) throws ProjectNotFoundException;
-
-  /**
-   * TODO: This method is not used any more
-   * @param id
-   * @param permission
-   * @param type
-   * @return
-   * @throws ProjectNotFoundException
-   * @throws NotAllowedOperationOnEntityException
-   */
-  /*@Deprecated
-  Project removePermissionFromProjectId(Long id, String permission, String type)
-      throws ProjectNotFoundException, NotAllowedOperationOnEntityException;*/
-
-  /**
-   * TODO: This method is not used any more
-   * @param id
-   * @param permissions
-   * @param type
-   * @return
-   * @throws ProjectNotFoundException
-   * @throws NotAllowedOperationOnEntityException
-   */
-  /*@Deprecated
-  Project addPermissionsFromProjectId(Long id, String permissions, String type)
-      throws ProjectNotFoundException, NotAllowedOperationOnEntityException;*/
   
   List<Project> getProjectTreeByMembership(List<String> memberships);
  

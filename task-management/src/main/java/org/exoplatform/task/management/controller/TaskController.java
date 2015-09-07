@@ -292,11 +292,12 @@ public class TaskController {
   @Resource
   @Ajax
   @MimeType("text/plain")
-  public Response updateCompleted(Long taskId, Boolean completed) {
+  public Response updateCompleted(Long taskId, Boolean completed, SecurityContext securityContext) {
 
     try {
 
-      taskService.updateTaskInfo(taskId, "completed", new String[]{String.valueOf(completed)});
+      String currentUser = securityContext.getRemoteUser();
+      taskService.updateTaskInfo(taskId, "completed", new String[]{String.valueOf(completed)}, userService.getUserTimezone(currentUser));
       //taskService.updateTaskCompleted(taskId, completed); //Can throw TaskNotFoundException & ParameterEntityException
       return Response.ok("Update successfully");
 
@@ -694,7 +695,13 @@ public class TaskController {
     //Project task
     if(projectId > 0) {
       try {
-        projectService.createTaskToProjectId(projectId, task);
+        Status status = statusService.findLowestRankStatusByProject(projectId);
+        if (status == null) {
+          throw new ProjectNotFoundException(projectId);
+        }
+        task.setStatus(status);
+        //taskService.createTask(task);
+        //projectService.createTaskToProjectId(projectId, task);
       } catch (AbstractEntityException e) {
         return Response.status(e.getHttpStatusCode()).body(e.getMessage());
       }
@@ -715,13 +722,19 @@ public class TaskController {
         task.setDueDate(dueDate.getTime());
       }
       
-      taskService.createTask(task);
+      //taskService.createTask(task);
     }
+
+    taskService.createTask(task);
 
     long taskNum = -1;
     if (projectId == -1) {
       //incomming
-      taskNum = TaskUtil.getTaskNum(currentUser, null, projectId, taskService);
+      TaskQuery taskQuery = new TaskQuery();
+      taskQuery.setIsIncoming(Boolean.TRUE);
+      taskQuery.setUsername(currentUser);
+      ListAccess<Task> taskListAccess = taskService.findTasks(taskQuery);
+      taskNum = ListUtil.getSize(taskListAccess);
     }
 
     try {
