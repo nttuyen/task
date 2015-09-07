@@ -277,7 +277,7 @@ public class TestTaskDAO extends AbstractTest {
     Status status1 = newStatusInstance("IN Progress", 2);
     status1.setProject(project);
     project.getStatus().add(status1);
-    taskService.getProjectHandler().create(project);
+    daoHandler.getProjectHandler().create(project);
 
     Task task1 = newTaskInstance("Task 1", "", null);
     tDAO.create(task1);
