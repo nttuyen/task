@@ -23,7 +23,6 @@ import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.model.GroupTask;
 
 /**
  * @author <a href="trongtt@exoplatform.com">Trong Tran</a>
@@ -37,30 +36,7 @@ public interface TaskHandler extends GenericDAO<Task, Long> {
 
   public <T> List<T> selectTaskField(TaskQuery query, String fieldName);
 
-  /**
-   * Use {@link #findTasks(TaskQuery)}
-   * @param username
-   * @param orderBy
-   * @return
-   */
-  @Deprecated
-  ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy);
-
-  /**
-   * use {@link #findTasks(TaskQuery)}
-   * @param username
-   * @param projectIds
-   * @param orderBy
-   * @param fromDueDate
-   * @param toDueDate
-   * @return
-   */
-  @Deprecated
-  ListAccess<Task> getToDoTasks(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate);
-
   Task findTaskByActivityId(String activityId);
-
-  long getTaskNum(String username, List<Long> projectIds);
 
   void updateTaskOrder(long currentTaskId, Status newStatus, long[] orders);
 }

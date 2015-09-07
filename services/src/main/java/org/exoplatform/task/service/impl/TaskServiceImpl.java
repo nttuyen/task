@@ -363,16 +363,6 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
-  public ListAccess<Task> getIncomingTasks(String username, OrderBy orderBy) {
-    return daoHandler.getTaskHandler().getIncomingTasks(username, orderBy);
-  }
-
-  @Override
-  public ListAccess<Task> getTodoTasks(String username, List<Long> projectIds, OrderBy orderBy, Date fromDueDate, Date toDueDate) {
-    return daoHandler.getTaskHandler().getToDoTasks(username, projectIds, orderBy, fromDueDate, toDueDate);
-  }
-
-  @Override
   public ListAccess<Task> findTasks(TaskQuery query) {
     return daoHandler.getTaskHandler().findTasks(query);
   }
@@ -380,11 +370,6 @@ public class TaskServiceImpl implements TaskService {
   @Override
   public <T> List<T> selectTaskField(TaskQuery query, String fieldName) {
     return daoHandler.getTaskHandler().selectTaskField(query, fieldName);
-  }
-
-  @Override
-  public long getTaskNum(String username, List<Long> projectIds) {
-    return daoHandler.getTaskHandler().getTaskNum(username, projectIds);
   }
   
   private Task updateTask(Task task) {

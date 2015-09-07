@@ -187,7 +187,10 @@ public class TestTaskDAO extends AbstractTest {
     task2.setStatus(status);
     tDAO.create(task2);
 
-    ListAccess<Task> listTasks = tDAO.getIncomingTasks(username, null);
+    TaskQuery query = new TaskQuery();
+    query.setIsIncoming(Boolean.TRUE);
+    query.setUsername(username);
+    ListAccess<Task> listTasks = tDAO.findTasks(query); //tDAO.getIncomingTasks(username, null);
     List<Task> tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //tDAO.getIncomingTask(username, null);
     assertContain(tasks, task1.getId());
     assertNotContain(tasks, task2.getId());
@@ -219,12 +222,16 @@ public class TestTaskDAO extends AbstractTest {
     task4.setStatus(status);
     tDAO.create(task4);
 
-    Task task5 = newTaskInstance("Task 4", "", username);
+    Task task5 = newTaskInstance("Task 5", "", username);
     task5.setStatus(status);
     task5.setCompleted(true);
     tDAO.create(task5);
 
-    ListAccess<Task> listTasks = tDAO.getToDoTasks(username, null, null, null, null);
+    TaskQuery query = new TaskQuery();
+    query.setIsTodo(Boolean.TRUE);
+    query.setUsername(username);
+    query.setCompleted(false);
+    ListAccess<Task> listTasks = tDAO.findTasks(query); //tDAO.getToDoTasks(username, null, null, null, null);
     List<Task> tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //tDAO.getToDoTask(username, null, null, null, null);
 
     assertContain(tasks, task3.getId());
@@ -232,23 +239,6 @@ public class TestTaskDAO extends AbstractTest {
     assertNotContain(tasks, task1.getId());
     assertNotContain(tasks, task2.getId());
     assertNotContain(tasks, task5.getId());
-  }
-  
-  @Test
-  public void testGetTaskNum() {
-    Project project = new Project();
-    project.setName("Project1");
-    Status status = newStatusInstance("TO DO", 1);
-    status.setProject(project);
-    project.getStatus().add(status);
-    daoHandler.getProjectHandler().create(project);
-
-    Task task1 = newTaskInstance("Task 1", "", null);
-    task1.setStatus(status);
-    tDAO.create(task1);
-    
-    long num = tDAO.getTaskNum(null, Arrays.asList(0L));
-    Assert.assertEquals(1, num);
   }
   
   @Test

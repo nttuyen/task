@@ -101,28 +101,6 @@ public final class TaskUtil {
     }
     return labels;
   }
-  
-  public static long getTaskNum(String username, List<Long> spaceProjectIds, Long projectId, TaskService taskService) {
-    long taskNum = 0;
-    if (projectId > 0) {
-      taskNum = taskService.getTaskNum(null, Arrays.asList(projectId));      
-    } else {
-      if (spaceProjectIds != null) {
-        if (projectId == 0) {
-          taskNum = taskService.getTaskNum(null, spaceProjectIds);
-        } else {
-          taskNum = taskService.getTaskNum(username, spaceProjectIds);
-        }
-      } else {
-        if (projectId == 0) {
-          taskNum = taskService.getTaskNum(null, Arrays.asList(projectId));
-        } else {
-          taskNum = taskService.getTaskNum(username, Arrays.asList(projectId));
-        }
-      }      
-    }
-    return taskNum;
-  }
 
   public static TaskModel getTaskModel(Long id, boolean loadAllComment, ResourceBundle bundle, String username,
                                        TaskService taskService, OrganizationService orgService, UserService userService, ProjectService projectService) throws TaskNotFoundException {
