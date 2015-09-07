@@ -15,27 +15,13 @@ public interface StatusService {
    */
   List<String> getDefaultStatus();
 
-  Status getStatusById(long statusId);
+  Status getStatus(long statusId);
 
-  /**
-   * TODO: rename this method to: getDefaultStatusOfProject() ?
-   * @param projectId
-   * @return
-   */
-  Status findLowestRankStatusByProject(long projectId);
+  Status getDefaultStatus(long projectId);
     
   Status createStatus(Project project, String status);
   
-  Status deleteStatus(long statusID) throws StatusNotFoundException, NotAllowedOperationOnEntityException;
+  Status deleteStatus(long statusId) throws StatusNotFoundException, NotAllowedOperationOnEntityException;
   
-  Status updateStatus(long id, String name) throws StatusNotFoundException, NotAllowedOperationOnEntityException;
-
-  /**
-   * TODO: this method will never be used
-   * @param statusID
-   * @param otherID
-   * @return
-   * @throws NotAllowedOperationOnEntityException
-   */
-  Status swapPosition(long statusID, long otherID) throws NotAllowedOperationOnEntityException;
+  Status updateStatus(long statusId, String statusName) throws StatusNotFoundException, NotAllowedOperationOnEntityException;
 }

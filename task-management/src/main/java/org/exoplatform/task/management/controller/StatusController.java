@@ -38,7 +38,6 @@ import org.json.JSONObject;
 import javax.inject.Inject;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class StatusController {
 
     try {
 
-      Project project = projectService.getProjectById(projectId); //Can throw ProjectNotFoundException
+      Project project = projectService.getProject(projectId); //Can throw ProjectNotFoundException
 
       JSONArray array = new JSONArray();
       List<Status> statuses = new LinkedList<Status>(project.getStatus());

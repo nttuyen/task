@@ -106,7 +106,7 @@ public final class TaskUtil {
                                        TaskService taskService, OrganizationService orgService, UserService userService, ProjectService projectService) throws TaskNotFoundException {
     TaskModel taskModel = new TaskModel();
     
-    Task task = taskService.getTaskById(id); //Can throw TaskNotFoundException
+    Task task = taskService.getTask(id); //Can throw TaskNotFoundException
     taskModel.setTask(task);
 
     org.exoplatform.task.model.User assignee = null;

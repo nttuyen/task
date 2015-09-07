@@ -58,7 +58,7 @@ public class TasksCalendarDAOImpl implements CalendarDAO {
       if (DF_CALENDAR.getId().equals(id)) {
         return DF_CALENDAR;
       } else {
-        Project project = projectService.getProjectById(Long.valueOf(id));      
+        Project project = projectService.getProject(Long.valueOf(id));
         if (project.isCalendarIntegrated()) {
           return ProjectUtil.buildCalendar(cal, project);          
         }

@@ -159,7 +159,7 @@ public class StatusServiceTest {
     assertEquals("s3", statusCaptor.getValue().getName());
   }
   
-  @Test 
+  /*@Test
   public void testSwapPosition() throws NotAllowedOperationOnEntityException {
     Status s1 = TestUtils.getDefaultStatus();
     s1.setRank(0);
@@ -173,6 +173,6 @@ public class StatusServiceTest {
     statusService.swapPosition(s1.getId(), s2.getId());
     assertEquals(1, s1.getRank().intValue());
     assertEquals(0, s2.getRank().intValue());
-  }
+  }*/
   
 }

@@ -76,12 +76,12 @@ public class StatusServiceImpl implements StatusService {
   }
 
   @Override
-  public Status getStatusById(long statusId) {
+  public Status getStatus(long statusId) {
     return daoHandler.getStatusHandler().find(statusId);
   }
 
   @Override
-  public Status findLowestRankStatusByProject(long projectId) {
+  public Status getDefaultStatus(long projectId) {
     return daoHandler.getStatusHandler().findLowestRankStatusByProject(projectId);
   }
 

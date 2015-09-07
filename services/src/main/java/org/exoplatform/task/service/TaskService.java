@@ -23,22 +23,22 @@ public interface TaskService {
 
   Task createTask(Task task);
 
-  Task updateTaskInfo(long id, String param, String[] values, TimeZone timezone)
+  Task saveTaskField(long taskId, String fieldName, String[] values, TimeZone timezone)
       throws TaskNotFoundException, ParameterEntityException, StatusNotFoundException;
 
   void updateTaskOrder(long currentTaskId, Status newStatus, long[] orders);
 
-  void deleteTaskById(long id) throws TaskNotFoundException;
+  void deleteTask(long taskId) throws TaskNotFoundException;
 
-  Task cloneTaskById(long id) throws TaskNotFoundException;
+  Task cloneTask(long taskId) throws TaskNotFoundException;
 
-  Task getTaskById(long id) throws TaskNotFoundException;
+  Task getTask(long taskId) throws TaskNotFoundException;
 
   ListAccess<Comment> getComments(long taskId);
 
-  Comment addCommentToTaskId(long id, String username, String comment) throws TaskNotFoundException;
+  Comment createComment(long taskId, String username, String commentText) throws TaskNotFoundException;
 
-  void deleteCommentById(long commentId) throws CommentNotFoundException;
+  void deleteComment(long commentId) throws CommentNotFoundException;
 
   ListAccess<Task> findTasks(TaskQuery query);
 
@@ -46,5 +46,6 @@ public interface TaskService {
 
   TaskLog addTaskLog(long taskId, String username, String msg, String target) throws TaskNotFoundException;
 
-  Task findTaskByActivityId(String id);
+  //TODO: should use via #findTasks(TaskQuery)?
+  Task findTaskByActivityId(String activityId);
 }

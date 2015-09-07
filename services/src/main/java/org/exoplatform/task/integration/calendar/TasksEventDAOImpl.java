@@ -53,7 +53,7 @@ public class TasksEventDAOImpl implements EventDAO {
   @Override
   public Event getById(String id) {
     try {
-      Task task = taskService.getTaskById(Long.valueOf(id));
+      Task task = taskService.getTask(Long.valueOf(id));
       if (task.getStartDate() != null) {
         if (task.isCalendarIntegrated()) {
           Event event = newInstance();

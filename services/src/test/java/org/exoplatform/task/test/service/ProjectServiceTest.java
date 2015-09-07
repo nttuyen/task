@@ -45,7 +45,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.dao.ProjectHandler;
 import org.exoplatform.task.dao.StatusHandler;
 import org.exoplatform.task.dao.TaskHandler;
@@ -54,7 +53,6 @@ import org.exoplatform.task.dao.jpa.DAOHandlerJPAImpl;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
 import org.exoplatform.task.exception.ParameterEntityException;
 import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.service.ProjectService;
@@ -187,7 +185,7 @@ public class ProjectServiceTest {
 
     String name = "Project Name";
 
-    projectService.updateProjectInfo(TestUtils.EXISTING_PROJECT_ID, "name", new String[]{name});
+    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "name", new String[]{name});
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     assertEquals(name, projectCaptor.getValue().getName());
@@ -198,7 +196,7 @@ public class ProjectServiceTest {
 
     String description = "Bla bla bla";
 
-    projectService.updateProjectInfo(TestUtils.EXISTING_PROJECT_ID, "description", new String[]{description});
+    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "description", new String[]{description});
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     assertEquals(description, projectCaptor.getValue().getDescription());
@@ -209,7 +207,7 @@ public class ProjectServiceTest {
 
     String[] newManagers = {"Tib","Trong","Phuong","Tuyen"};
 
-    projectService.updateProjectInfo(TestUtils.EXISTING_PROJECT_ID, "manager", newManagers);
+    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "manager", newManagers);
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     Set<String> managers = new HashSet<String>();
@@ -225,7 +223,7 @@ public class ProjectServiceTest {
 
     String[] newMembers = {"Tib","Trong","Phuong","Tuyen"};
 
-    projectService.updateProjectInfo(TestUtils.EXISTING_PROJECT_ID, "participator", newMembers);
+    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "participator", newMembers);
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     Set<String> members = new HashSet<String>();
@@ -243,7 +241,7 @@ public class ProjectServiceTest {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     Date date = sdf.parse(dueDate);
 
-    projectService.updateProjectInfo(TestUtils.EXISTING_PROJECT_ID, "dueDate", new String[]{dueDate});
+    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "dueDate", new String[]{dueDate});
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     assertEquals(date, projectCaptor.getValue().getDueDate());
@@ -254,7 +252,7 @@ public class ProjectServiceTest {
 
     String color = "#000000";
 
-    projectService.updateProjectInfo(TestUtils.EXISTING_PROJECT_ID, "color", new String[]{color});
+    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "color", new String[]{color});
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     assertEquals(color, projectCaptor.getValue().getColor());
@@ -330,7 +328,7 @@ public class ProjectServiceTest {
 
     when(projectHandler.find(3L)).thenReturn(project);
 
-    projectService.cloneProjectById(3L, false);
+    projectService.cloneProject(3L, false);
     verify(projectHandler, times(1)).create(projectCaptor.capture());
 
     assertEquals("Copy of "+project.getName(), projectCaptor.getValue().getName());
@@ -366,7 +364,7 @@ public class ProjectServiceTest {
 
     when(projectHandler.find(3L)).thenReturn(project);
 
-    projectService.cloneProjectById(3L, true);
+    projectService.cloneProject(3L, true);
     verify(projectHandler, times(1)).create(projectCaptor.capture());
 
     assertEquals(project.getStatus().size(), projectCaptor.getValue().getStatus().size());
@@ -385,7 +383,7 @@ public class ProjectServiceTest {
     Status defaultStatus = TestUtils.getDefaultStatus();
     Task defaultTask = TestUtils.getDefaultTask();
 
-    when(statusHandler.findLowestRankStatusByProject(TestUtils.EXISTING_PROJECT_ID)).thenReturn(defaultStatus);
+    when(statusHandler.getDefaultStatus(TestUtils.EXISTING_PROJECT_ID)).thenReturn(defaultStatus);
 
     projectService.createTaskToProjectId(TestUtils.EXISTING_PROJECT_ID, defaultTask);
     verify(taskService, times(1)).createTask(taskCaptor.capture());
@@ -423,7 +421,7 @@ public class ProjectServiceTest {
 
     when(projectHandler.find(TestUtils.EXISTING_PROJECT_ID)).thenReturn(project);
 
-    assertEquals(2, projectService.getProjectById(TestUtils.EXISTING_PROJECT_ID).getManager().size());
+    assertEquals(2, projectService.getProject(TestUtils.EXISTING_PROJECT_ID).getManager().size());
 
     projectService.removePermissionFromProjectId(TestUtils.EXISTING_PROJECT_ID, newManager, "manager");
     verify(projectHandler, times(1)).update(projectCaptor.capture());
@@ -441,7 +439,7 @@ public class ProjectServiceTest {
 
     when(projectHandler.find(TestUtils.EXISTING_PROJECT_ID)).thenReturn(project);
 
-    assertEquals(1, projectService.getProjectById(TestUtils.EXISTING_PROJECT_ID).getParticipator().size());
+    assertEquals(1, projectService.getProject(TestUtils.EXISTING_PROJECT_ID).getParticipator().size());
 
     projectService.removePermissionFromProjectId(TestUtils.EXISTING_PROJECT_ID, newMember, "participator");
     verify(projectHandler, times(1)).update(projectCaptor.capture());
@@ -455,7 +453,7 @@ public class ProjectServiceTest {
 
     String newManager = "bobby";
 
-    assertEquals(1, projectService.getProjectById(TestUtils.EXISTING_PROJECT_ID).getManager().size());
+    assertEquals(1, projectService.getProject(TestUtils.EXISTING_PROJECT_ID).getManager().size());
 
     projectService.addPermissionsFromProjectId(TestUtils.EXISTING_PROJECT_ID, newManager, "manager");
     verify(projectHandler, times(1)).update(projectCaptor.capture());
@@ -468,7 +466,7 @@ public class ProjectServiceTest {
 
     String newMember = "bobby";
 
-    assertEquals(0, projectService.getProjectById(TestUtils.EXISTING_PROJECT_ID).getParticipator().size());
+    assertEquals(0, projectService.getProject(TestUtils.EXISTING_PROJECT_ID).getParticipator().size());
 
     projectService.addPermissionsFromProjectId(TestUtils.EXISTING_PROJECT_ID, newMember, "participator");
     verify(projectHandler, times(1)).update(projectCaptor.capture());

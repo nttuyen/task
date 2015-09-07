@@ -18,18 +18,18 @@ public interface ProjectService {
   Project createProject(Project project, boolean createDefaultStatus);
   Project createProject(Project project, long parentId) throws ProjectNotFoundException;
 
-  Project updateProjectInfo(long id, String param, String[] values)
+  Project saveProjectField(long projectId, String fieldName, String[] values)
       throws ProjectNotFoundException, ParameterEntityException;
 
   void deleteProject(long projectId, boolean deleteChild) throws ProjectNotFoundException;
   void deleteProject(Project project, boolean deleteChild);
 
-  Project cloneProjectById(long id, boolean cloneTask) throws ProjectNotFoundException;
+  Project cloneProject(long projectId, boolean cloneTask) throws ProjectNotFoundException;
 
-  Project getProjectById(Long id) throws ProjectNotFoundException;
-  
+  Project getProject(Long projectId) throws ProjectNotFoundException;
+
   List<Project> getProjectTreeByMembership(List<String> memberships);
- 
+
   List<Project> findProjectByKeyWord(Identity identity, String keyword, OrderBy order);
 
 }

@@ -165,7 +165,7 @@ public final class ProjectUtil {
     Project project = null;
     if (id > 0) {
       try {
-        project = projectService.getProjectById(id);
+        project = projectService.getProject(id);
       } catch (ProjectNotFoundException e) {
         LOG.warn("project {} not found", id);
       }

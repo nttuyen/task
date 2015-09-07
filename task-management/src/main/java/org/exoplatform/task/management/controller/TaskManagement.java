@@ -109,7 +109,7 @@ public class TaskManagement {
       long id = ProjectUtil.getProjectIdFromURI(requestPath);
       if (id > 0 && prc.getControllerContext().getRequest().getQueryString() == null) {
         currProject = id;
-        project = projectService.getProjectById(currProject);
+        project = projectService.getProject(currProject);
       } else {
         currProject = -1;
       }

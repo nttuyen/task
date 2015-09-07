@@ -157,7 +157,7 @@ public class TaskController {
   @Ajax
   @MimeType.HTML
   public Response renderTaskLogs(Long taskId, SecurityContext securityContext) throws TaskNotFoundException {
-    Task task = taskService.getTaskById(taskId); //Can throw TaskNotFoundException
+    Task task = taskService.getTask(taskId); //Can throw TaskNotFoundException
     
     List<TaskLog> logs = new LinkedList<TaskLog>(task.getTaskLogs());
     Collections.sort(logs);
@@ -208,7 +208,7 @@ public class TaskController {
 
     try {
 
-      Task newTask = taskService.cloneTaskById(id); //Can throw TaskNotFoundException
+      Task newTask = taskService.cloneTask(id); //Can throw TaskNotFoundException
 
       JSONObject json = new JSONObject();
       json.put("id", newTask.getId()); //Can throw JSONException
@@ -228,7 +228,7 @@ public class TaskController {
 
     try {
 
-      taskService.deleteTaskById(id);//Can throw TaskNotFoundException
+      taskService.deleteTask(id);//Can throw TaskNotFoundException
 
       JSONObject json = new JSONObject();
       json.put("id", id); //Can throw JSONException
@@ -248,7 +248,7 @@ public class TaskController {
 
     try {
       TimeZone timezone = userService.getUserTimezone(context.getRemoteUser());
-      Task task = taskService.updateTaskInfo(taskId, name, value, timezone); //Can throw TaskNotFoundException & ParameterEntityException & StatusNotFoundException
+      Task task = taskService.saveTaskField(taskId, name, value, timezone); //Can throw TaskNotFoundException & ParameterEntityException & StatusNotFoundException
 
       String response = "Update successfully";
       if ("workPlan".equalsIgnoreCase(name)) {        
@@ -279,7 +279,7 @@ public class TaskController {
     }
     Status newStatus = null;
     if (newStatusId != null && newStatusId > 0) {
-      newStatus = statusService.getStatusById(newStatusId);
+      newStatus = statusService.getStatus(newStatusId);
     }
     long[] ids = new long[orders.length];
     for (int i = 0; i < ids.length; i++) {
@@ -297,7 +297,7 @@ public class TaskController {
     try {
 
       String currentUser = securityContext.getRemoteUser();
-      taskService.updateTaskInfo(taskId, "completed", new String[]{String.valueOf(completed)}, userService.getUserTimezone(currentUser));
+      taskService.saveTaskField(taskId, "completed", new String[]{String.valueOf(completed)}, userService.getUserTimezone(currentUser));
       //taskService.updateTaskCompleted(taskId, completed); //Can throw TaskNotFoundException & ParameterEntityException
       return Response.ok("Update successfully");
 
@@ -318,7 +318,7 @@ public class TaskController {
 
     try {
 
-      Comment cmt = taskService.addCommentToTaskId(taskId, currentUser, comment); //Can throw TaskNotFoundException
+      Comment cmt = taskService.createComment(taskId, currentUser, comment); //Can throw TaskNotFoundException
 
       //TODO:
       CommentModel model = new CommentModel(cmt, userService.loadUser(cmt.getAuthor()), CommentUtil.formatMention(cmt.getComment(), userService));
@@ -355,7 +355,7 @@ public class TaskController {
     try {
 
       // Verify task exists
-      Task task = taskService.getTaskById(taskId);
+      Task task = taskService.getTask(taskId);
 
       ListAccess<Comment> cmtAccessList = taskService.getComments(task.getId());
       Comment[] cmts = ListUtil.load(cmtAccessList, 0, -1); //Can throw TaskNotFoundException
@@ -388,7 +388,7 @@ public class TaskController {
 
     try {
 
-      taskService.deleteCommentById(commentId); //Can throw CommentNotFoundException
+      taskService.deleteComment(commentId); //Can throw CommentNotFoundException
       return Response.ok("Delete comment successfully!");
 
     } catch (AbstractEntityException e) {
@@ -591,7 +591,7 @@ public class TaskController {
 
       if (projectId > 0) {
         try {
-          project = projectService.getProjectById(projectId);
+          project = projectService.getProject(projectId);
         } catch (ProjectNotFoundException e) {
           return Response.notFound("not found project " + projectId);
         }          
@@ -695,7 +695,7 @@ public class TaskController {
     //Project task
     if(projectId > 0) {
       try {
-        Status status = statusService.findLowestRankStatusByProject(projectId);
+        Status status = statusService.getDefaultStatus(projectId);
         if (status == null) {
           throw new ProjectNotFoundException(projectId);
         }
@@ -762,12 +762,12 @@ public class TaskController {
       task.setAssignee(assignee);
     }
     if (statusId != null) {
-      Status status = statusService.getStatusById(statusId);
+      Status status = statusService.getStatus(statusId);
       if (status != null) {
         task.setStatus(status);
       }
     } else if (projectId != null) {
-      Status status = statusService.findLowestRankStatusByProject(projectId);
+      Status status = statusService.getDefaultStatus(projectId);
       if (status != null) {
         task.setStatus(status);
       }
@@ -783,7 +783,7 @@ public class TaskController {
   @MimeType.HTML
   public Response removeStatus(Long statusId, SecurityContext securityContext) {
     try {
-      Status status = statusService.getStatusById(statusId);
+      Status status = statusService.getStatus(statusId);
       Project project = status.getProject();
       if (project.getStatus().size() > 1) {
         statusService.deleteStatus(statusId);
@@ -801,7 +801,7 @@ public class TaskController {
   @MimeType.HTML
   public Response createStatus(String name, Long projectId, SecurityContext securityContext) {
     try {
-      Project project = projectService.getProjectById(projectId);
+      Project project = projectService.getProject(projectId);
       Status status = statusService.createStatus(project, name);
       return listTasks(null, projectId, null, null, null, null, "board", securityContext);
     } catch (AbstractEntityException e) {

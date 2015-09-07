@@ -63,7 +63,6 @@ import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.UserService;
 import org.exoplatform.task.util.ProjectUtil;
 import org.exoplatform.task.util.UserUtil;
-import org.exoplatform.webui.organization.AccessGroupListAccess;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -129,7 +128,7 @@ public class ProjectController {
   public Response projectForm(Long parentId, SecurityContext securityContext) {    
     Project parent;
     try {
-      parent = projectService.getProjectById(parentId);
+      parent = projectService.getProject(parentId);
     } catch (ProjectNotFoundException e) {
       parent = new Project();
     }
@@ -198,7 +197,7 @@ public class ProjectController {
 
     try {
 
-      Project project = projectService.cloneProjectById(id, Boolean.parseBoolean(cloneTask)); //Can throw ProjectNotFoundException
+      Project project = projectService.cloneProject(id, Boolean.parseBoolean(cloneTask)); //Can throw ProjectNotFoundException
 
       JSONObject result = new JSONObject();
       result.put("id", project.getId());
@@ -219,7 +218,7 @@ public class ProjectController {
   @MimeType.HTML
   public Response openConfirmDelete(Long id) {
     try {
-      Project project = projectService.getProjectById(id); //Can throw ProjectNotFoundException
+      Project project = projectService.getProject(id); //Can throw ProjectNotFoundException
       if (project != null) {
         String msg = bundle.getString("popup.msg.deleteProject");
         msg = msg.replace("{}", project.getName());
@@ -240,7 +239,7 @@ public class ProjectController {
   public Response openShareDialog(Long id) {
 
     try {
-      Project project = projectService.getProjectById(id); //Can throw ProjectNotFoundException
+      Project project = projectService.getProject(id); //Can throw ProjectNotFoundException
       return renderShareDialog(project, "");
 
     } catch (AbstractEntityException e) {
@@ -275,7 +274,8 @@ public class ProjectController {
         page = 0;
       }
       boolean hasNext = true;
-      Project project = projectService.getProjectById(id); //Can throw ProjectNotFoundException
+
+      Project project = projectService.getProject(id); //Can throw ProjectNotFoundException
 
       UserHandler uHandler = orgService.getUserHandler();
       List<org.exoplatform.services.organization.User> tmp = null;
@@ -487,7 +487,7 @@ public class ProjectController {
     try {
 
       String name = "manager".equals(type) ? type : "participator";
-      Project project = projectService.updateProjectInfo(id, name, permissions); //Can throw ProjectNotFoundException & NotAllowedOperationOnEntityException
+      Project project = projectService.saveProjectField(id, name, permissions); //Can throw ProjectNotFoundException & NotAllowedOperationOnEntityException
       return renderShareDialog(project, "");
 
     } catch (AbstractEntityException e) {
@@ -532,7 +532,7 @@ public class ProjectController {
       breadcrumbs = ProjectUtil.buildBreadcumbs(id, projectService, bundle);
     } else {
       try {
-        Project p = projectService.getProjectById(id);
+        Project p = projectService.getProject(id);
         breadcrumbs = new StringBuilder("<li class=\"active\"><a class=\"project-name\" href=\"javascript:void(0)\">")
                           .append(p.getName())
                           .append("</a></li>")
@@ -566,7 +566,7 @@ public class ProjectController {
   @MimeType.HTML
   public Response projectDetail(Long id) {
     try {
-      Project project = projectService.getProjectById(id); //Can throw ProjectNotFoundException
+      Project project = projectService.getProject(id); //Can throw ProjectNotFoundException
 
       List<String> groups = new LinkedList<String>();
       Map<String, User> users = new HashMap<String, User>();
@@ -613,7 +613,7 @@ public class ProjectController {
 
     try {
 
-      projectService.updateProjectInfo(projectId, name, value); //Can throw ProjectNotFoundException & NotAllowedOperationOnEntityException
+      projectService.saveProjectField(projectId, name, value); //Can throw ProjectNotFoundException & NotAllowedOperationOnEntityException
       return Response.ok("Update successfully");
 
     } catch (AbstractEntityException e) {
