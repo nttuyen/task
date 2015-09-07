@@ -26,7 +26,7 @@ import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.service.TaskService;
-import org.exoplatform.task.utils.TaskUtil;
+import org.exoplatform.task.util.TaskUtil;
 import org.exoplatform.web.WebAppController;
 import org.exoplatform.web.controller.router.Router;
 

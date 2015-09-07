@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.task.utils.ListUtil;
+import org.exoplatform.task.util.ListUtil;
 
 import org.junit.After;
 import org.junit.Assert;

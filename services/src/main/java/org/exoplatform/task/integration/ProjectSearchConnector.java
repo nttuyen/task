@@ -33,9 +33,9 @@ import org.exoplatform.services.security.Identity;
 import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.service.ProjectService;
-import org.exoplatform.task.utils.ProjectUtil;
-import org.exoplatform.task.utils.ResourceUtil;
-import org.exoplatform.task.utils.StringUtil;
+import org.exoplatform.task.util.ProjectUtil;
+import org.exoplatform.task.util.ResourceUtil;
+import org.exoplatform.task.util.StringUtil;
 import org.exoplatform.web.WebAppController;
 
 public class ProjectSearchConnector extends SearchServiceConnector {

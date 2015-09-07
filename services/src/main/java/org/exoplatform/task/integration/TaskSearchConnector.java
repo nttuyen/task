@@ -38,11 +38,11 @@ import org.exoplatform.task.domain.Priority;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.UserService;
-import org.exoplatform.task.utils.ListUtil;
-import org.exoplatform.task.utils.ResourceUtil;
-import org.exoplatform.task.utils.StringUtil;
-import org.exoplatform.task.utils.TaskUtil;
-import org.exoplatform.task.utils.UserUtils;
+import org.exoplatform.task.util.ListUtil;
+import org.exoplatform.task.util.ResourceUtil;
+import org.exoplatform.task.util.StringUtil;
+import org.exoplatform.task.util.TaskUtil;
+import org.exoplatform.task.util.UserUtil;
 import org.exoplatform.web.WebAppController;
 
 public class TaskSearchConnector extends SearchServiceConnector {
@@ -81,7 +81,7 @@ public class TaskSearchConnector extends SearchServiceConnector {
     query = StringUtil.FUZZY.matcher(query.trim()).replaceAll("");
     
     Identity currentUser = ConversationState.getCurrent().getIdentity(); 
-    List<String> permissions = UserUtils.getMemberships(currentUser);
+    List<String> permissions = UserUtil.getMemberships(currentUser);
 
     TaskQuery taskQuery = new TaskQuery();
     taskQuery.setAssignee(currentUser.getUserId());

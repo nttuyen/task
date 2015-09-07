@@ -55,9 +55,9 @@ import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.TaskParser;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.UserService;
-import org.exoplatform.task.utils.ListUtil;
-import org.exoplatform.task.utils.ProjectUtil;
-import org.exoplatform.task.utils.TaskUtil;
+import org.exoplatform.task.util.ListUtil;
+import org.exoplatform.task.util.ProjectUtil;
+import org.exoplatform.task.util.TaskUtil;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.

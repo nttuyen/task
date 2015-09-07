@@ -61,8 +61,9 @@ import org.exoplatform.task.model.User;
 import org.exoplatform.task.model.UserGroup;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.UserService;
-import org.exoplatform.task.utils.ProjectUtil;
-import org.exoplatform.task.utils.UserUtils;
+import org.exoplatform.task.util.ProjectUtil;
+import org.exoplatform.task.util.UserUtil;
+import org.exoplatform.webui.organization.AccessGroupListAccess;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -160,7 +161,7 @@ public class ProjectController {
     try {
       Project project;
       if (space_group_id  != null) {
-        List<String> memberships = UserUtils.getSpaceMemberships(space_group_id);
+        List<String> memberships = UserUtil.getSpaceMemberships(space_group_id);
         Set<String> managers = new HashSet<String>(Arrays.asList(currentUser, memberships.get(0)));
         Set<String> participators = new HashSet<String>(Arrays.asList(memberships.get(1)));
         //project = projectService.createDefaultStatusProjectWithAttributes(parentId, name, description, managers, participators);
@@ -419,7 +420,7 @@ public class ProjectController {
 
     List<UserGroup> allGroups = new ArrayList<UserGroup>();
     if (groups != null) {
-      allGroups = UserUtils.buildGroupTree(groups);
+      allGroups = UserUtil.buildGroupTree(groups);
     }
 
     List<String> allMSTypes = new ArrayList<String>();

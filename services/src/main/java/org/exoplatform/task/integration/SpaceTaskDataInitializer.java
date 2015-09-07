@@ -29,8 +29,8 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.service.ProjectService;
-import org.exoplatform.task.utils.ProjectUtil;
-import org.exoplatform.task.utils.UserUtils;
+import org.exoplatform.task.util.ProjectUtil;
+import org.exoplatform.task.util.UserUtil;
 
 public class SpaceTaskDataInitializer extends SpaceListenerPlugin {
   
@@ -51,7 +51,7 @@ public class SpaceTaskDataInitializer extends SpaceListenerPlugin {
     Space space = event.getSpace();
     String space_group_id = space.getGroupId();
   
-    List<String> memberships = UserUtils.getSpaceMemberships(space_group_id);
+    List<String> memberships = UserUtil.getSpaceMemberships(space_group_id);
     Set<String> managers = new HashSet<String>(Arrays.asList(memberships.get(0)));
     Set<String> participators = new HashSet<String>(Arrays.asList(memberships.get(1)));
 

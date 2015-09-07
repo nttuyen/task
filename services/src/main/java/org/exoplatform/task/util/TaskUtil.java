@@ -14,7 +14,7 @@
 * You should have received a copy of the GNU Lesser General Public License
 * along with this program. If not, see http://www.gnu.org/licenses/ .
 */
-package org.exoplatform.task.utils;
+package org.exoplatform.task.util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,11 +30,11 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
+import org.exoplatform.calendar.model.Event;
+import org.exoplatform.calendar.service.impl.NewUserListener;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.portal.mop.SiteKey;
-import org.exoplatform.calendar.model.Event;
-import org.exoplatform.calendar.service.impl.NewUserListener;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
@@ -158,7 +158,7 @@ public final class TaskUtil {
     List<CommentModel> comments = new ArrayList<CommentModel>(cmts.size());
     for(Comment c : cmts) {
       org.exoplatform.task.model.User u = userService.loadUser(c.getAuthor());
-      comments.add(new CommentModel(c, u, CommentUtils.formatMention(c.getComment(), userService)));
+      comments.add(new CommentModel(c, u, CommentUtil.formatMention(c.getComment(), userService)));
     }
     taskModel.setComments(comments);
 

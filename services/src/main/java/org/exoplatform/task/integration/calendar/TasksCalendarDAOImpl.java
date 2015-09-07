@@ -31,8 +31,8 @@ import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.service.ProjectService;
-import org.exoplatform.task.utils.ProjectUtil;
-import org.exoplatform.task.utils.UserUtils;
+import org.exoplatform.task.util.ProjectUtil;
+import org.exoplatform.task.util.UserUtil;
 
 public class TasksCalendarDAOImpl implements CalendarDAO {
   
@@ -73,7 +73,7 @@ public class TasksCalendarDAOImpl implements CalendarDAO {
   @Override
   public List<Calendar> findCalendars(CalendarQuery query) {   
     Identity identity = query.getIdentity();
-    List<String> permissions = UserUtils.getMemberships(identity);
+    List<String> permissions = UserUtil.getMemberships(identity);
         
     List<Project> projects = projectService.getProjectTreeByMembership(permissions);
     projects = ProjectUtil.flattenTree(projects);

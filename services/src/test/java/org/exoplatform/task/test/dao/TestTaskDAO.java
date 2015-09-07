@@ -36,7 +36,7 @@ import org.exoplatform.task.service.ParserContext;
 import org.exoplatform.task.service.TaskParser;
 import org.exoplatform.task.service.impl.TaskParserImpl;
 import org.exoplatform.task.test.AbstractTest;
-import org.exoplatform.task.utils.ListUtil;
+import org.exoplatform.task.util.ListUtil;
 
 import org.junit.After;
 import org.junit.Assert;

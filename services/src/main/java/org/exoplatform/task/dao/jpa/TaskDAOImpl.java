@@ -44,7 +44,7 @@ import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.utils.TaskUtil;
+import org.exoplatform.task.util.TaskUtil;
 
 /**
  * Created by The eXo Platform SAS

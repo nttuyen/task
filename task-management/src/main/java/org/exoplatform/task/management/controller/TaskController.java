@@ -70,11 +70,12 @@ import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskParser;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.UserService;
-import org.exoplatform.task.utils.CommentUtils;
-import org.exoplatform.task.utils.DateUtil;
-import org.exoplatform.task.utils.ListUtil;
-import org.exoplatform.task.utils.ProjectUtil;
-import org.exoplatform.task.utils.TaskUtil;
+import org.exoplatform.task.util.CommentUtil;
+import org.exoplatform.task.util.DateUtil;
+import org.exoplatform.task.util.ListUtil;
+import org.exoplatform.task.util.ProjectUtil;
+import org.exoplatform.task.util.TaskUtil;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -319,7 +320,7 @@ public class TaskController {
       Comment cmt = taskService.addCommentToTaskId(taskId, currentUser, comment); //Can throw TaskNotFoundException
 
       //TODO:
-      CommentModel model = new CommentModel(cmt, userService.loadUser(cmt.getAuthor()), CommentUtils.formatMention(cmt.getComment(), userService));
+      CommentModel model = new CommentModel(cmt, userService.loadUser(cmt.getAuthor()), CommentUtil.formatMention(cmt.getComment(), userService));
 
       DateFormat df = new SimpleDateFormat("MMM dd, yyyy HH:mm");
       df.setTimeZone(userService.getUserTimezone(currentUser));
@@ -361,7 +362,7 @@ public class TaskController {
       List<CommentModel> listComments = new ArrayList<CommentModel>(cmts.length);
       for(Comment cmt : cmts) {
         org.exoplatform.task.model.User u = userService.loadUser(cmt.getAuthor());
-        listComments.add(new CommentModel(cmt, u, CommentUtils.formatMention(cmt.getComment(), userService)));
+        listComments.add(new CommentModel(cmt, u, CommentUtil.formatMention(cmt.getComment(), userService)));
       }
 
       org.exoplatform.task.model.User currentUser = userService.loadUser(securityContext.getRemoteUser());

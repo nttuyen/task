@@ -36,9 +36,9 @@ import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.service.TaskService;
-import org.exoplatform.task.utils.ListUtil;
-import org.exoplatform.task.utils.ProjectUtil;
-import org.exoplatform.task.utils.TaskUtil;
+import org.exoplatform.task.util.ListUtil;
+import org.exoplatform.task.util.ProjectUtil;
+import org.exoplatform.task.util.TaskUtil;
 
 public class TasksEventDAOImpl implements EventDAO {
   

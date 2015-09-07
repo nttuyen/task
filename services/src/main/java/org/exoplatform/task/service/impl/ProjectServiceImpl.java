@@ -43,8 +43,8 @@ import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
-import org.exoplatform.task.utils.ProjectUtil;
-import org.exoplatform.task.utils.UserUtils;
+import org.exoplatform.task.util.ProjectUtil;
+import org.exoplatform.task.util.UserUtil;
 
 /**
  * Created by The eXo Platform SAS
@@ -308,7 +308,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public List<Project> findProjectByKeyWord(Identity identity, String keyword, OrderBy order) {
-    List<String> memberships = UserUtils.getMemberships(identity);
+    List<String> memberships = UserUtil.getMemberships(identity);
     return daoHandler.getProjectHandler().findAllByMembershipsAndKeyword(memberships, keyword, order);
   }
 }

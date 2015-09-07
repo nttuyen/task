@@ -24,6 +24,7 @@ import juzu.Resource;
 import juzu.Response;
 import juzu.impl.common.Tools;
 import juzu.request.SecurityContext;
+
 import org.exoplatform.commons.juzu.ajax.Ajax;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.organization.OrganizationService;
@@ -34,11 +35,13 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
 import org.exoplatform.task.exception.ProjectNotFoundException;
-import org.exoplatform.task.utils.UserUtils;
+import org.exoplatform.task.util.UserUtil;
 import org.exoplatform.task.service.UserService;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import javax.inject.Inject;
 
 /**
@@ -65,7 +68,7 @@ public class UserController {
                 org.exoplatform.task.model.User user = userService.loadUser(u.getUserName());
                 JSONObject json = new JSONObject();
                 json.put("id", u.getUserName());
-                String displayName = UserUtils.getDisplayName(u);
+                String displayName = UserUtil.getDisplayName(u);
                 json.put("text", displayName);
                 json.put("avatar", user.getAvatar());
                 array.put(json);

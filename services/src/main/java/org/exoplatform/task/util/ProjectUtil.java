@@ -14,7 +14,7 @@
 * You should have received a copy of the GNU Lesser General Public License
 * along with this program. If not, see http://www.gnu.org/licenses/ .
 */
-package org.exoplatform.task.utils;
+package org.exoplatform.task.util;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -98,9 +98,9 @@ public final class ProjectUtil {
     if (space_group_id == null) {
       ConversationState state = ConversationState.getCurrent();
       Identity identity = state.getIdentity();
-      memberships.addAll(UserUtils.getMemberships(identity));      
+      memberships.addAll(UserUtil.getMemberships(identity));      
     } else {
-      memberships.addAll(UserUtils.getSpaceMemberships(space_group_id));
+      memberships.addAll(UserUtil.getSpaceMemberships(space_group_id));
     }    
     
     return projectService.getProjectTreeByMembership(memberships);

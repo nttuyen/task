@@ -38,7 +38,7 @@ import org.exoplatform.task.integration.calendar.TasksStorage;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.test.AbstractTest;
-import org.exoplatform.task.utils.ProjectUtil;
+import org.exoplatform.task.util.ProjectUtil;
 
 public class TestTasksStorage extends AbstractTest {
 

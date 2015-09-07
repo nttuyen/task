@@ -33,7 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.exoplatform.task.utils.ProjectUtil;
+import org.exoplatform.task.util.ProjectUtil;
 
 import org.junit.After;
 import org.junit.Before;
