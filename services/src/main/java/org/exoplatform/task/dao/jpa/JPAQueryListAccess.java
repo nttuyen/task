@@ -19,12 +19,12 @@
 
 package org.exoplatform.task.dao.jpa;
 
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.task.domain.Task;
-
-import javax.persistence.TypedQuery;
 import java.lang.reflect.Array;
 import java.util.List;
+
+import javax.persistence.TypedQuery;
+
+import org.exoplatform.commons.utils.ListAccess;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.

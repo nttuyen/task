@@ -1,7 +1,6 @@
 package org.exoplatform.task.service;
 
 import java.util.List;
-import java.util.Set;
 
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.task.dao.OrderBy;

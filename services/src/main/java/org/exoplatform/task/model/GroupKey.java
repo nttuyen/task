@@ -23,6 +23,7 @@ package org.exoplatform.task.model;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
+//TODO Clear the purpose of this class and improve to make it transparent.
 public class GroupKey<T> implements Comparable<GroupKey> {
   private final String name;
   private final T value;

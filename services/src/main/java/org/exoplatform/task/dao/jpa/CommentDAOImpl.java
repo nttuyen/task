@@ -22,19 +22,12 @@
 
 package org.exoplatform.task.dao.jpa;
 
-import java.util.Collections;
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.dao.CommentHandler;
 import org.exoplatform.task.domain.Comment;
-import org.exoplatform.task.domain.Task;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.

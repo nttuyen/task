@@ -28,7 +28,6 @@ import org.exoplatform.calendar.storage.CalendarDAO;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.util.ProjectUtil;
