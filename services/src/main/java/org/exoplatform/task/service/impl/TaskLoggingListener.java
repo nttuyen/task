@@ -20,34 +20,21 @@ package org.exoplatform.task.service.impl;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+
+import org.exoplatform.services.listener.Event;
+import org.exoplatform.services.listener.Listener;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.exception.TaskNotFoundException;
-import org.exoplatform.task.service.TaskListener;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.impl.TaskEvent.Type;
 
-public class TaskLoggingListener implements TaskListener {
+public class TaskLoggingListener extends Listener<TaskService, TaskEvent> {
 
   private static final Log LOG = ExoLogger.getExoLogger(TaskLoggingListener.class);
-  
-  @Override
-  public void event(TaskEvent event) {
-    TaskService service = event.getContext();
-    
-    String username = ConversationState.getCurrent().getIdentity().getUserId();
-    String[] msg = getMsg(event);
-    try {
-      if (msg[0] != null) {
-        service.addTaskLog(event.getTask().getId(),username, msg[0], msg[1]);        
-      }
-    } catch (TaskNotFoundException e) {
-      LOG.error(e);
-    }
-  }
 
   private String[] getMsg(TaskEvent event) {
     String msg, val = "";
@@ -105,5 +92,21 @@ public class TaskLoggingListener implements TaskListener {
     }
     
     return new String[] {msg, val};
+  }
+
+  @Override
+  public void onEvent(Event<TaskService, TaskEvent> event) throws Exception {
+    TaskService service = event.getSource();
+    
+    String username = ConversationState.getCurrent().getIdentity().getUserId();
+    TaskEvent data = event.getData();
+    String[] msg = getMsg(data);
+    try {
+      if (msg[0] != null) {
+        service.addTaskLog(data.getTask().getId(),username, msg[0], msg[1]);        
+      }
+    } catch (TaskNotFoundException e) {
+      LOG.error(e);
+    }
   }
 }

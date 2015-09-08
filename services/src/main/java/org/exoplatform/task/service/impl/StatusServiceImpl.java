@@ -166,22 +166,6 @@ public class StatusServiceImpl implements StatusService {
     return daoHandler.getStatusHandler().update(status);
   }
 
-  @Override
-  public Status swapPosition(long statusID, long otherID) throws NotAllowedOperationOnEntityException {
-    StatusHandler handler = daoHandler.getStatusHandler();
-    Status status = handler.find(statusID);
-    Status other = handler.find(otherID);
-    //
-    if (status == null || other == null) {
-      throw new NotAllowedOperationOnEntityException(statusID, "status", "swap with null status");
-    }
-    
-    Integer rank = status.getRank();
-    status.setRank(other.getRank());
-    other.setRank(rank);
-    return status;
-  }
-
   private Status findAltStatus(Status st, Project project) {
     List<Status> allSt = new LinkedList<Status>(project.getStatus());
     Collections.sort(allSt);

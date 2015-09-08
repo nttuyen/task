@@ -21,6 +21,10 @@ import org.exoplatform.task.exception.TaskNotFoundException;
  */
 public interface TaskService {
 
+  String TASK_CREATION = "exo.task.taskCreation";
+
+  String TASK_UPDATE = "exo.task.taskUpdate";
+
   Task createTask(Task task);
 
   Task saveTaskField(long taskId, String fieldName, String[] values, TimeZone timezone)
@@ -44,6 +48,16 @@ public interface TaskService {
 
   public <T> List<T> selectTaskField(TaskQuery query, String fieldName);
 
+  /**
+   * Createa a log associated with a task with given <code>taskId</code>.
+   * 
+   * @param taskId
+   * @param username
+   * @param msg
+   * @param target
+   * @return
+   * @throws TaskNotFoundException
+   */
   TaskLog addTaskLog(long taskId, String username, String msg, String target) throws TaskNotFoundException;
 
   //TODO: should use via #findTasks(TaskQuery)?

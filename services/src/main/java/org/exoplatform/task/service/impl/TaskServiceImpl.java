@@ -22,9 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -33,6 +31,7 @@ import javax.inject.Singleton;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.task.dao.DAOHandler;
@@ -46,7 +45,6 @@ import org.exoplatform.task.exception.CommentNotFoundException;
 import org.exoplatform.task.exception.ParameterEntityException;
 import org.exoplatform.task.exception.StatusNotFoundException;
 import org.exoplatform.task.exception.TaskNotFoundException;
-import org.exoplatform.task.service.TaskListener;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.impl.TaskEvent.EventBuilder;
 import org.exoplatform.task.service.impl.TaskEvent.Type;
@@ -64,20 +62,17 @@ public class TaskServiceImpl implements TaskService {
 
   @Inject
   private DAOHandler daoHandler;
-  
-  private List<TaskListener> listeners = new LinkedList<TaskListener>();
 
-  public TaskServiceImpl(DAOHandler daoHandler) {
+  private ListenerService listenerService;
+  
+  public TaskServiceImpl(DAOHandler daoHandler, ListenerService listenerService) {
     this.daoHandler = daoHandler;
-    for (TaskListener listener : ServiceLoader.load(TaskListener.class)) {
-      listeners.add(listener);
-    }
+    this.listenerService = listenerService;
   }
 
   // Just for test purpose
-  static public TaskServiceImpl createInstance(DAOHandler hl, List<TaskListener> ls) {
-    TaskServiceImpl sv = new TaskServiceImpl(hl);
-    sv.listeners = ls;
+  static public TaskServiceImpl createInstance(DAOHandler hl, ListenerService listenerService) {
+    TaskServiceImpl sv = new TaskServiceImpl(hl, listenerService);
     return sv;
   }
 
@@ -88,7 +83,11 @@ public class TaskServiceImpl implements TaskService {
     //
     EventBuilder builder = new TaskEvent.EventBuilder(this);
     builder.withTask(result).withType(TaskEvent.Type.CREATED);
-    triggerEvent(builder.build());
+    try {
+      listenerService.broadcast(TASK_CREATION, this, builder.build());
+    } catch (Exception e) {
+      LOG.error("Error while broadcasting task creation event", e);
+    }
 
     return result;
   }
@@ -250,8 +249,12 @@ public class TaskServiceImpl implements TaskService {
 
     Task result = updateTask(task);
     TaskEvent event = builder.build();
-    if (event.getType() != null) {      
-      triggerEvent(builder.build());
+    if (event.getType() != null) {
+      try {
+        listenerService.broadcast("exo.task.updateTask", this, event);
+      } catch (Exception e) {
+        LOG.error("Error while broadcasting the task update event", e);
+      }
     }
 
     //TODO: save order of task here?
@@ -371,12 +374,6 @@ public class TaskServiceImpl implements TaskService {
   
   private Task updateTask(Task task) {
     return daoHandler.getTaskHandler().update(task);
-  }
-  
-  private void triggerEvent(TaskEvent event) {
-    for (TaskListener listener : listeners) {
-      listener.event(event);
-    }
   }
 
   @Override

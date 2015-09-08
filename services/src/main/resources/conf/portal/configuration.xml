@@ -101,4 +101,19 @@
       <type>org.exoplatform.task.integration.calendar.TasksStorage</type>
     </component-plugin>
   </external-component-plugins>
+
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.listener.task.taskCreation</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.task.service.impl.TaskLoggingListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.listener.task.taskUpdate</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.task.service.impl.TaskLoggingListener</type>
+    </component-plugin>
+  </external-component-plugins>
 </configuration>
