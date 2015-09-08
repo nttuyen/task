@@ -55,18 +55,8 @@ import org.exoplatform.task.util.TaskUtil;
  */
 public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHandler {
 
-  private EntityManagerService entityService;
-
-  public TaskDAOImpl(EntityManagerService entityService) {
-    this.entityService = entityService;
+  public TaskDAOImpl() {
   }
-
-  @Override
-  public EntityManager getEntityManager() {
-    return entityService.getEntityManager();
-  }
-
-
 
   @Override
   public List<Task> findByUser(String user) {

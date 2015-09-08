@@ -47,15 +47,7 @@ public class ProjectDAOImpl extends GenericDAOJPAImpl<Project, Long> implements 
 
   private static final Logger LOG = Logger.getLogger("ProjectDAOImpl");
 
-  private EntityManagerService entityService;
-
-  public ProjectDAOImpl(EntityManagerService entityService) {
-    this.entityService = entityService;
-  }
-  
-  @Override
-  public EntityManager getEntityManager() {
-    return entityService.getEntityManager();
+  public ProjectDAOImpl() {
   }
 
   @Override

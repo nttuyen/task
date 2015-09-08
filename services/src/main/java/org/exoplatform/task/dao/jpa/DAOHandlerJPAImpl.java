@@ -35,13 +35,13 @@ public class DAOHandlerJPAImpl extends AbstractDAOHandler implements DAOHandler 
 
   private static final Log LOG = ExoLogger.getLogger("DAOHandlerJPAImpl");
 
-  public DAOHandlerJPAImpl(EntityManagerService entityService) {
+  public DAOHandlerJPAImpl() {
     LOG.info("DAOHandlerJPAImpl is creating...");
-    pHandler = new ProjectDAOImpl(entityService);
-    tHandler = new TaskDAOImpl(entityService);
+    pHandler = new ProjectDAOImpl();
+    tHandler = new TaskDAOImpl();
     cHandler = new CommentDAOImpl();
-    sHandler = new StatusDAOImpl(entityService);
-    uHandler = new UserSettingDAO(entityService);
+    sHandler = new StatusDAOImpl();
+    uHandler = new UserSettingDAO();
     LOG.info("DAOHandlerJPAImpl is created");
   }
 }

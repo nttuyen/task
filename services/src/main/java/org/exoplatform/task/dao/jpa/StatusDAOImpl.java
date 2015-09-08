@@ -39,15 +39,7 @@ import org.exoplatform.task.domain.Status;
  */
 public class StatusDAOImpl extends GenericDAOJPAImpl<Status, Long> implements StatusHandler {
 
-  private EntityManagerService entityService;
-
-  public StatusDAOImpl(EntityManagerService entityService) {
-    this.entityService = entityService;
-  }
-  
-  @Override
-  public EntityManager getEntityManager() {
-    return entityService.getEntityManager();
+  public StatusDAOImpl() {
   }
 
   @Override

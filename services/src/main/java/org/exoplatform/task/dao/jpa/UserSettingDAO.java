@@ -31,15 +31,7 @@ import org.exoplatform.task.domain.UserSetting;
  */
 public class UserSettingDAO extends GenericDAOJPAImpl<UserSetting, String> implements UserSettingHandler {
 
-  private EntityManagerService entityService;
-
-  public UserSettingDAO(EntityManagerService entityService) {
-    this.entityService = entityService;
-  }
-
-  @Override
-  public EntityManager getEntityManager() {
-    return entityService.getEntityManager();
+  public UserSettingDAO() {
   }
 
   @Override
