@@ -30,14 +30,9 @@ public abstract class AbstractEntityException extends Exception {
   @Deprecated
   private String entityType;
 
-  //TODO: remove this field
-  @Deprecated
-  private Integer httpStatusCode;
-
   public AbstractEntityException(Long entityId, String entityType, Integer httpStatusCode) {
     this.entityId = entityId;
     this.entityType = entityType;
-    this.httpStatusCode = httpStatusCode;
   }
 
   @Override
@@ -54,11 +49,5 @@ public abstract class AbstractEntityException extends Exception {
 
   public String getEntityType() {
     return entityType;
-  }
-
-  //TODO: remove this method
-  @Deprecated
-  public Integer getHttpStatusCode() {
-    return httpStatusCode;
   }
 }

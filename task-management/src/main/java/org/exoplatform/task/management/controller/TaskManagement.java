@@ -214,6 +214,7 @@ public class TaskManagement {
     return TaskManagement_.index(space_group_id);
   }
 
+  //TODO: this method is not used any more?
   @Action
   public Response changeViewState(String space_group_id, String groupBy, String orderBy) {
     return TaskManagement_.index(space_group_id);

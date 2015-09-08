@@ -59,6 +59,8 @@ import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.TaskLog;
 import org.exoplatform.task.exception.AbstractEntityException;
 import org.exoplatform.task.exception.EntityNotFoundException;
+import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
+import org.exoplatform.task.exception.ParameterEntityException;
 import org.exoplatform.task.model.CommentModel;
 import org.exoplatform.task.model.GroupKey;
 import org.exoplatform.task.model.TaskModel;
@@ -81,8 +83,7 @@ import org.json.JSONObject;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class TaskController {
-  private static final Log LOG = ExoLogger.getExoLogger(TaskController.class);
+public class TaskController extends AbstractController {
 
   private static final List<String> VIEW_TYPES = Arrays.asList("list", "board");
 
@@ -132,24 +133,15 @@ public class TaskController {
   @Resource
   @Ajax
   @MimeType.HTML
-  public Response detail(Long id, SecurityContext securityContext) {
+  public Response detail(Long id, SecurityContext securityContext) throws EntityNotFoundException {
+    TaskModel model = TaskUtil.getTaskModel(id, false, bundle, securityContext.getRemoteUser(), taskService, orgService, userService, projectService);
+    TimeZone timezone = userService.getUserTimezone(securityContext.getRemoteUser());
 
-    try {
-
-      TaskModel model = TaskUtil.getTaskModel(id, false, bundle, securityContext.getRemoteUser(), taskService, orgService, userService, projectService);
-      TimeZone timezone = userService.getUserTimezone(securityContext.getRemoteUser());
-      
-      return detail.with()
-          .taskModel(model)
-          .timezone(timezone)
-          .bundle(bundle)
-          .ok().withCharset(Tools.UTF_8);
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    } catch (Exception ex) {// NOSONAR
-      return Response.status(500).body(ex.getMessage());
-    }
+    return detail.with()
+        .taskModel(model)
+        .timezone(timezone)
+        .bundle(bundle)
+        .ok().withCharset(Tools.UTF_8);
   }
   
   @Resource
@@ -180,9 +172,7 @@ public class TaskController {
   @Resource
   @Ajax
   @MimeType.HTML
-  public Response renderTaskComments(Long id, Boolean loadAllComment, SecurityContext securityContext) {
-    try {
-
+  public Response renderTaskComments(Long id, Boolean loadAllComment, SecurityContext securityContext) throws EntityNotFoundException {
       if (loadAllComment == null) {
         loadAllComment = Boolean.FALSE;
       }
@@ -192,81 +182,51 @@ public class TaskController {
               .taskModel(model)
               .bundle(bundle)
               .ok().withCharset(Tools.UTF_8);
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    } catch (Exception ex) {// NOSONAR
-      return Response.status(500).body(ex.getMessage());
-    }
   }
 
   @Resource
   @Ajax
   @MimeType.JSON
-  public Response clone(Long id) {
-
-    try {
-
+  public Response clone(Long id) throws EntityNotFoundException, JSONException {
       Task newTask = taskService.cloneTask(id); //Can throw TaskNotFoundException
 
       JSONObject json = new JSONObject();
       json.put("id", newTask.getId()); //Can throw JSONException
       return Response.ok(json.toString());
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    } catch (JSONException ex) {
-      return Response.status(500).body(ex.getMessage());
-    }
   }
 
   @Resource
   @Ajax
   @MimeType.JSON
-  public Response delete(Long id) {
+  public Response delete(Long id) throws EntityNotFoundException, JSONException {
+    taskService.deleteTask(id);//Can throw TaskNotFoundException
 
-    try {
-
-      taskService.deleteTask(id);//Can throw TaskNotFoundException
-
-      JSONObject json = new JSONObject();
-      json.put("id", id); //Can throw JSONException
-      return Response.ok(json.toString());
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    } catch (JSONException ex) {
-      return Response.status(500).body(ex.getMessage());
-    }
+    JSONObject json = new JSONObject();
+    json.put("id", id); //Can throw JSONException
+    return Response.ok(json.toString());
   }
 
   @Resource
   @Ajax
   @MimeType("text/plain")
-  public Response saveTaskInfo(Long taskId, String name, String[] value, SecurityContext context) {
+  public Response saveTaskInfo(Long taskId, String name, String[] value, SecurityContext context) throws EntityNotFoundException, ParameterEntityException {
+    TimeZone timezone = userService.getUserTimezone(context.getRemoteUser());
+    Task task = taskService.saveTaskField(taskId, name, value, timezone); //Can throw TaskNotFoundException & ParameterEntityException & StatusNotFoundException
 
-    try {
-      TimeZone timezone = userService.getUserTimezone(context.getRemoteUser());
-      Task task = taskService.saveTaskField(taskId, name, value, timezone); //Can throw TaskNotFoundException & ParameterEntityException & StatusNotFoundException
+    String response = "Update successfully";
+    if ("workPlan".equalsIgnoreCase(name)) {
+      Calendar start = DateUtil.newCalendarInstance(timezone);
+      start.setTime(task.getStartDate());
+      Calendar end = DateUtil.newCalendarInstance(timezone);
+      end.setTime(task.getEndDate());
 
-      String response = "Update successfully";
-      if ("workPlan".equalsIgnoreCase(name)) {        
-        Calendar start = DateUtil.newCalendarInstance(timezone);
-        start.setTime(task.getStartDate());
-        Calendar end = DateUtil.newCalendarInstance(timezone);
-        end.setTime(task.getEndDate());
-        
-        response = TaskUtil.getWorkPlan(start, end, bundle);
-        if (response == null) {
-          response = bundle.getString("label.noWorkPlan");
-        }
+      response = TaskUtil.getWorkPlan(start, end, bundle);
+      if (response == null) {
+        response = bundle.getString("label.noWorkPlan");
       }
-
-      return Response.ok(response);
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
     }
+
+    return Response.ok(response);
   }
 
   @Resource
@@ -291,68 +251,49 @@ public class TaskController {
   @Resource
   @Ajax
   @MimeType("text/plain")
-  public Response updateCompleted(Long taskId, Boolean completed, SecurityContext securityContext) {
-
-    try {
-
-      String currentUser = securityContext.getRemoteUser();
-      taskService.saveTaskField(taskId, "completed", new String[]{String.valueOf(completed)}, userService.getUserTimezone(currentUser));
-      //taskService.updateTaskCompleted(taskId, completed); //Can throw TaskNotFoundException & ParameterEntityException
-      return Response.ok("Update successfully");
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    }
+  public Response updateCompleted(Long taskId, Boolean completed, SecurityContext securityContext) throws EntityNotFoundException, ParameterEntityException {
+    String currentUser = securityContext.getRemoteUser();
+    taskService.saveTaskField(taskId, "completed", new String[]{String.valueOf(completed)}, userService.getUserTimezone(currentUser));
+    //taskService.updateTaskCompleted(taskId, completed); //Can throw TaskNotFoundException & ParameterEntityException
+    return Response.ok("Update successfully");
   }
 
   @Resource
   @Ajax
   @MimeType.JSON
-  public Response comment(Long taskId, String comment, SecurityContext securityContext) {
+  public Response comment(Long taskId, String comment, SecurityContext securityContext) throws EntityNotFoundException, JSONException {
 
     String currentUser = securityContext.getRemoteUser();
     if (currentUser == null || currentUser.isEmpty()) {
       return Response.status(401);
     }
 
-    try {
+    Comment cmt = taskService.createComment(taskId, currentUser, comment); //Can throw TaskNotFoundException
 
-      Comment cmt = taskService.createComment(taskId, currentUser, comment); //Can throw TaskNotFoundException
+    //TODO:
+    CommentModel model = new CommentModel(cmt, userService.loadUser(cmt.getAuthor()), CommentUtil.formatMention(cmt.getComment(), userService));
 
-      //TODO:
-      CommentModel model = new CommentModel(cmt, userService.loadUser(cmt.getAuthor()), CommentUtil.formatMention(cmt.getComment(), userService));
+    DateFormat df = new SimpleDateFormat("MMM dd, yyyy HH:mm");
+    df.setTimeZone(userService.getUserTimezone(currentUser));
 
-      DateFormat df = new SimpleDateFormat("MMM dd, yyyy HH:mm");
-      df.setTimeZone(userService.getUserTimezone(currentUser));
-
-      JSONObject json = new JSONObject();
-      json.put("id", model.getId()); //Can throw JSONException (same for all #json.put methods below)
-      JSONObject user = new JSONObject();
-      user.put("username", model.getAuthor().getUsername());
-      user.put("displayName", model.getAuthor().getDisplayName());
-      user.put("avatar", model.getAuthor().getAvatar());
-      json.put("author", user);
-      json.put("comment", model.getComment());
-      json.put("formattedComment", model.getFormattedComment());
-      json.put("createdTime", model.getCreatedTime().getTime());
-      json.put("createdTimeString", df.format(model.getCreatedTime()));
-      return Response.ok(json.toString()).withCharset(Tools.UTF_8);
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    }
-    catch (JSONException ex) {
-      return Response.status(500).body(ex.getMessage());
-    }
+    JSONObject json = new JSONObject();
+    json.put("id", model.getId()); //Can throw JSONException (same for all #json.put methods below)
+    JSONObject user = new JSONObject();
+    user.put("username", model.getAuthor().getUsername());
+    user.put("displayName", model.getAuthor().getDisplayName());
+    user.put("avatar", model.getAuthor().getAvatar());
+    json.put("author", user);
+    json.put("comment", model.getComment());
+    json.put("formattedComment", model.getFormattedComment());
+    json.put("createdTime", model.getCreatedTime().getTime());
+    json.put("createdTimeString", df.format(model.getCreatedTime()));
+    return Response.ok(json.toString()).withCharset(Tools.UTF_8);
   }
 
   @Resource
   @Ajax
   @MimeType.HTML
-  public Response loadAllComments(Long taskId, SecurityContext securityContext) {
-
-    try {
-
+  public Response loadAllComments(Long taskId, SecurityContext securityContext) throws EntityNotFoundException {
       // Verify task exists
       Task task = taskService.getTask(taskId);
 
@@ -373,27 +314,14 @@ public class TaskController {
           .currentUser(currentUser)
           .ok()
           .withCharset(Tools.UTF_8);
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    }
-
   }
 
   @Resource
   @Ajax
   @MimeType("text/plain")
-  public Response deleteComment(Long commentId) {
-
-    try {
-
-      taskService.deleteComment(commentId); //Can throw CommentNotFoundException
-      return Response.ok("Delete comment successfully!");
-
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    }
-
+  public Response deleteComment(Long commentId) throws EntityNotFoundException {
+    taskService.deleteComment(commentId); //Can throw CommentNotFoundException
+    return Response.ok("Delete comment successfully!");
   }
 
   @Resource
@@ -676,7 +604,7 @@ public class TaskController {
   @Resource(method = HttpMethod.POST)
   @Ajax
   @MimeType.JSON
-  public Response createTask(Long projectId, String taskInput, String filter, SecurityContext securityContext) {
+  public Response createTask(Long projectId, String taskInput, String filter, SecurityContext securityContext) throws EntityNotFoundException, JSONException {
 
     if(taskInput == null || taskInput.isEmpty()) {
       return Response.content(406, "Task input must not be null or empty");
@@ -693,17 +621,13 @@ public class TaskController {
 
     //Project task
     if(projectId > 0) {
-      try {
-        Status status = statusService.getDefaultStatus(projectId);
-        if (status == null) {
-          throw new ProjectNotFoundException(projectId);
-        }
-        task.setStatus(status);
-        //taskService.createTask(task);
-        //projectService.createTaskToProjectId(projectId, task);
-      } catch (AbstractEntityException e) {
-        return Response.status(e.getHttpStatusCode()).body(e.getMessage());
+      Status status = statusService.getDefaultStatus(projectId);
+      if (status == null) {
+        throw new EntityNotFoundException(projectId, Project.class);
       }
+      task.setStatus(status);
+      //taskService.createTask(task);
+      //projectService.createTaskToProjectId(projectId, task);
     }
     else {
       task.setAssignee(currentUser);
@@ -736,15 +660,11 @@ public class TaskController {
       taskNum = ListUtil.getSize(taskListAccess);
     }
 
-    try {
-      JSONObject json = new JSONObject();
-      json.put("id", task.getId());
-      json.put("taskNum", taskNum);
-      
-      return Response.ok(json.toString());
-    } catch (JSONException ex) {
-      return Response.status(500).body("JSONException: " + ex);
-    }
+    JSONObject json = new JSONObject();
+    json.put("id", task.getId());
+    json.put("taskNum", taskNum);
+
+    return Response.ok(json.toString());
   }
 
   @Resource
@@ -780,31 +700,23 @@ public class TaskController {
   @Resource(method = HttpMethod.POST)
   @Ajax
   @MimeType.HTML
-  public Response removeStatus(Long statusId, SecurityContext securityContext) {
-    try {
-      Status status = statusService.getStatus(statusId);
-      Project project = status.getProject();
-      if (project.getStatus().size() > 1) {
-        statusService.deleteStatus(statusId);
-        return listTasks(null, project.getId(), null, null, null, null, "board", securityContext);
-      } else {
-        return Response.error("Can't delete last status");
-      }
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
+  public Response removeStatus(Long statusId, SecurityContext securityContext) throws EntityNotFoundException, NotAllowedOperationOnEntityException {
+    Status status = statusService.getStatus(statusId);
+    Project project = status.getProject();
+    if (project.getStatus().size() > 1) {
+      statusService.deleteStatus(statusId);
+      return listTasks(null, project.getId(), null, null, null, null, "board", securityContext);
+    } else {
+      return Response.error("Can't delete last status");
     }
   }
 
   @Resource(method = HttpMethod.POST)
   @Ajax
   @MimeType.HTML
-  public Response createStatus(String name, Long projectId, SecurityContext securityContext) {
-    try {
-      Project project = projectService.getProject(projectId);
-      Status status = statusService.createStatus(project, name);
-      return listTasks(null, projectId, null, null, null, null, "board", securityContext);
-    } catch (AbstractEntityException e) {
-      return Response.status(e.getHttpStatusCode()).body(e.getMessage());
-    }
+  public Response createStatus(String name, Long projectId, SecurityContext securityContext) throws EntityNotFoundException {
+    Project project = projectService.getProject(projectId);
+    Status status = statusService.createStatus(project, name);
+    return listTasks(null, projectId, null, null, null, null, "board", securityContext);
   }
 }

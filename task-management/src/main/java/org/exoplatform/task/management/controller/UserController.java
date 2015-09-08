@@ -47,7 +47,7 @@ import javax.inject.Inject;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class UserController {
+public class UserController extends AbstractController {
     @Inject
     OrganizationService orgService;
 
@@ -57,78 +57,61 @@ public class UserController {
     @Resource
     @Ajax
     @MimeType.JSON
-    public Response findUser(String query) {
-        try {
-            UserHandler uHandler = orgService.getUserHandler();
-            Query uQuery = new Query();
-            uQuery.setUserName("*" + query + "*");
-            ListAccess<User> users = uHandler.findUsersByQuery(uQuery);
-            JSONArray array = new JSONArray();
-            for(User u : users.load(0, users.getSize())) {
-                org.exoplatform.task.model.User user = userService.loadUser(u.getUserName());
-                JSONObject json = new JSONObject();
-                json.put("id", u.getUserName());
-                String displayName = UserUtil.getDisplayName(u);
-                json.put("text", displayName);
-                json.put("avatar", user.getAvatar());
-                array.put(json);
-            }
-            return Response.ok(array.toString());
-        } catch (JSONException ex) {
-            return Response.error(ex);
-        } catch (Exception ex) {// NOSONAR
-            return Response.error(ex);
-        }
+    public Response findUser(String query) throws Exception { // NOSONAR
+      UserHandler uHandler = orgService.getUserHandler();
+      Query uQuery = new Query();
+      uQuery.setUserName("*" + query + "*");
+      ListAccess<User> users = uHandler.findUsersByQuery(uQuery);
+      JSONArray array = new JSONArray();
+      for(User u : users.load(0, users.getSize())) {
+        org.exoplatform.task.model.User user = userService.loadUser(u.getUserName());
+        JSONObject json = new JSONObject();
+        json.put("id", u.getUserName());
+        String displayName = UserUtil.getDisplayName(u);
+        json.put("text", displayName);
+        json.put("avatar", user.getAvatar());
+        array.put(json);
+      }
+      return Response.ok(array.toString());
     }
 
     @Resource
     @Ajax
     @MimeType.JSON
-    public Response findUsersToMention(String query) {
-        try {
-            UserHandler uHandler = orgService.getUserHandler();
-            Query uQuery = new Query();
-            uQuery.setUserName("*" + query + "*");
-            ListAccess<User> users = uHandler.findUsersByQuery(uQuery);
-            JSONArray array = new JSONArray();
-            for(User u : users.load(0, users.getSize())) {
-                JSONObject json = new JSONObject();
-                org.exoplatform.task.model.User user = userService.loadUser(u.getUserName());
-                json.put("id", "@" + u.getUserName());
-                json.put("name", user.getDisplayName());
-                json.put("avatar", user.getAvatar());
-                json.put("type", "contact");
-                array.put(json);
-            }
-            return Response.ok(array.toString());
-        } catch (JSONException ex) {
-            return Response.error(ex);
-        } catch (Exception ex) {// NOSONAR
-            return Response.error(ex);
-        }
+    public Response findUsersToMention(String query) throws Exception { // NOSONAR
+      UserHandler uHandler = orgService.getUserHandler();
+      Query uQuery = new Query();
+      uQuery.setUserName("*" + query + "*");
+      ListAccess<User> users = uHandler.findUsersByQuery(uQuery);
+      JSONArray array = new JSONArray();
+      for(User u : users.load(0, users.getSize())) {
+        JSONObject json = new JSONObject();
+        org.exoplatform.task.model.User user = userService.loadUser(u.getUserName());
+        json.put("id", "@" + u.getUserName());
+        json.put("name", user.getDisplayName());
+        json.put("avatar", user.getAvatar());
+        json.put("type", "contact");
+        array.put(json);
+      }
+      return Response.ok(array.toString());
     }
 
     @Resource
     @Ajax
     @MimeType.JSON
-    public Response getDisplayNameOfUser(String usernames) {
+    public Response getDisplayNameOfUser(String usernames) throws JSONException {
       if(usernames != null) {
-        try {
-          JSONArray array = new JSONArray();
-          for(String username : usernames.split(",")) {
-            org.exoplatform.task.model.User user = userService.loadUser(username);
-            JSONObject json = new JSONObject();
-            json.put("id", user.getUsername());
-            json.put("text", user.getDisplayName());
-            json.put("avatar", user.getAvatar());
-            array.put(json);
-          }
-          return Response.ok(array.toString()).withCharset(Tools.UTF_8);
-        } catch (JSONException ex) {
-          return Response.status(500);
-        } catch (Exception ex) {// NOSONAR
-          return Response.status(500);
+        JSONArray array = new JSONArray();
+        for(String username : usernames.split(",")) {
+          org.exoplatform.task.model.User user = userService.loadUser(username);
+          JSONObject json = new JSONObject();
+          json.put("id", user.getUsername());
+          json.put("text", user.getDisplayName());
+          json.put("avatar", user.getAvatar());
+          array.put(json);
         }
+        return Response.ok(array.toString()).withCharset(Tools.UTF_8);
+
       } else {
         return Response.ok("[]");
       }
@@ -145,15 +128,9 @@ public class UserController {
     @Resource
     @Ajax
     @MimeType("text/plain")
-    public Response hideProject(Long projectId, Boolean hide) {
-        try {
-            Identity identity = ConversationState.getCurrent().getIdentity();
-            userService.hideProject(identity, projectId, hide);
-            return Response.ok("Hide project successfully");
-        } catch (EntityNotFoundException ex) {
-            return Response.notFound(ex.getMessage());
-        } catch (NotAllowedOperationOnEntityException ex) {
-            return Response.status(403).body(ex.getMessage());
-        }
+    public Response hideProject(Long projectId, Boolean hide) throws EntityNotFoundException, NotAllowedOperationOnEntityException {
+      Identity identity = ConversationState.getCurrent().getIdentity();
+      userService.hideProject(identity, projectId, hide);
+      return Response.ok("Hide project successfully");
     }
 }
