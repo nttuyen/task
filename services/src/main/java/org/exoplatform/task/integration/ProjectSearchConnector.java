@@ -36,6 +36,7 @@ import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.util.ProjectUtil;
 import org.exoplatform.task.util.ResourceUtil;
 import org.exoplatform.task.util.StringUtil;
+import org.exoplatform.task.util.UserUtil;
 import org.exoplatform.web.WebAppController;
 
 public class ProjectSearchConnector extends SearchServiceConnector {
@@ -66,7 +67,9 @@ public class ProjectSearchConnector extends SearchServiceConnector {
     query = StringUtil.FUZZY.matcher(query.trim()).replaceAll("");
     
     Identity currentUser = ConversationState.getCurrent().getIdentity(); 
-    List<Project> projects = projectService.findProjectByKeyWord(currentUser, query, buildOrderBy(sort, order));
+    //List<Project> projects = projectService.findProjectByKeyWord(currentUser, query, buildOrderBy(sort, order));
+    List<Project> projects = projectService.findProjects(UserUtil.getMemberships(currentUser), query, buildOrderBy(sort, order));
+
     for (Project p : projects) {
       result.add(buildResult(p));
     }

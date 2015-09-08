@@ -32,7 +32,6 @@ import javax.inject.Singleton;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.security.Identity;
 import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.domain.Project;
@@ -42,8 +41,6 @@ import org.exoplatform.task.exception.ParameterEntityException;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
-import org.exoplatform.task.util.ProjectUtil;
-import org.exoplatform.task.util.UserUtil;
 
 /**
  * Created by The eXo Platform SAS
@@ -228,17 +225,9 @@ public class ProjectServiceImpl implements ProjectService {
     return project;
 
   }
-  
-  @Override
-  public List<Project> getProjectTreeByMembership(List<String> memberships) {
-    List<Project> projects = daoHandler.getProjectHandler().findAllByMemberships(memberships);
-
-    return ProjectUtil.buildRootProjects(projects);
-  }
 
   @Override
-  public List<Project> findProjectByKeyWord(Identity identity, String keyword, OrderBy order) {
-    List<String> memberships = UserUtil.getMemberships(identity);
+  public List<Project> findProjects(List<String> memberships, String keyword, OrderBy order) {
     return daoHandler.getProjectHandler().findAllByMembershipsAndKeyword(memberships, keyword, order);
   }
 }

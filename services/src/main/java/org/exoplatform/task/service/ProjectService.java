@@ -2,7 +2,6 @@ package org.exoplatform.task.service;
 
 import java.util.List;
 
-import org.exoplatform.services.security.Identity;
 import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.exception.EntityNotFoundException;
@@ -26,8 +25,5 @@ public interface ProjectService {
 
   Project getProject(Long projectId) throws EntityNotFoundException;
 
-  List<Project> getProjectTreeByMembership(List<String> memberships);
-
-  List<Project> findProjectByKeyWord(Identity identity, String keyword, OrderBy order);
-
+  List<Project> findProjects(List<String> memberships, String keyword, OrderBy order);
 }

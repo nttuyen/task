@@ -101,9 +101,12 @@ public final class ProjectUtil {
       memberships.addAll(UserUtil.getMemberships(identity));      
     } else {
       memberships.addAll(UserUtil.getSpaceMemberships(space_group_id));
-    }    
-    
-    return projectService.getProjectTreeByMembership(memberships);
+    }
+
+    List<Project> projects = projectService.findProjects(memberships, null, null);
+    return ProjectUtil.buildRootProjects(projects);
+
+    //return projectService.getProjectTreeByMembership(memberships);
   }
 
   public static List<Project> buildRootProjects(List<Project> projects) {

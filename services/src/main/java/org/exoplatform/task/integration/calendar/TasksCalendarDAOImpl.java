@@ -74,7 +74,9 @@ public class TasksCalendarDAOImpl implements CalendarDAO {
     Identity identity = query.getIdentity();
     List<String> permissions = UserUtil.getMemberships(identity);
         
-    List<Project> projects = projectService.getProjectTreeByMembership(permissions);
+    //List<Project> projects = projectService.getProjectTreeByMembership(permissions);
+    List<Project> projects = projectService.findProjects(permissions, null, null);
+
     projects = ProjectUtil.flattenTree(projects);
 
     if (query.getExclusions() != null) {

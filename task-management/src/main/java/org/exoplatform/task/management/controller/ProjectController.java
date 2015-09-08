@@ -581,7 +581,7 @@ public class ProjectController extends AbstractController {
   @MimeType.HTML
   public Response findProject(String keyword, Long currentProject) {
     Identity identity = ConversationState.getCurrent().getIdentity();
-    List<Project> projects = projectService.findProjectByKeyWord(identity, keyword, null);
+    List<Project> projects = projectService.findProjects(UserUtil.getMemberships(identity), keyword, null);
     projects = ProjectUtil.buildRootProjects(projects);
 
     return projectSearchResult
