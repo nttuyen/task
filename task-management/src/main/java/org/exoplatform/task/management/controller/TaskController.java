@@ -58,8 +58,7 @@ import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.TaskLog;
 import org.exoplatform.task.exception.AbstractEntityException;
-import org.exoplatform.task.exception.ProjectNotFoundException;
-import org.exoplatform.task.exception.TaskNotFoundException;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.model.CommentModel;
 import org.exoplatform.task.model.GroupKey;
 import org.exoplatform.task.model.TaskModel;
@@ -156,7 +155,7 @@ public class TaskController {
   @Resource
   @Ajax
   @MimeType.HTML
-  public Response renderTaskLogs(Long taskId, SecurityContext securityContext) throws TaskNotFoundException {
+  public Response renderTaskLogs(Long taskId, SecurityContext securityContext) throws EntityNotFoundException {
     Task task = taskService.getTask(taskId); //Can throw TaskNotFoundException
     
     List<TaskLog> logs = new LinkedList<TaskLog>(task.getTaskLogs());
@@ -592,7 +591,7 @@ public class TaskController {
       if (projectId > 0) {
         try {
           project = projectService.getProject(projectId);
-        } catch (ProjectNotFoundException e) {
+        } catch (EntityNotFoundException e) {
           return Response.notFound("not found project " + projectId);
         }          
       }

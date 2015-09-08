@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +40,6 @@ import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
-import org.exoplatform.task.exception.StatusNotFoundException;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.impl.StatusServiceImpl;
 import org.exoplatform.task.test.TestUtils;
@@ -112,7 +112,7 @@ public class StatusServiceTest {
   }
   
   @Test 
-  public void testDeleteLastStatus() throws StatusNotFoundException, NotAllowedOperationOnEntityException {
+  public void testDeleteLastStatus() throws EntityNotFoundException, NotAllowedOperationOnEntityException {
     Project project = TestUtils.getDefaultProject();
     Status s1 = TestUtils.getDefaultStatus();
     s1.setProject(project);
@@ -137,7 +137,7 @@ public class StatusServiceTest {
   }
   
   @Test 
-  public void testUpdateStatus() throws StatusNotFoundException, NotAllowedOperationOnEntityException {
+  public void testUpdateStatus() throws EntityNotFoundException, NotAllowedOperationOnEntityException {
     Project project = TestUtils.getDefaultProject();
     Status s1 = TestUtils.getDefaultStatus();
     Status s2 = TestUtils.getDefaultStatus();

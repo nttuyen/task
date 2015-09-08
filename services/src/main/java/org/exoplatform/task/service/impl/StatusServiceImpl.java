@@ -38,8 +38,8 @@ import org.exoplatform.task.dao.StatusHandler;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
-import org.exoplatform.task.exception.StatusNotFoundException;
 import org.exoplatform.task.service.StatusService;
 
 @Singleton
@@ -116,11 +116,11 @@ public class StatusServiceImpl implements StatusService {
 
   @Override
   @ExoTransactional
-  public Status deleteStatus(long statusID) throws StatusNotFoundException, NotAllowedOperationOnEntityException {
+  public Status deleteStatus(long statusID) throws EntityNotFoundException, NotAllowedOperationOnEntityException {
     StatusHandler handler = daoHandler.getStatusHandler();
     Status st = handler.find(statusID);
     if (st == null) {
-      throw new StatusNotFoundException(statusID);
+      throw new EntityNotFoundException(statusID, Status.class);
     }
     
     Project project = st.getProject();
@@ -147,7 +147,7 @@ public class StatusServiceImpl implements StatusService {
 
   @Override
   @ExoTransactional
-  public Status updateStatus(long id, String name) throws StatusNotFoundException, NotAllowedOperationOnEntityException {
+  public Status updateStatus(long id, String name) throws EntityNotFoundException, NotAllowedOperationOnEntityException {
     if (name == null || (name = name.trim()).isEmpty()) {
       throw new IllegalArgumentException("status name can't be null or empty");
     }
@@ -155,7 +155,7 @@ public class StatusServiceImpl implements StatusService {
     StatusHandler handler = daoHandler.getStatusHandler();
     Status status = handler.find(id);
     if (status == null) {
-      throw new StatusNotFoundException(id);
+      throw new EntityNotFoundException(id, Status.class);
     }
     Status curr = handler.findByName(name, status.getProject().getId());
     if (curr != null && !status.equals(curr)) {

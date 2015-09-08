@@ -33,8 +33,8 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
-import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.util.UserUtil;
 import org.exoplatform.task.service.UserService;
 
@@ -150,7 +150,7 @@ public class UserController {
             Identity identity = ConversationState.getCurrent().getIdentity();
             userService.hideProject(identity, projectId, hide);
             return Response.ok("Hide project successfully");
-        } catch (ProjectNotFoundException ex) {
+        } catch (EntityNotFoundException ex) {
             return Response.notFound(ex.getMessage());
         } catch (NotAllowedOperationOnEntityException ex) {
             return Response.status(403).body(ex.getMessage());

@@ -22,12 +22,25 @@ package org.exoplatform.task.exception;
  * tclement@exoplatform.com
  * 6/4/15
  */
-public class StatusNotFoundException extends AbstractEntityNotFoundException {
+public class EntityNotFoundException extends AbstractEntityException {
 
-  private static final String ENTITY_TYPE = "Status";
+  private static final Integer HTTP_STATUS_CODE_ERROR = 404;
 
-  public StatusNotFoundException(long id) {
-    super(id, ENTITY_TYPE);
+  public EntityNotFoundException(long id, String entityType) {
+    super(id, entityType, HTTP_STATUS_CODE_ERROR);
   }
+
+  public EntityNotFoundException(long id, Class<?> entityType) {
+    super(id, entityType.getSimpleName(), HTTP_STATUS_CODE_ERROR);
+  }
+
+  @Override
+  public String getMessage() {
+    if (getEntityId() != null && getEntityType() != null) {
+      return getEntityType() + " does not exist with ID: " + getEntityId();
+    }
+    return super.getMessage();
+  }
+
 }
 

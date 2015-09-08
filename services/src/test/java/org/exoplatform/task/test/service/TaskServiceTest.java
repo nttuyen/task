@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,10 +49,7 @@ import org.exoplatform.task.dao.StatusHandler;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.domain.Comment;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.exception.CommentNotFoundException;
 import org.exoplatform.task.exception.ParameterEntityException;
-import org.exoplatform.task.exception.StatusNotFoundException;
-import org.exoplatform.task.exception.TaskNotFoundException;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.impl.TaskEvent;
 import org.exoplatform.task.service.impl.TaskEvent.Type;
@@ -133,7 +131,7 @@ public class TaskServiceTest {
 //  }
 
   @Test
-  public void testUpdateTaskTitle() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testUpdateTaskTitle() throws ParameterEntityException, EntityNotFoundException {
 
     String newTitle = "newTitle";
 
@@ -147,7 +145,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testUpdateTaskDescription() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testUpdateTaskDescription() throws ParameterEntityException, EntityNotFoundException {
 
     String newDescription = "This is a new description";
 
@@ -159,7 +157,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testUpdateTaskCompleted() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testUpdateTaskCompleted() throws ParameterEntityException, EntityNotFoundException {
 
     Boolean newCompleted = true;
 
@@ -172,7 +170,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testUpdateTaskAssignee() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testUpdateTaskAssignee() throws ParameterEntityException, EntityNotFoundException {
 
     String newAssignee = "Tib";
 
@@ -184,7 +182,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testUpdateTaskCoworker() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testUpdateTaskCoworker() throws ParameterEntityException, EntityNotFoundException {
 
     String[] newCoworkers =  {"Tib","Trong","Phuong","Tuyen"};
 
@@ -200,7 +198,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testUpdateTaskTag() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testUpdateTaskTag() throws ParameterEntityException, EntityNotFoundException {
 
     String[] newTags = {"Flip","Flop"};
 
@@ -216,7 +214,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testUpdateTaskStatus() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testUpdateTaskStatus() throws ParameterEntityException, EntityNotFoundException {
 
     taskService.saveTaskField(TestUtils.EXISTING_TASK_ID, "status", new String[]{String.valueOf(TestUtils.EXISTING_STATUS_ID)}, null);
     verify(taskHandler, times(1)).update(taskCaptor.capture());
@@ -226,7 +224,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testUpdateTaskDueDate() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException, ParseException {
+  public void testUpdateTaskDueDate() throws ParameterEntityException, EntityNotFoundException, ParseException {
 
     String dueDate = "1989-01-19";
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -240,7 +238,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testDeleteTaskById() throws TaskNotFoundException {
+  public void testDeleteTaskById() throws EntityNotFoundException {
     taskService.deleteTask(TestUtils.EXISTING_TASK_ID);
     verify(taskHandler, times(1)).delete(taskCaptor.capture());
 
@@ -248,7 +246,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testCloneTaskById() throws TaskNotFoundException {
+  public void testCloneTaskById() throws EntityNotFoundException {
 
     Task defaultTask = TestUtils.getDefaultTask();
 
@@ -273,7 +271,7 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testAddCommentsByTaskId() throws TaskNotFoundException {
+  public void testAddCommentsByTaskId() throws EntityNotFoundException {
     String username = "Tib";
     String comment = "Bla bla bla bla bla";
     taskService.createComment(TestUtils.EXISTING_TASK_ID, username, comment);
@@ -285,40 +283,40 @@ public class TaskServiceTest {
   }
 
   @Test
-  public void testDeleteCommentById() throws CommentNotFoundException {
+  public void testDeleteCommentById() throws EntityNotFoundException {
     taskService.deleteComment(TestUtils.EXISTING_COMMENT_ID);
     verify(commentHandler, times(1)).delete(commentCaptor.capture());
 
     assertEquals(TestUtils.EXISTING_COMMENT_ID, commentCaptor.getValue().getId());
   }
 
-  @Test(expected = TaskNotFoundException.class)
-  public void testTaskNotFoundException() throws TaskNotFoundException {
+  @Test(expected = EntityNotFoundException.class)
+  public void testTaskNotFoundException() throws EntityNotFoundException {
     taskService.getTask(TestUtils.UNEXISTING_TASK_ID);
   }
 
-  @Test(expected = StatusNotFoundException.class)
-  public void testStatusNotFoundException() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  @Test(expected = EntityNotFoundException.class)
+  public void testStatusNotFoundException() throws ParameterEntityException, EntityNotFoundException {
     taskService.saveTaskField(TestUtils.EXISTING_TASK_ID, "status", new String[]{String.valueOf(TestUtils.UNEXISTING_STATUS_ID)}, null);
   }
 
-  @Test(expected = CommentNotFoundException.class)
-  public void testCommentNotFoundException() throws CommentNotFoundException {
+  @Test(expected = EntityNotFoundException.class)
+  public void testCommentNotFoundException() throws EntityNotFoundException {
     taskService.deleteComment(TestUtils.UNEXISTING_COMMENT_ID);
   }
 
   @Test(expected = ParameterEntityException.class)
-  public void testWrongDateFormatException() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testWrongDateFormatException() throws ParameterEntityException, EntityNotFoundException {
     taskService.saveTaskField(TestUtils.EXISTING_TASK_ID, "dueDate", new String[]{"this-is-not-a-date"}, null);
   }
 
   @Test(expected = ParameterEntityException.class)
-  public void testWrongStatusException() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testWrongStatusException() throws ParameterEntityException, EntityNotFoundException {
     taskService.saveTaskField(TestUtils.EXISTING_TASK_ID, "status", new String[]{"this-is-not-a-long-id"}, null);
   }
 
   @Test(expected = ParameterEntityException.class)
-  public void testUnknownParameterException() throws ParameterEntityException, StatusNotFoundException, TaskNotFoundException {
+  public void testUnknownParameterException() throws ParameterEntityException, EntityNotFoundException {
     taskService.saveTaskField(TestUtils.EXISTING_TASK_ID, "status", new String[]{"this-is-not-a-know-parameter"}, null);
   }
 

@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
-import org.exoplatform.task.exception.StatusNotFoundException;
 
 public interface StatusService {
 
@@ -21,7 +21,7 @@ public interface StatusService {
     
   Status createStatus(Project project, String status);
   
-  Status deleteStatus(long statusId) throws StatusNotFoundException, NotAllowedOperationOnEntityException;
+  Status deleteStatus(long statusId) throws EntityNotFoundException, NotAllowedOperationOnEntityException;
   
-  Status updateStatus(long statusId, String statusName) throws StatusNotFoundException, NotAllowedOperationOnEntityException;
+  Status updateStatus(long statusId, String statusName) throws EntityNotFoundException, NotAllowedOperationOnEntityException;
 }

@@ -25,7 +25,13 @@ package org.exoplatform.task.exception;
 public abstract class AbstractEntityException extends Exception {
 
   private Long entityId;
+
+  //TODO: change this field to Class type
+  @Deprecated
   private String entityType;
+
+  //TODO: remove this field
+  @Deprecated
   private Integer httpStatusCode;
 
   public AbstractEntityException(Long entityId, String entityType, Integer httpStatusCode) {
@@ -50,6 +56,8 @@ public abstract class AbstractEntityException extends Exception {
     return entityType;
   }
 
+  //TODO: remove this method
+  @Deprecated
   public Integer getHttpStatusCode() {
     return httpStatusCode;
   }

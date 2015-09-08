@@ -41,10 +41,8 @@ import org.exoplatform.task.domain.Priority;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.TaskLog;
-import org.exoplatform.task.exception.CommentNotFoundException;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.exception.ParameterEntityException;
-import org.exoplatform.task.exception.StatusNotFoundException;
-import org.exoplatform.task.exception.TaskNotFoundException;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.impl.TaskEvent.EventBuilder;
 import org.exoplatform.task.service.impl.TaskEvent.Type;
@@ -95,13 +93,13 @@ public class TaskServiceImpl implements TaskService {
   @Override
   @ExoTransactional
   public Task saveTaskField(long id, String param, String[] values, TimeZone timezone)
-      throws TaskNotFoundException, ParameterEntityException, StatusNotFoundException {
+      throws EntityNotFoundException, ParameterEntityException {
 
     Task task = getTask(id);
 
     if(task == null) {
       LOG.info("Can not find task with ID: " + id);
-      throw new TaskNotFoundException(id);
+      throw new EntityNotFoundException(id, Task.class);
     }
 
     if (timezone == null) {
@@ -179,7 +177,7 @@ public class TaskServiceImpl implements TaskService {
           Status status = daoHandler.getStatusHandler().find(statusId);
           if(status == null) {
             LOG.info("Status does not exist with ID: " + value);
-            throw new StatusNotFoundException(id);
+            throw new EntityNotFoundException(id, Status.class);
           }
           task.setStatus(status);
           builder.withNewVal(task.getStatus());
@@ -287,7 +285,7 @@ public class TaskServiceImpl implements TaskService {
 
   @Override
   @ExoTransactional
-  public void deleteTask(long id) throws TaskNotFoundException {
+  public void deleteTask(long id) throws EntityNotFoundException {
 
     Task task = getTask(id);// Can throw TaskNotFoundException
 
@@ -296,7 +294,7 @@ public class TaskServiceImpl implements TaskService {
 
   @Override
   @ExoTransactional
-  public Task cloneTask(long id) throws TaskNotFoundException {
+  public Task cloneTask(long id) throws EntityNotFoundException {
 
     Task task = getTask(id);// Can throw TaskNotFoundException
 
@@ -306,11 +304,11 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
-  public Task getTask(long id) throws TaskNotFoundException {
+  public Task getTask(long id) throws EntityNotFoundException {
     Task task = daoHandler.getTaskHandler().find(id);
     if (task == null) {
       LOG.info("Can not find task with ID: " + id);
-      throw new TaskNotFoundException(id);
+      throw new EntityNotFoundException(id, Task.class);
     }
     return task;
   }
@@ -322,7 +320,7 @@ public class TaskServiceImpl implements TaskService {
 
   @Override
   @ExoTransactional
-  public Comment createComment(long id, String username, String comment) throws TaskNotFoundException {
+  public Comment createComment(long id, String username, String comment) throws EntityNotFoundException {
 
     Task task = getTask(id); //Can throws TaskNotFoundException
 
@@ -336,7 +334,7 @@ public class TaskServiceImpl implements TaskService {
   }
   
   @Override
-  public TaskLog addTaskLog(long id, String username, String msg, String target) throws TaskNotFoundException {
+  public TaskLog addTaskLog(long id, String username, String msg, String target) throws EntityNotFoundException {
     Task task = getTask(id); //Can throws TaskNotFoundException
 
     TaskLog log = new TaskLog();
@@ -350,13 +348,13 @@ public class TaskServiceImpl implements TaskService {
 
   @Override
   @ExoTransactional
-  public void deleteComment(long commentId) throws CommentNotFoundException {
+  public void deleteComment(long commentId) throws EntityNotFoundException {
 
     Comment comment = daoHandler.getCommentHandler().find(commentId);
 
     if(comment == null) {
       LOG.info("Can not find comment with ID: " + commentId);
-      throw new CommentNotFoundException(commentId);
+      throw new EntityNotFoundException(commentId, Comment.class);
     }
 
     daoHandler.getCommentHandler().delete(comment);

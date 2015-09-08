@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.util.ProjectUtil;
 
 import org.junit.After;
@@ -54,7 +55,6 @@ import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.exception.ParameterEntityException;
-import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
@@ -165,7 +165,7 @@ public class ProjectServiceTest {
   }
   
   @Test
-  public void testCreateProjectWithParent() throws ProjectNotFoundException {
+  public void testCreateProjectWithParent() throws EntityNotFoundException {
     Project parent = new Project();
     parent.setId(1L);
     parent.getStatus().add(new Status(1L, "testStatus"));
@@ -181,7 +181,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testUpdateProjectName() throws ParameterEntityException, ProjectNotFoundException {
+  public void testUpdateProjectName() throws ParameterEntityException, EntityNotFoundException {
 
     String name = "Project Name";
 
@@ -192,7 +192,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testUpdateProjectDescription() throws ParameterEntityException, ProjectNotFoundException {
+  public void testUpdateProjectDescription() throws ParameterEntityException, EntityNotFoundException {
 
     String description = "Bla bla bla";
 
@@ -203,7 +203,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testUpdateProjectManagers() throws ParameterEntityException, ProjectNotFoundException {
+  public void testUpdateProjectManagers() throws ParameterEntityException, EntityNotFoundException {
 
     String[] newManagers = {"Tib","Trong","Phuong","Tuyen"};
 
@@ -219,7 +219,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testUpdateProjectMembers() throws ParameterEntityException, ProjectNotFoundException {
+  public void testUpdateProjectMembers() throws ParameterEntityException, EntityNotFoundException {
 
     String[] newMembers = {"Tib","Trong","Phuong","Tuyen"};
 
@@ -235,7 +235,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testUpdateProjectDueDate() throws ParameterEntityException, ProjectNotFoundException, ParseException {
+  public void testUpdateProjectDueDate() throws ParameterEntityException, EntityNotFoundException, ParseException {
 
     String dueDate = "1989-01-19";
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -248,7 +248,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testUpdateProjectColor() throws ParameterEntityException, ProjectNotFoundException {
+  public void testUpdateProjectColor() throws ParameterEntityException, EntityNotFoundException {
 
     String color = "#000000";
 
@@ -259,7 +259,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testDeleteProjectById() throws ProjectNotFoundException {
+  public void testDeleteProjectById() throws EntityNotFoundException {
 
     Project projectParent = TestUtils.getDefaultProject();
     projectParent.setId(3L);
@@ -281,7 +281,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testDeleteProjectByIdWithSubproject() throws ProjectNotFoundException {
+  public void testDeleteProjectByIdWithSubproject() throws EntityNotFoundException {
 
     Project projectParent = TestUtils.getDefaultProject();
     projectParent.setId(3L);
@@ -303,7 +303,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testCloneProjectById() throws ProjectNotFoundException {
+  public void testCloneProjectById() throws EntityNotFoundException {
 
     Project project = TestUtils.getDefaultProject();
     project.setName("Tib Project");
@@ -339,7 +339,7 @@ public class ProjectServiceTest {
   }
 
   @Test
-  public void testCloneProjectByIdWithCopyOfTask() throws ProjectNotFoundException {
+  public void testCloneProjectByIdWithCopyOfTask() throws EntityNotFoundException {
 
     Project project = TestUtils.getDefaultProject();
     project.setId(3L);

@@ -37,8 +37,8 @@ import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.exception.ParameterEntityException;
-import org.exoplatform.task.exception.ProjectNotFoundException;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
@@ -88,7 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public Project createProject(Project project, long parentId) throws ProjectNotFoundException {
+  public Project createProject(Project project, long parentId) throws EntityNotFoundException {
     Project parentProject = daoHandler.getProjectHandler().find(parentId);
     if (parentProject != null) {
       project.setParent(parentProject);
@@ -109,14 +109,14 @@ public class ProjectServiceImpl implements ProjectService {
       return project;
     } else {
       LOG.info("Can not find project for parent with ID: " + parentId);
-      throw new ProjectNotFoundException(parentId);
+      throw new EntityNotFoundException(parentId, Project.class);
     }
   }
 
   @Override
   @ExoTransactional
   public Project saveProjectField(long projectId, String fieldName, String[] values)
-      throws ProjectNotFoundException, ParameterEntityException {
+      throws EntityNotFoundException, ParameterEntityException {
 
     String val = values != null && values.length > 0 ? values[0] : null;
 
@@ -189,7 +189,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   @ExoTransactional
-  public void deleteProject(long id, boolean deleteChild) throws ProjectNotFoundException {
+  public void deleteProject(long id, boolean deleteChild) throws EntityNotFoundException {
     deleteProject(getProject(id), deleteChild);
   }
 
@@ -208,7 +208,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   @ExoTransactional
-  public Project cloneProject(long id, boolean cloneTask) throws ProjectNotFoundException {
+  public Project cloneProject(long id, boolean cloneTask) throws EntityNotFoundException {
 
     Project project = getProject(id); //Can throw ProjectNotFoundException
 
@@ -220,10 +220,10 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public Project getProject(Long id) throws ProjectNotFoundException {
+  public Project getProject(Long id) throws EntityNotFoundException {
 
     Project project = daoHandler.getProjectHandler().find(id);
-    if (project == null) throw new ProjectNotFoundException(id);
+    if (project == null) throw new EntityNotFoundException(id, Project.class);
 
     return project;
 

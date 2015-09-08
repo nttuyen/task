@@ -43,7 +43,7 @@ import org.exoplatform.task.domain.Comment;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.exception.TaskNotFoundException;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.model.CommentModel;
 import org.exoplatform.task.model.GroupKey;
 import org.exoplatform.task.model.TaskModel;
@@ -103,7 +103,7 @@ public final class TaskUtil {
   }
 
   public static TaskModel getTaskModel(Long id, boolean loadAllComment, ResourceBundle bundle, String username,
-                                       TaskService taskService, OrganizationService orgService, UserService userService, ProjectService projectService) throws TaskNotFoundException {
+                                       TaskService taskService, OrganizationService orgService, UserService userService, ProjectService projectService) throws EntityNotFoundException {
     TaskModel taskModel = new TaskModel();
     
     Task task = taskService.getTask(id); //Can throw TaskNotFoundException

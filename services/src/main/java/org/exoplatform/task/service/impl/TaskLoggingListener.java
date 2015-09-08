@@ -28,7 +28,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
-import org.exoplatform.task.exception.TaskNotFoundException;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.impl.TaskEvent.Type;
 
@@ -105,7 +105,7 @@ public class TaskLoggingListener extends Listener<TaskService, TaskEvent> {
       if (msg[0] != null) {
         service.addTaskLog(data.getTask().getId(),username, msg[0], msg[1]);        
       }
-    } catch (TaskNotFoundException e) {
+    } catch (EntityNotFoundException e) {
       LOG.error(e);
     }
   }

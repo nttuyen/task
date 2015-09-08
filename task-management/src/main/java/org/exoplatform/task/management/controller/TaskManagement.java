@@ -45,8 +45,7 @@ import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.UserSetting;
-import org.exoplatform.task.exception.ProjectNotFoundException;
-import org.exoplatform.task.exception.TaskNotFoundException;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.model.GroupKey;
 import org.exoplatform.task.model.TaskModel;
 import org.exoplatform.task.service.ParserContext;
@@ -93,7 +92,7 @@ public class TaskManagement {
   NavigationState navState;
 
   @View
-  public Response.Content index(String space_group_id, SecurityContext securityContext) throws ProjectNotFoundException {
+  public Response.Content index(String space_group_id, SecurityContext securityContext) throws EntityNotFoundException {
     //TODO: should check if username is null?
     String username = securityContext.getRemoteUser();
     PortalRequestContext prc = Util.getPortalRequestContext();
@@ -141,7 +140,7 @@ public class TaskManagement {
           //ListAccess<Task> listTasks = taskService.findTasks(taskQuery);
           //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.findTaskByQuery(taskQuery);
         }
-      } catch (TaskNotFoundException e) {
+      } catch (EntityNotFoundException e) {
         taskId = -1;
       }
     }

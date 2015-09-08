@@ -38,7 +38,7 @@ import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.exception.ProjectNotFoundException;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.web.controller.router.Router;
@@ -166,7 +166,7 @@ public final class ProjectUtil {
     if (id > 0) {
       try {
         project = projectService.getProject(id);
-      } catch (ProjectNotFoundException e) {
+      } catch (EntityNotFoundException e) {
         LOG.warn("project {} not found", id);
       }
     }

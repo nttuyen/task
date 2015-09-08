@@ -55,7 +55,7 @@ import org.exoplatform.services.security.Identity;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.UserSetting;
 import org.exoplatform.task.exception.AbstractEntityException;
-import org.exoplatform.task.exception.ProjectNotFoundException;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.model.Permission;
 import org.exoplatform.task.model.User;
 import org.exoplatform.task.model.UserGroup;
@@ -129,7 +129,7 @@ public class ProjectController {
     Project parent;
     try {
       parent = projectService.getProject(parentId);
-    } catch (ProjectNotFoundException e) {
+    } catch (EntityNotFoundException e) {
       parent = new Project();
     }
     
@@ -537,7 +537,7 @@ public class ProjectController {
                           .append(p.getName())
                           .append("</a></li>")
                           .toString();
-      } catch (ProjectNotFoundException ex) {
+      } catch (EntityNotFoundException ex) {
         breadcrumbs = new StringBuilder("<li class=\"muted\">")
                 .append(bundle.getString("label.noProject"))
                 .append("</li>")
