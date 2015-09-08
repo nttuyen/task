@@ -159,16 +159,16 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
     Path path = null;
     if (fieldName.indexOf('.') != -1) {
       String[] strs = fieldName.split("\\.");
-      for (String s : strs) {
-        if (s.isEmpty()) {
-          break;
-        }
-        if (path == null) {
-          path = task.get(s);
+      Join join = null;
+      for (int i = 0; i < strs.length - 1; i++) {
+        String s = strs[i];
+        if (join == null) {
+          join = task.join(s);
         } else {
-          path = path.get(s);
+          join = join.join(s);
         }
       }
+      path = join.get(strs[strs.length - 1]);
     } else {
       path = task.get(fieldName);
     }

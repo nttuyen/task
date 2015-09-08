@@ -127,11 +127,11 @@
                 <%}%>
                 <div class="collapse-content">
                     <ul class="table-project">
-                        <li  class="row-item  has-border taskItem">
+                        <li  class="row-item has-border taskItem">
                             <% def subGroups = TaskUtil.groupTasks(Arrays.asList(ListUtil.load(group.value, 0, -1)), "status", TimeZone.getDefault(), bundle);%>
                             <%status.eachWithIndex {st, index -> %>
                                 <%
-                                    def key = new GroupKey(st.name, st, 0);
+                                    def key = new GroupKey(st.name, st, st.getRank());
                                 %>
                                 <div class="col col${index + 1} taskBoardContainer taskContainer${groupKey} taskContainer${groupKey}${st.id}" data-connected=".taskContainer${groupKey}" data-statusid="${st.id}">
                                     <% subGroups[key].each {task -> %>

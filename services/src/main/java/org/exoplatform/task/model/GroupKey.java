@@ -23,7 +23,6 @@ package org.exoplatform.task.model;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-//TODO Clear the purpose of this class and improve to make it transparent.
 public class GroupKey<T> implements Comparable<GroupKey> {
   private final String name;
   private final T value;
@@ -49,19 +48,7 @@ public class GroupKey<T> implements Comparable<GroupKey> {
 
   @Override
   public int compareTo(GroupKey o) {
-    int compare = Integer.compare(this.rank, o.rank);
-    if (compare == 0) {
-      if (value != null && value instanceof Comparable) {
-        if (o.value == null) {
-          compare = 1;
-        } else if (o.value.getClass() == value.getClass()){
-          compare = ((Comparable)value).compareTo(o.value);
-        }
-      } else if (value == null && o.value != null) {
-        compare = -1;
-      }
-    }
-    return compare;
+    return Integer.compare(this.rank, o.rank);
   }
 
   @Override
@@ -72,17 +59,17 @@ public class GroupKey<T> implements Comparable<GroupKey> {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
 
-    GroupKey groupKey = (GroupKey) o;
+    if (o != null && o instanceof GroupKey) {
+      GroupKey groupKey = (GroupKey) o;
+      return (value == groupKey) || (value != null && value.equals(groupKey.value));
+    }
 
-    if (name != null ? !name.equals(groupKey.name) : groupKey.name != null) return false;
-
-    return true;
+    return false;
   }
 
   @Override
   public int hashCode() {
-    return name != null ? name.hashCode() : 0;
+    return value != null ? value.hashCode() : 0;
   }
 }

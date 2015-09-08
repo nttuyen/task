@@ -326,12 +326,13 @@ public final class TaskUtil {
       ListAccess<Task> tasks;
       TaskQuery q;
 
-      for (String assignee : assignees) {
+      for (int i = 0; i < assignees.size(); i++) {
+        String assignee = assignees.get(i);
         if (assignee == null) continue;
         q = query.clone();
         q.setAssignee(assignee);
         org.exoplatform.task.model.User user = userService.loadUser(assignee);
-        key = new GroupKey<org.exoplatform.task.model.User>(user.getDisplayName(), user, 0);
+        key = new GroupKey<org.exoplatform.task.model.User>(user.getDisplayName(), user, i);
         tasks = taskService.findTasks(q);
         if (ListUtil.getSize(tasks) > 0) {
           maps.put(key, tasks);
@@ -489,36 +490,37 @@ public final class TaskUtil {
     return result;
   }
 
+  //TODO: remove this method
   private static GroupKey[] getGroupName(Task task, String groupBy, TimeZone userTimezone, ResourceBundle bundle) {
     if("project".equalsIgnoreCase(groupBy)) {
       Status s = task.getStatus();
       if(s == null) {
-        return new GroupKey[] {new GroupKey("No Project", null, 1)};
+        return new GroupKey[] {new GroupKey<Project>("No Project", null, Integer.MAX_VALUE)};
       } else {
-        return new GroupKey[] {new GroupKey(s.getProject().getName(), s.getProject(), 0)};
+        return new GroupKey[] {new GroupKey<Project>(s.getProject().getName(), s.getProject(), s.hashCode())};
       }
     } else if("status".equalsIgnoreCase(groupBy)) {
       Status s = task.getStatus();
       if(s == null) {
-        return new GroupKey[] {new GroupKey("TODO", null, -1)};
+        return new GroupKey[] {new GroupKey<Status>("TODO", null, Integer.MIN_VALUE)};
       } else {
-        return new GroupKey[] {new GroupKey(s.getName(), s, 0)};
+        return new GroupKey[] {new GroupKey<Status>(s.getName(), s, s.getRank())};
       }
     } else if("tag".equalsIgnoreCase(groupBy)) {
       Set<String> tags = task.getTag();
       GroupKey[] keys = new GroupKey[tags != null && tags.size() > 0 ? tags.size() : 1];
       if (tags == null || tags.size() == 0) {
-        keys[0] = new GroupKey("Un tagged", null, 1);
+        keys[0] = new GroupKey<String>("Un tagged", null, Integer.MAX_VALUE);
       } else {
         int index = 0;
         for (String tag : tags) {
-          keys[index++] = new GroupKey(tag, tag, 0);
+          keys[index++] = new GroupKey<String>(tag, tag, tag.hashCode());
         }
       }
       return keys;
     } else if ("assignee".equalsIgnoreCase(groupBy)) {
       String assignee = task.getAssignee();
-      return assignee != null ? new GroupKey[]{new GroupKey(assignee, assignee, 0)} : new GroupKey[]{new GroupKey("Unassigned", "", 1)};
+      return assignee != null ? new GroupKey[]{new GroupKey<String>(assignee, assignee, assignee.hashCode())} : new GroupKey[]{new GroupKey<String>("Unassigned", "", Integer.MAX_VALUE)};
     } else if ("dueDate".equalsIgnoreCase(groupBy)) {
       Date dueDate = task.getDueDate();
       Calendar calendar = null;
@@ -526,9 +528,9 @@ public final class TaskUtil {
         calendar = Calendar.getInstance(userTimezone);
         calendar.setTime(dueDate);
       }
-      return new GroupKey[] {new GroupKey(DateUtil.getDueDateLabel(calendar, bundle), dueDate, calendar != null ? 0 : 1)};
+      return new GroupKey[] {new GroupKey<Date>(DateUtil.getDueDateLabel(calendar, bundle), dueDate, dueDate != null ? dueDate.hashCode() : Integer.MAX_VALUE)};
     }
-    return new GroupKey[0];
+    return new GroupKey<?>[0];
   }
 
   public static Event buildEvent(Event event, Task task) {
