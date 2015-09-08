@@ -126,7 +126,7 @@ public class StatusServiceImpl implements StatusService {
     Project project = st.getProject();
     Status altStatus = findAltStatus(st, project);
     if (altStatus == null) {
-      throw new NotAllowedOperationOnEntityException(statusID, "status", "Delete last status");
+      throw new NotAllowedOperationOnEntityException(statusID, Status.class, "Delete last status");
     }
     
     Set<Task> tasks = st.getTasks();
@@ -159,7 +159,7 @@ public class StatusServiceImpl implements StatusService {
     }
     Status curr = handler.findByName(name, status.getProject().getId());
     if (curr != null && !status.equals(curr)) {
-      throw new NotAllowedOperationOnEntityException(status.getId(), "status", "duplicate status name");
+      throw new NotAllowedOperationOnEntityException(status.getId(), Status.class, "duplicate status name");
     }
     
     status.setName(name);

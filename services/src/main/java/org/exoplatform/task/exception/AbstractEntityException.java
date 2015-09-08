@@ -26,11 +26,9 @@ public abstract class AbstractEntityException extends Exception {
 
   private Long entityId;
 
-  //TODO: change this field to Class type
-  @Deprecated
-  private String entityType;
+  private Class<?> entityType;
 
-  public AbstractEntityException(Long entityId, String entityType, Integer httpStatusCode) {
+  public AbstractEntityException(Long entityId, Class<?> entityType) {
     this.entityId = entityId;
     this.entityType = entityType;
   }
@@ -38,7 +36,7 @@ public abstract class AbstractEntityException extends Exception {
   @Override
   public String getMessage() {
     if (entityId != null && entityType != null) {
-      return "Exception on "+entityType+" with ID: "+entityId;
+      return "Exception on " + getEntityType() + " with ID: "+entityId;
     }
     return super.getMessage();
   }
@@ -48,6 +46,6 @@ public abstract class AbstractEntityException extends Exception {
   }
 
   public String getEntityType() {
-    return entityType;
+    return entityType != null ? entityType.getSimpleName() : null;
   }
 }

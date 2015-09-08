@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
     }
 
     if (!project.canView(identity)) {
-      throw new NotAllowedOperationOnEntityException(projectId, "Project", "hide");
+      throw new NotAllowedOperationOnEntityException(projectId, Project.class, "hide");
     }
 
     UserSetting setting = daoHandler.getUserSettingHandler().getOrCreate(identity.getUserId());

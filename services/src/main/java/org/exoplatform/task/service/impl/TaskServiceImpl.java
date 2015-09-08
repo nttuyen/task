@@ -140,7 +140,7 @@ public class TaskServiceImpl implements TaskService {
           builder.withNewVal(startDate.getTime() + "/" + endDate.getTime());
         } catch (ParseException ex) {
           LOG.info("Can parse date time value: "+values[0]+" or "+values[1]+" for Task with ID: "+id);
-          throw new ParameterEntityException(id, "Task", param, values[0]+" or "+values[1],
+          throw new ParameterEntityException(id, Task.class, param, values[0]+" or "+values[1],
               "cannot be parse to date", ex);
         }
       }
@@ -166,7 +166,7 @@ public class TaskServiceImpl implements TaskService {
             builder.withNewVal(task.getDueDate());
           } catch (ParseException ex) {
             LOG.info("Can parse date time value: "+value+" for Task with ID: "+id);
-            throw new ParameterEntityException(id, "Task", param, value, "cannot be parse to date", ex);
+            throw new ParameterEntityException(id, Task.class, param, value, "cannot be parse to date", ex);
           }
         }
       } else if("status".equalsIgnoreCase(param)) {
@@ -183,7 +183,7 @@ public class TaskServiceImpl implements TaskService {
           builder.withNewVal(task.getStatus());
         } catch (NumberFormatException ex) {
           LOG.info("Status is unacceptable: "+value+" for Task with ID: "+id);
-          throw new ParameterEntityException(id, "Task", param, value, "is unacceptable", ex);
+          throw new ParameterEntityException(id, Task.class, param, value, "is unacceptable", ex);
         }
       } else if("description".equalsIgnoreCase(param)) {
         builder.withType(Type.EDIT_DESCRIPTION).withOldVal(task.getDescription());
@@ -227,7 +227,7 @@ public class TaskServiceImpl implements TaskService {
           if (projectId > 0) {
             Status st = daoHandler.getStatusHandler().findLowestRankStatusByProject(projectId);
             if (st == null) {
-              throw new ParameterEntityException(id, "Task", param, value, "Status for project is not found", null);
+              throw new ParameterEntityException(id, Task.class, param, value, "Status for project is not found", null);
             }
             task.setStatus(st);
             builder.withNewVal(task.getStatus().getProject());
@@ -235,13 +235,13 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus(null);
           }
         } catch (NumberFormatException ex) {
-          throw new ParameterEntityException(id, "Task", param, value, "ProjectID must be long", ex);
+          throw new ParameterEntityException(id, Task.class, param, value, "ProjectID must be long", ex);
         }
       } else if ("calendarIntegrated".equalsIgnoreCase(param)) {
         task.setCalendarIntegrated(Boolean.parseBoolean(value));
       } else {
         LOG.info("Field name: " + param + " is not supported for entity Task");
-        throw new ParameterEntityException(id, "Task", param, value, "is not supported for the entity Task", null);
+        throw new ParameterEntityException(id, Task.class, param, value, "is not supported for the entity Task", null);
       }
     }
 

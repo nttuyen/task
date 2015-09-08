@@ -125,7 +125,7 @@ public class ProjectServiceImpl implements ProjectService {
     if("name".equalsIgnoreCase(fieldName)) {
       if(val == null || val.isEmpty()) {
         LOG.info("Name of project must not empty");
-        throw new ParameterEntityException(projectId, "Project", fieldName, val, "must not be empty", null);
+        throw new ParameterEntityException(projectId, Project.class, fieldName, val, "must not be empty", null);
       }
       project.setName(val);
     } else if("manager".equalsIgnoreCase(fieldName)) {
@@ -154,7 +154,7 @@ public class ProjectServiceImpl implements ProjectService {
           project.setDueDate(date);
         } catch (ParseException e) {
           LOG.info("can not parse date string: " + val);
-          throw new ParameterEntityException(projectId, "Project", fieldName, val, "cannot be parse to date", e);
+          throw new ParameterEntityException(projectId, Project.class, fieldName, val, "cannot be parse to date", e);
         }
       }
     } else if("description".equalsIgnoreCase(fieldName)) {
@@ -169,18 +169,18 @@ public class ProjectServiceImpl implements ProjectService {
         if (pId == 0) {
           project.setParent(null);
         } else if (pId == project.getId()) {
-          throw new ParameterEntityException(pId, "Project", fieldName, val, "project can not be child of itself", null);
+          throw new ParameterEntityException(pId, Project.class, fieldName, val, "project can not be child of itself", null);
         } else {
           Project parent = this.getProject(pId);
           project.setParent(parent);
         }
       } catch (NumberFormatException ex) {
         LOG.info("can not parse date string: " + val);
-        throw new ParameterEntityException(projectId, "Project", fieldName, val, "cannot be parse to Long", ex);
+        throw new ParameterEntityException(projectId, Project.class, fieldName, val, "cannot be parse to Long", ex);
       }
     } else {
       LOG.info("Field name: " + fieldName + " is not supported for entity Project");
-      throw new ParameterEntityException(projectId, "Project", fieldName, val, "is not supported for the entity Project", null);
+      throw new ParameterEntityException(projectId, Project.class, fieldName, val, "is not supported for the entity Project", null);
     }
 
     Project obj = daoHandler.getProjectHandler().update(project);
