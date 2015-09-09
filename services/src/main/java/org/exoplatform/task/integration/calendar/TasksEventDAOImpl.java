@@ -105,7 +105,7 @@ public class TasksEventDAOImpl implements EventDAO {
      }
      
      TaskQuery taskQuery = new TaskQuery();
-     taskQuery.setProjectIds(ids);
+     //taskQuery.setProjectIds(ids);
      taskQuery.setOrderBy(orderBy);
      if (query.getFromDate() != null) {
        taskQuery.setStartDate(new Date(query.getFromDate()));
@@ -114,9 +114,10 @@ public class TasksEventDAOImpl implements EventDAO {
        taskQuery.setEndDate(new Date(query.getToDate()));
      }
      taskQuery.setKeyword(query.getText());
-     taskQuery.setAssignee(query.getOwner());
+     //taskQuery.setAssignee(query.getOwner());
      taskQuery.setCalendarIntegrated(true);
-     taskQuery.setOrFields(Arrays.asList(TaskUtil.ASSIGNEE, TaskUtil.PROJECT));
+     //taskQuery.setOrFields(Arrays.asList(TaskUtil.ASSIGNEE, TaskUtil.PROJECT));
+     taskQuery.setAssigneeOrInProject(query.getOwner(), ids);
 
      Task[] tasks = new Task[0];
      if ((query.getCategoryIds() == null || (query.getCategoryIds().length == 1 && 

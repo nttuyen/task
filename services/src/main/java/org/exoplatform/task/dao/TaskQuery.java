@@ -225,12 +225,22 @@ public class TaskQuery {
     return memberships;
   }  
 
+  @Deprecated
   public List<String> getOrFields() {
     return orFields;
   }
 
+  @Deprecated
   public void setOrFields(List<String> orFields) {
     this.orFields = orFields;
+  }
+
+  public void setAssigneeOrMembership(String username, List<String> memberships) {
+    this.add(or(eq(TASK_ASSIGNEE, username), in(TASK_MANAGER, memberships), in(TASK_PARTICIPATOR, memberships)));
+  }
+
+  public void setAssigneeOrInProject(String username, List<Long> projectIds) {
+    this.add(or(eq(TASK_ASSIGNEE, username), in(TASK_PROJECT, projectIds)));
   }
 
   @Deprecated
