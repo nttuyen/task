@@ -70,9 +70,15 @@ public class StatusServiceImpl implements StatusService {
     this.daoHandler = daoHandler;
   }
 
-  @Override
-  public List<String> getDefaultStatus() {
+  private List<String> getDefaultStatus() {
     return Arrays.asList(DEFAULT_STATUS);
+  }
+
+  @Override
+  public void createDefaultStatuses(Project proj) {
+    for (String s : getDefaultStatus()) {
+      createStatus(proj, s);
+    }
   }
 
   @Override

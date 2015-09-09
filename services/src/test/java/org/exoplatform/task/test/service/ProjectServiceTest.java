@@ -99,8 +99,6 @@ public class ProjectServiceTest {
     MockitoAnnotations.initMocks(this);
     projectService = new ProjectServiceImpl(statusService, taskService, daoHandler);
     
-    when(statusService.getDefaultStatus()).thenReturn(Arrays.asList("1", "2", "3", "4"));
-    
     //Mock DAO handler to return Mocked DAO
 
     when(daoHandler.getTaskHandler()).thenReturn(taskHandler);
@@ -155,14 +153,6 @@ public class ProjectServiceTest {
     assertEquals(defaultProject.getManager(), projectCaptor.getValue().getManager());
     assertEquals(defaultProject.getParticipator(), projectCaptor.getValue().getParticipator());
   }*/
-
-  @Test
-  public void testCreateDefaultStatusProject() {
-    projectService.createProject(TestUtils.getDefaultProject(), true);
-    verify(projectHandler, times(1)).create(any(Project.class));
-    //Default project contains 4 default status so create(status) must be called 4 times
-    verify(statusService, times(4)).createStatus(any(Project.class), any(String.class));
-  }
   
   @Test
   public void testCreateProjectWithParent() throws EntityNotFoundException {

@@ -25,6 +25,7 @@ import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.service.ProjectService;
+import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
 
 import java.util.*;
@@ -209,7 +210,7 @@ public class TaskInjector extends DataInjector {
           task.setStatus(randomStatus);
           randomStatus.getTasks().add(task);
         }
-        projectService.createProject(project, false);
+        projectService.createProject(project);
         //DAOHandler.getProjectHandler().create(project);
       }
 
@@ -262,7 +263,7 @@ public class TaskInjector extends DataInjector {
           task.setStatus(randomStatus);
           randomStatus.getTasks().add(task);
         }
-        projectService.createProject(project, false);
+        projectService.createProject(project);
         //DAOHandler.getProjectHandler().create(project);
       }
 

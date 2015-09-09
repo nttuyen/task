@@ -29,6 +29,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.service.ProjectService;
+import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.util.ProjectUtil;
 import org.exoplatform.task.util.UserUtil;
 
@@ -38,8 +39,11 @@ public class SpaceTaskDataInitializer extends SpaceListenerPlugin {
   
   private ProjectService projectService;
 
-  public SpaceTaskDataInitializer(ProjectService pServ) {
+  private StatusService statusServ;
+
+  public SpaceTaskDataInitializer(ProjectService pServ, StatusService statusServ) {
     this.projectService = pServ;
+    this.statusServ = statusServ;
   }
 
   @Override
@@ -56,8 +60,8 @@ public class SpaceTaskDataInitializer extends SpaceListenerPlugin {
     Set<String> participators = new HashSet<String>(Arrays.asList(memberships.get(1)));
 
     Project project = ProjectUtil.newProjectInstance(space.getDisplayName(), "", managers, participators);
-    projectService.createProject(project, true);
-
+    projectService.createProject(project);
+    statusServ.createDefaultStatuses(project);
   }
 
   @Override

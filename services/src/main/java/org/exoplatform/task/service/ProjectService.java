@@ -12,7 +12,22 @@ import org.exoplatform.task.exception.ParameterEntityException;
  */
 public interface ProjectService {
 
-  Project createProject(Project project, boolean createDefaultStatus);
+  /**
+   * Create a project with given <code>project</code> model object.
+   *
+   * @param project
+   * @return
+   */
+  Project createProject(Project project);
+
+  /**
+   * Create a sub-project with given <code>project</code> model object and parent project ID.
+   *
+   * @param project the project metadata to create.
+   * @param parentId parent project ID
+   * @return
+   * @throws EntityNotFoundException the project associated with <code>parentId</code> doesn't exist.
+   */
   Project createProject(Project project, long parentId) throws EntityNotFoundException;
 
   Project saveProjectField(long projectId, String fieldName, String[] values)

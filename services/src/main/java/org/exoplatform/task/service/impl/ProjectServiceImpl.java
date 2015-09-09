@@ -74,13 +74,8 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   @ExoTransactional
-  public Project createProject(Project project, boolean createDefaultStatus) {
+  public Project createProject(Project project) {
     Project proj = daoHandler.getProjectHandler().create(project);
-    if (createDefaultStatus) {
-      for (String s : statusService.getDefaultStatus()) {
-        statusService.createStatus(proj, s);
-      }
-    }
     return proj;
   }
 
@@ -95,7 +90,7 @@ public class ProjectServiceImpl implements ProjectService {
       project.setManager(new HashSet<String>(parentProject.getManager()));
 
       //persist project
-      project = createProject(project, false);
+      project = createProject(project);
 
       //inherit status from parent
       List<Status> prSt = new LinkedList<Status>(parentProject.getStatus());
@@ -210,7 +205,7 @@ public class ProjectServiceImpl implements ProjectService {
     Project project = getProject(id); //Can throw ProjectNotFoundException
 
     Project newProject = project.clone(cloneTask);
-    createProject(newProject, false);
+    createProject(newProject);
 
     return newProject;
 

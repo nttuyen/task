@@ -9,11 +9,7 @@ import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
 
 public interface StatusService {
 
-  /**
-   * TODO: Move this method to Util class?
-   * @return
-   */
-  List<String> getDefaultStatus();
+  void createDefaultStatuses(Project project);
 
   Status getStatus(long statusId);
 

@@ -17,11 +17,13 @@
 package org.exoplatform.task.test.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.exoplatform.task.exception.EntityNotFoundException;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -89,11 +91,14 @@ public class StatusServiceTest {
     statusService = null;
   }
 
-  @Test 
-  public void testGetDefaultStatus() {    
-    assertEquals(4, statusService.getDefaultStatus().size());
+  @Test
+  public void testCreateDefaultStatusesProject() {
+    Project project = TestUtils.getDefaultProject();
+    statusService.createDefaultStatuses(project);
+    //Default project contains 4 default status so create(status) must be called 4 times
+    verify(statusHandler, times(4)).create(any(Status.class));
   }
-  
+
   @Test 
   public void testCreateStatus() {    
     Project project = TestUtils.getDefaultProject();

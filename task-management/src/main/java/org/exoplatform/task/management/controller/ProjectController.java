@@ -60,6 +60,7 @@ import org.exoplatform.task.model.Permission;
 import org.exoplatform.task.model.User;
 import org.exoplatform.task.model.UserGroup;
 import org.exoplatform.task.service.ProjectService;
+import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.UserService;
 import org.exoplatform.task.util.ListUtil;
 import org.exoplatform.task.util.ProjectUtil;
@@ -78,6 +79,9 @@ public class ProjectController extends AbstractController {
   
   @Inject
   ProjectService projectService;
+
+  @Inject
+  StatusService statusService;
 
   @Inject
   UserService userService;
@@ -173,7 +177,8 @@ public class ProjectController extends AbstractController {
     if (parentId != null && parentId > 0) {
       project = projectService.createProject(project, parentId);
     } else {
-      project = projectService.createProject(project, true);
+      project = projectService.createProject(project);
+      statusService.createDefaultStatuses(project);
     }
 
     JSONObject result = new JSONObject();
