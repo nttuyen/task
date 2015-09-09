@@ -68,12 +68,6 @@ public class TaskServiceImpl implements TaskService {
     this.listenerService = listenerService;
   }
 
-  // Just for test purpose
-  static public TaskServiceImpl createInstance(DAOHandler hl, ListenerService listenerService) {
-    TaskServiceImpl sv = new TaskServiceImpl(hl, listenerService);
-    return sv;
-  }
-
   @Override
   @ExoTransactional
   public Task createTask(Task task) {

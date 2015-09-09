@@ -22,6 +22,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +41,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.services.listener.Event;
+import org.exoplatform.services.listener.Listener;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
@@ -53,6 +58,7 @@ import org.exoplatform.task.exception.ParameterEntityException;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.impl.TaskEvent;
 import org.exoplatform.task.service.impl.TaskEvent.Type;
+import org.exoplatform.task.service.impl.TaskLoggingListener;
 import org.exoplatform.task.service.impl.TaskServiceImpl;
 import org.exoplatform.task.test.TestUtils;
 
@@ -67,8 +73,10 @@ public class TaskServiceTest {
 
   TaskService taskService;
 
-  @Mock
   ListenerService listenerService;
+
+  @Mock
+  ExoContainer container;
   @Mock
   TaskHandler taskHandler;
   @Mock
@@ -84,12 +92,16 @@ public class TaskServiceTest {
   @Captor
   ArgumentCaptor<Comment> commentCaptor;
   @Captor
-  ArgumentCaptor<TaskEvent> eventCaptor;
+  ArgumentCaptor<Event<TaskService, TaskEvent>> eventCaptor;
+
+  @Mock TaskLoggingListener listener;
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    taskService = TaskServiceImpl.createInstance(daoHandler, listenerService);
+    listenerService = new ListenerService(new ExoContainerContext(container));
+    listenerService.addListener(TaskService.TASK_CREATION, listener);
+    taskService = new TaskServiceImpl(daoHandler, listenerService);
 
     //Mock DAO handler to return Mocked DAO
 
@@ -115,20 +127,15 @@ public class TaskServiceTest {
     taskService = null;
     ConversationState.setCurrent(null);
   }
-//  
-//  @Test
-//  public void testTaskCreatedEvent() {
-//    taskService.createTask(TestUtils.getDefaultTask());
-//    try {
-//      verify(listenerService, times(1)).broadcast(TaskService.TASK_CREATION, taskService, eventCaptor.capture());
-//    } catch (Exception e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    }
-//    
-//    TaskEvent event = eventCaptor.getValue();
-//    assertEquals(Type.CREATED, event.getType());
-//  }
+  
+  @Test
+  public void testTaskCreatedEvent() throws Exception {
+    taskService.createTask(TestUtils.getDefaultTask());
+    verify(listener, times(1)).onEvent(eventCaptor.capture());
+
+    Event<TaskService, TaskEvent> event = eventCaptor.getValue();
+    assertEquals(Type.CREATED, event.getData().getType());
+  }
 
   @Test
   public void testUpdateTaskTitle() throws ParameterEntityException, EntityNotFoundException {
