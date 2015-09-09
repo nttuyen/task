@@ -27,7 +27,6 @@
     @Binding(value = ProjectService.class),
     @Binding(value = StatusService.class),
     @Binding(value = OrganizationService.class),
-    @Binding(value = IdentityManager.class),
     @Binding(value = UserService.class)
 })
 @WebJars({
@@ -83,7 +82,6 @@ import juzu.plugin.webjars.WebJar;
 import juzu.plugin.webjars.WebJars;
 
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.management.controller.NavigationState;
 import org.exoplatform.task.management.controller.TaskManagement;
