@@ -19,15 +19,15 @@
 
 package org.exoplatform.task.dao;
 
-import org.exoplatform.task.dao.query.AggregateCondition;
-import org.exoplatform.task.dao.query.Condition;
-import org.exoplatform.task.dao.query.Query;
+import org.exoplatform.task.dao.condition.AggregateCondition;
+import org.exoplatform.task.dao.condition.Condition;
+import org.exoplatform.task.dao.condition.Conditions;
 import org.exoplatform.task.domain.Status;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import static org.exoplatform.task.dao.query.Query.*;
+import static org.exoplatform.task.dao.condition.Conditions.*;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
@@ -36,13 +36,21 @@ public class TaskQuery implements Cloneable {
 
   private AggregateCondition aggCondition = null;
 
-  private List<Long> projectIds;
+  //TODO: how to remove these two field
+  private List<Long> projectIds = null;
   private String assignee = null;
   
   private List<OrderBy> orderBy = new ArrayList<OrderBy>();
 
   public TaskQuery() {
 
+  }
+
+  TaskQuery(AggregateCondition condition, List<OrderBy> orderBies, List<Long> projectIds, String assignee) {
+    this.aggCondition = condition;
+    this.orderBy = orderBies;
+    this.projectIds = projectIds;
+    this.assignee = assignee;
   }
 
   public static TaskQuery or(TaskQuery... queries) {
@@ -52,7 +60,7 @@ public class TaskQuery implements Cloneable {
         cond.add(q.getCondition());
       }
     }
-    Condition c = Query.or(cond.toArray(new Condition[cond.size()]));
+    Condition c = Conditions.or(cond.toArray(new Condition[cond.size()]));
     TaskQuery q = new TaskQuery();
     q.add(c);
     return q;
@@ -86,7 +94,6 @@ public class TaskQuery implements Cloneable {
     this.add(like(TASK_DES, '%' + description + '%'));
   }
 
-  @Deprecated
   public List<Long> getProjectIds() {
     return projectIds;
   }
@@ -96,7 +103,6 @@ public class TaskQuery implements Cloneable {
     this.add(in(TASK_PROJECT, projectIds));
   }
 
-  @Deprecated
   public String getAssignee() {
     return assignee;
   }
@@ -107,6 +113,8 @@ public class TaskQuery implements Cloneable {
   }
 
   public void setKeyword(String keyword) {
+    if (keyword == null || keyword.trim().isEmpty()) return;
+
     List<Condition> conditions = new ArrayList<Condition>();
     for(String k : keyword.split(" ")) {
       if (!k.trim().isEmpty()) {
@@ -116,7 +124,7 @@ public class TaskQuery implements Cloneable {
         conditions.add(like(TASK_ASSIGNEE, k));
       }
     }
-    add(Query.or(conditions.toArray(new Condition[conditions.size()])));
+    add(Conditions.or(conditions.toArray(new Condition[conditions.size()])));
   }
 
   public List<OrderBy> getOrderBy() {
@@ -152,18 +160,18 @@ public class TaskQuery implements Cloneable {
   }
 
   public void setMemberships(List<String> permissions) {
-    add(Query.or(in(TASK_PARTICIPATOR, permissions), in(TASK_MANAGER, permissions)));
+    add(Conditions.or(in(TASK_PARTICIPATOR, permissions), in(TASK_MANAGER, permissions)));
   }
 
   public void setAssigneeOrMembership(String username, List<String> memberships) {
     this.assignee = username;
-    this.add(Query.or(eq(TASK_ASSIGNEE, username), in(TASK_MANAGER, memberships), in(TASK_PARTICIPATOR, memberships)));
+    this.add(Conditions.or(eq(TASK_ASSIGNEE, username), in(TASK_MANAGER, memberships), in(TASK_PARTICIPATOR, memberships)));
   }
 
   public void setAssigneeOrInProject(String username, List<Long> projectIds) {
     this.assignee = username;
     this.projectIds = projectIds;
-    this.add(Query.or(eq(TASK_ASSIGNEE, username), in(TASK_PROJECT, projectIds)));
+    this.add(Conditions.or(eq(TASK_ASSIGNEE, username), in(TASK_PROJECT, projectIds)));
   }
 
   public void setStatus(Status status) {
@@ -171,15 +179,19 @@ public class TaskQuery implements Cloneable {
   }
 
   public void setDueDateFrom(Date dueDateFrom) {
-    add(gte(TASK_DUEDATE, dueDateFrom));
+    if (dueDateFrom != null) {
+      add(gte(TASK_DUEDATE, dueDateFrom));
+    }
   }
 
   public void setDueDateTo(Date dueDateTo) {
-    add(lte(TASK_DUEDATE, dueDateTo));
+    if (dueDateTo != null) {
+      add(lte(TASK_DUEDATE, dueDateTo));
+    }
   }
 
   public void setIsIncomingOf(String username) {
-    add(and(Query.or(eq(TASK_ASSIGNEE, username), eq(TASK_COWORKER, username), eq(TASK_CREATOR, username)), isNull(TASK_STATUS)));
+    add(and(Conditions.or(eq(TASK_ASSIGNEE, username), eq(TASK_COWORKER, username), eq(TASK_CREATOR, username)), isNull(TASK_STATUS)));
   }
 
   public void setIsTodoOf(String username) {
@@ -192,10 +204,6 @@ public class TaskQuery implements Cloneable {
   }
 
   public TaskQuery clone() {
-    try {
-      return (TaskQuery) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException("clone is not supported in TaskQuery", e);
-    }
+    return new TaskQuery(aggCondition.clone(), orderBy, projectIds != null ? new ArrayList<Long>(projectIds) : null, assignee);
   }
 }

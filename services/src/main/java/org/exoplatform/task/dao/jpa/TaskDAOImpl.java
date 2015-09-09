@@ -17,12 +17,7 @@
 package org.exoplatform.task.dao.jpa;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -39,20 +34,18 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.dao.TaskQuery;
-import org.exoplatform.task.dao.query.AggregateCondition;
-import org.exoplatform.task.dao.query.Condition;
-import org.exoplatform.task.dao.query.SingleCondition;
+import org.exoplatform.task.dao.condition.AggregateCondition;
+import org.exoplatform.task.dao.condition.Condition;
+import org.exoplatform.task.dao.condition.SingleCondition;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
-import org.exoplatform.task.service.impl.TaskEvent;
-import org.exoplatform.task.util.TaskUtil;
-import static org.exoplatform.task.dao.query.Query.*;
+
+import static org.exoplatform.task.dao.condition.Conditions.*;
 
 /**
  * Created by The eXo Platform SAS
@@ -445,6 +438,9 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
   }
 
   private Predicate buildQuery(Condition condition, Root<Task> task, CriteriaBuilder cb, CriteriaQuery query) {
+    if (condition == null) {
+      return null;
+    }
     if (condition instanceof SingleCondition) {
       return buildSingleCondition((SingleCondition)condition, task, cb, query);
     } else if (condition instanceof AggregateCondition) {
@@ -500,13 +496,13 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
     if (SingleCondition.EQ.equals(condition.getType())) {
       return cb.equal(path, value);
     } else if (SingleCondition.LT.equals(condition.getType())) {
-      return cb.lt(path, (Integer)value);
+      return cb.lessThan((Path<Comparable>) path, (Comparable) value);
     } else if (SingleCondition.GT.equals(condition.getType())) {
-      return cb.gt(path, (Integer) value);
+      return cb.greaterThan((Path<Comparable>) path, (Comparable) value);
     } else if (SingleCondition.LTE.equals(condition.getType())) {
-      return cb.lessThanOrEqualTo(path, (Integer) value);
+      return cb.lessThanOrEqualTo((Path<Comparable>)path, (Comparable)value);
     } else if (SingleCondition.GTE.equals(condition.getType())) {
-      return cb.greaterThanOrEqualTo(path, (Integer) value);
+      return cb.greaterThanOrEqualTo((Path<Comparable>)path, (Comparable) value);
     } else if (SingleCondition.IS_NULL.equals(type)) {
       return path.isNull();
     } else if (SingleCondition.NOT_NULL.equals(type)) {

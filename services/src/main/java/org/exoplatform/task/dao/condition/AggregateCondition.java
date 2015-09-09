@@ -17,44 +17,50 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.exoplatform.task.dao.query;
+package org.exoplatform.task.dao.condition;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class SingleCondition<T> extends Condition implements Cloneable {
-
-  public static final String EQ = "eq";
-  public static final String LT = "lt";
-  public static final String GT = "gt";
-  public static final String LTE = "lte";
-  public static final String GTE = "gte";
-  public static final String IS_NULL = "null";
-  public static final String NOT_NULL = "not_null";
-  public static final String LIKE = "like";
-  public static final String IN = "in";
-  public static final String IS_TRUE = "is_true";
-  public static final String IS_FALSE = "is_false";
+public class AggregateCondition extends Condition implements Cloneable {
+  public static final String AND = "and";
+  public static final String OR = "or";
 
   final String type;
-  final String field;
-  final T value;
+  List<Condition> conditions;
 
-  public SingleCondition(String type, String field, T value) {
+  public AggregateCondition(String type, List<Condition> conditions) {
     this.type = type;
-    this.field = field;
-    this.value = value;
+    this.conditions = conditions;
   }
 
   public String getType() {
     return type;
   }
 
-  public String getField() {
-    return field;
+  public List<Condition> getConditions() {
+    return conditions;
   }
 
-  public T getValue() {
-    return value;
+  public void setConditions(List<Condition> conditions) {
+    this.conditions = conditions;
+  }
+
+  public AggregateCondition add(Condition cond) {
+    this.conditions.add(cond);
+    return this;
+  }
+
+  public AggregateCondition clone() {
+    List<Condition> c1 = new ArrayList<Condition>();
+    for (Condition condition : conditions) {
+      if (condition != null) {
+        c1.add(condition.clone());
+      }
+    }
+    return new AggregateCondition(type, c1);
   }
 }

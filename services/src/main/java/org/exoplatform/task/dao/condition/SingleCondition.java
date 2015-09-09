@@ -17,47 +17,49 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.exoplatform.task.dao.query;
-
-import java.util.List;
+package org.exoplatform.task.dao.condition;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class AggregateCondition extends Condition implements Cloneable {
-  public static final String AND = "and";
-  public static final String OR = "or";
+public class SingleCondition<T> extends Condition implements Cloneable {
+
+  public static final String EQ = "eq";
+  public static final String LT = "lt";
+  public static final String GT = "gt";
+  public static final String LTE = "lte";
+  public static final String GTE = "gte";
+  public static final String IS_NULL = "null";
+  public static final String NOT_NULL = "not_null";
+  public static final String LIKE = "like";
+  public static final String IN = "in";
+  public static final String IS_TRUE = "is_true";
+  public static final String IS_FALSE = "is_false";
 
   final String type;
-  List<Condition> conditions;
+  final String field;
+  final T value;
 
-  public AggregateCondition(String type, List<Condition> conditions) {
+  public SingleCondition(String type, String field, T value) {
     this.type = type;
-    this.conditions = conditions;
+    this.field = field;
+    this.value = value;
   }
 
   public String getType() {
     return type;
   }
 
-  public List<Condition> getConditions() {
-    return conditions;
+  public String getField() {
+    return field;
   }
 
-  public void setConditions(List<Condition> conditions) {
-    this.conditions = conditions;
+  public T getValue() {
+    return value;
   }
 
-  public AggregateCondition add(Condition cond) {
-    this.conditions.add(cond);
-    return this;
-  }
-
-  public AggregateCondition clone() {
-    try {
-      return (AggregateCondition) super.clone();
-    } catch (CloneNotSupportedException ex) {
-      throw new RuntimeException("Clone is not supported in Condition", ex);
-    }
+  @Override
+  public Condition clone() {
+    return new SingleCondition<T>(type, field, value);
   }
 }

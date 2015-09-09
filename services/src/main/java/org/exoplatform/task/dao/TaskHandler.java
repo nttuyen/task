@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.task.dao.condition.Condition;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 

@@ -17,7 +17,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.exoplatform.task.dao.query;
+package org.exoplatform.task.dao.condition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class Query {
+public class Conditions {
   public static String TASK_ID = "id";
   public static String TASK_TITLE = "title";
   public static String TASK_DES = "description";
