@@ -454,7 +454,9 @@ public class ProjectController extends AbstractController {
   @MimeType.HTML
   public Response savePermission(Long id, String[] permissions, String type) throws EntityNotFoundException, ParameterEntityException {
     String name = "manager".equals(type) ? type : "participator";
-    Project project = projectService.saveProjectField(id, name, permissions); //Can throw ProjectNotFoundException & NotAllowedOperationOnEntityException
+    Project project = ProjectUtil.saveProjectField(projectService, id, name, permissions);
+    projectService.updateProject(project);
+
     return renderShareDialog(project, "");
   }
 
@@ -568,7 +570,9 @@ public class ProjectController extends AbstractController {
       return Response.status(406).body("Field name is required");
     }
 
-    projectService.saveProjectField(projectId, name, value); //Can throw ProjectNotFoundException & NotAllowedOperationOnEntityException
+    Project project = ProjectUtil.saveProjectField(projectService, projectId, name, value);
+    projectService.updateProject(project);
+
     return Response.ok("Update successfully");
   }
 

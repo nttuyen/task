@@ -105,89 +105,17 @@ public class ProjectServiceImpl implements ProjectService {
     }
   }
 
-  @Override
-  @ExoTransactional
-  public Project saveProjectField(long projectId, String fieldName, String[] values)
-      throws EntityNotFoundException, ParameterEntityException {
-
-    String val = values != null && values.length > 0 ? values[0] : null;
-
-    Project project = getProject(projectId); //Can throw ProjectNotFoundException
-
-    if("name".equalsIgnoreCase(fieldName)) {
-      if(val == null || val.isEmpty()) {
-        LOG.info("Name of project must not empty");
-        throw new ParameterEntityException(projectId, Project.class, fieldName, val, "must not be empty", null);
-      }
-      project.setName(val);
-    } else if("manager".equalsIgnoreCase(fieldName)) {
-      Set<String> manager = new HashSet<String>();
-      if(values != null) {
-        for (String v : values) {
-          manager.add(v);
-        }
-      }
-      project.setManager(manager);
-    } else if("participator".equalsIgnoreCase(fieldName)) {
-      Set<String> participator = new HashSet<String>();
-      if(values != null || true) {
-        for (String v : values) {
-          participator.add(v);
-        }
-      }
-      project.setParticipator(participator);
-    } else if("dueDate".equalsIgnoreCase(fieldName)) {
-      if(val == null || val.isEmpty()) {
-        project.setDueDate(null);
-      } else {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-          Date date = df.parse(val);
-          project.setDueDate(date);
-        } catch (ParseException e) {
-          LOG.info("can not parse date string: " + val);
-          throw new ParameterEntityException(projectId, Project.class, fieldName, val, "cannot be parse to date", e);
-        }
-      }
-    } else if("description".equalsIgnoreCase(fieldName)) {
-      project.setDescription(val);
-    } else if ("color".equalsIgnoreCase(fieldName)) {
-      project.setColor(val);
-    } else if ("calendarIntegrated".equalsIgnoreCase(fieldName)) {
-      project.setCalendarIntegrated(Boolean.parseBoolean(val));
-    } else if ("parent".equalsIgnoreCase(fieldName)) {
-      try {
-        long pId = Long.parseLong(val);
-        if (pId == 0) {
-          project.setParent(null);
-        } else if (pId == project.getId()) {
-          throw new ParameterEntityException(pId, Project.class, fieldName, val, "project can not be child of itself", null);
-        } else {
-          Project parent = this.getProject(pId);
-          project.setParent(parent);
-        }
-      } catch (NumberFormatException ex) {
-        LOG.info("can not parse date string: " + val);
-        throw new ParameterEntityException(projectId, Project.class, fieldName, val, "cannot be parse to Long", ex);
-      }
-    } else {
-      LOG.info("Field name: " + fieldName + " is not supported for entity Project");
-      throw new ParameterEntityException(projectId, Project.class, fieldName, val, "is not supported for the entity Project", null);
-    }
-
-    Project obj = daoHandler.getProjectHandler().update(project);
+  public Project updateProject(Project proj) {
+    Project obj = daoHandler.getProjectHandler().update(proj);
     return obj;
   }
 
   @Override
   @ExoTransactional
   public void deleteProject(long id, boolean deleteChild) throws EntityNotFoundException {
-    deleteProject(getProject(id), deleteChild);
-  }
+    Project project = daoHandler.getProjectHandler().find(id);
+    if (project == null) throw new EntityNotFoundException(id, Project.class);
 
-  @Override
-  @ExoTransactional
-  public void deleteProject(Project project, boolean deleteChild) {
     if (!deleteChild && project.getChildren() != null) {
       Project parent = project.getParent();
       for (Project child : project.getChildren()) {
@@ -195,6 +123,7 @@ public class ProjectServiceImpl implements ProjectService {
       }
       project.getChildren().clear();
     }
+
     daoHandler.getProjectHandler().delete(project);
   }
 

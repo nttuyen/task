@@ -34,6 +34,7 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.task.domain.Project;
+import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.integration.calendar.TasksStorage;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.TaskService;
@@ -74,13 +75,13 @@ public class TestTasksStorage extends AbstractTest {
   }
 
   @After
-  public void tearDown() {
+  public void tearDown() throws EntityNotFoundException {
     PortalContainer container = PortalContainer.getInstance();
 
     ProjectService projectService = container.getComponentInstanceOfType(ProjectService.class);
-    projectService.deleteProject(p1, true);
-    projectService.deleteProject(p2, true);
-    projectService.deleteProject(p3, true);
+    projectService.deleteProject(p1.getId(), true);
+    projectService.deleteProject(p2.getId(), true);
+    projectService.deleteProject(p3.getId(), true);
   }
   
   @Test

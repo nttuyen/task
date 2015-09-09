@@ -175,7 +175,8 @@ public class ProjectServiceTest {
 
     String name = "Project Name";
 
-    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "name", new String[]{name});
+    Project project = ProjectUtil.saveProjectField(projectService, TestUtils.EXISTING_PROJECT_ID, "name", new String[]{name});
+    projectService.updateProject(project);
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     assertEquals(name, projectCaptor.getValue().getName());
@@ -186,7 +187,8 @@ public class ProjectServiceTest {
 
     String description = "Bla bla bla";
 
-    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "description", new String[]{description});
+    Project project = ProjectUtil.saveProjectField(projectService, TestUtils.EXISTING_PROJECT_ID, "description", new String[]{description});
+    projectService.updateProject(project);
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     assertEquals(description, projectCaptor.getValue().getDescription());
@@ -197,7 +199,8 @@ public class ProjectServiceTest {
 
     String[] newManagers = {"Tib","Trong","Phuong","Tuyen"};
 
-    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "manager", newManagers);
+    Project project = ProjectUtil.saveProjectField(projectService, TestUtils.EXISTING_PROJECT_ID, "manager", newManagers);
+    projectService.updateProject(project);
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     Set<String> managers = new HashSet<String>();
@@ -213,7 +216,8 @@ public class ProjectServiceTest {
 
     String[] newMembers = {"Tib","Trong","Phuong","Tuyen"};
 
-    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "participator", newMembers);
+    Project project = ProjectUtil.saveProjectField(projectService, TestUtils.EXISTING_PROJECT_ID, "participator", newMembers);
+    projectService.updateProject(project);
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     Set<String> members = new HashSet<String>();
@@ -231,7 +235,8 @@ public class ProjectServiceTest {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     Date date = sdf.parse(dueDate);
 
-    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "dueDate", new String[]{dueDate});
+    Project project = ProjectUtil.saveProjectField(projectService, TestUtils.EXISTING_PROJECT_ID, "dueDate", new String[]{dueDate});
+    projectService.updateProject(project);
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     assertEquals(date, projectCaptor.getValue().getDueDate());
@@ -242,7 +247,8 @@ public class ProjectServiceTest {
 
     String color = "#000000";
 
-    projectService.saveProjectField(TestUtils.EXISTING_PROJECT_ID, "color", new String[]{color});
+    Project project = ProjectUtil.saveProjectField(projectService, TestUtils.EXISTING_PROJECT_ID, "color", new String[]{color});
+    projectService.updateProject(project);
     verify(projectHandler, times(1)).update(projectCaptor.capture());
 
     assertEquals(color, projectCaptor.getValue().getColor());

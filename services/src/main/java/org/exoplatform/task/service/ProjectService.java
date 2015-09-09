@@ -13,6 +13,15 @@ import org.exoplatform.task.exception.ParameterEntityException;
 public interface ProjectService {
 
   /**
+   * Return the project with given <code>projectId</code>.
+   *
+   * @param projectId
+   * @return
+   * @throws EntityNotFoundException
+   */
+  Project getProject(Long projectId) throws EntityNotFoundException;
+
+  /**
    * Create a project with given <code>project</code> model object.
    *
    * @param project
@@ -30,15 +39,11 @@ public interface ProjectService {
    */
   Project createProject(Project project, long parentId) throws EntityNotFoundException;
 
-  Project saveProjectField(long projectId, String fieldName, String[] values)
-      throws EntityNotFoundException, ParameterEntityException;
+  Project updateProject(Project project);
 
   void deleteProject(long projectId, boolean deleteChild) throws EntityNotFoundException;
-  void deleteProject(Project project, boolean deleteChild);
 
   Project cloneProject(long projectId, boolean cloneTask) throws EntityNotFoundException;
-
-  Project getProject(Long projectId) throws EntityNotFoundException;
 
   List<Project> findProjects(List<String> memberships, String keyword, OrderBy order);
 }
