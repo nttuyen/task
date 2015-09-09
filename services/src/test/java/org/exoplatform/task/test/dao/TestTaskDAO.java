@@ -188,8 +188,9 @@ public class TestTaskDAO extends AbstractTest {
     tDAO.create(task2);
 
     TaskQuery query = new TaskQuery();
-    query.setIsIncoming(Boolean.TRUE);
-    query.setUsername(username);
+    //query.setIsIncoming(Boolean.TRUE);
+    //query.setUsername(username);
+    query.setIsIncomingOf(username);
     ListAccess<Task> listTasks = tDAO.findTasks(query); //tDAO.getIncomingTasks(username, null);
     List<Task> tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //tDAO.getIncomingTask(username, null);
     assertContain(tasks, task1.getId());
@@ -228,8 +229,9 @@ public class TestTaskDAO extends AbstractTest {
     tDAO.create(task5);
 
     TaskQuery query = new TaskQuery();
-    query.setIsTodo(Boolean.TRUE);
-    query.setUsername(username);
+    //query.setIsTodo(Boolean.TRUE);
+    //query.setUsername(username);
+    query.setIsTodoOf(username);
     query.setCompleted(false);
     ListAccess<Task> listTasks = tDAO.findTasks(query); //tDAO.getToDoTasks(username, null, null, null, null);
     List<Task> tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //tDAO.getToDoTask(username, null, null, null, null);

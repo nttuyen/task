@@ -17,6 +17,8 @@
 package org.exoplatform.task.dao.jpa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -43,9 +45,14 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.dao.OrderBy;
 import org.exoplatform.task.dao.TaskHandler;
 import org.exoplatform.task.dao.TaskQuery;
+import org.exoplatform.task.dao.query.AggregateCondition;
+import org.exoplatform.task.dao.query.Condition;
+import org.exoplatform.task.dao.query.SingleCondition;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
+import org.exoplatform.task.service.impl.TaskEvent;
 import org.exoplatform.task.util.TaskUtil;
+import static org.exoplatform.task.dao.query.Query.*;
 
 /**
  * Created by The eXo Platform SAS
@@ -119,7 +126,8 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
 
     final TypedQuery<Task> selectQuery = em.createQuery(q);
 
-    return new JPAQueryListAccess<Task>(Task.class, countQuery, selectQuery);
+    //return new JPAQueryListAccess<Task>(Task.class, countQuery, selectQuery);
+    return findTasks(query.getCondition(), query.getOrderBy());
   }
 
   @Override
@@ -450,6 +458,150 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
       }
       currentTask.setRank(newRank);
       update(currentTask);
+  }
+
+  //TODO: just for test
+  public ListAccess<Task> findIncomingTasks(String username, String keyword) {
+    // INCOMING
+    Condition condition = or(eq(TASK_ASSIGNEE, username), eq(TASK_COWORKER, username), eq(TASK_CREATOR, username));
+
+    //TO-DO
+    if (true) {
+      condition = and(notNull(TASK_STATUS), eq(TASK_ASSIGNEE, username));
+    }
+
+    //. Today task
+    if (true) {
+      Date fromDate = new Date(), toDate = new Date();
+      Condition dateCondition = and(gte(TASK_DUEDATE, fromDate), lte(TASK_DUEDATE, toDate));
+      condition = and(condition, dateCondition);
+    }
+
+    // Project
+    if (true) {
+      List<Integer> ids = Arrays.asList(1, 2, 3);
+      Condition pCondition = in(TASK_PROJECT, ids);
+      condition = and(condition, pCondition);
+    }
+
+    if (keyword != null && !keyword.isEmpty()) {
+      String k = '%' + keyword + '%';
+      Condition keyWordCond = or(like(TASK_TITLE, k), like(TASK_DES, k), like(TASK_ASSIGNEE, k));
+
+      condition = and(condition, keyWordCond);
+    }
+
+    return findTasks(condition, null);
+  }
+
+  public ListAccess<Task> findTasks(Condition condition, List<OrderBy> orderBies) {
+    EntityManager em = getEntityManager();
+    CriteriaBuilder cb = em.getCriteriaBuilder();
+    CriteriaQuery q = cb.createQuery();
+
+    Root<Task> task = q.from(Task.class);
+
+    Predicate predicate = buildQuery(condition, task, cb, q);
+    if (predicate != null) {
+      q.where(predicate);
+    }
+
+    //
+    q.select(cb.count(task));
+    final TypedQuery<Long> countQuery = em.createQuery(q);
+
+    //
+    q.select(task);
+
+    if(orderBies != null && !orderBies.isEmpty()) {
+      Order[] orders = new Order[orderBies.size()];
+      for(int i = 0; i < orders.length; i++) {
+        OrderBy orderBy = orderBies.get(i);
+        Path p = task.get(orderBy.getFieldName());
+        orders[i] = orderBy.isAscending() ? cb.asc(p) : cb.desc(p);
+      }
+      q.orderBy(orders);
+    }
+
+    final TypedQuery<Task> selectQuery = em.createQuery(q);
+
+    return new JPAQueryListAccess<Task>(Task.class, countQuery, selectQuery);
+  }
+
+  private Predicate buildQuery(Condition condition, Root<Task> task, CriteriaBuilder cb, CriteriaQuery query) {
+    if (condition instanceof SingleCondition) {
+      return buildSingleCondition((SingleCondition)condition, task, cb, query);
+    } else if (condition instanceof AggregateCondition) {
+      AggregateCondition agg = (AggregateCondition)condition;
+      String type = agg.getType();
+      List<Condition> cds = agg.getConditions();
+      Predicate[] ps = new Predicate[cds.size()];
+      for (int i = 0; i < ps.length; i++) {
+        ps[i] = buildQuery(cds.get(i), task, cb, query);
+      }
+
+      if (AggregateCondition.AND.equals(type)) {
+        return cb.and(ps);
+      } else if (AggregateCondition.OR.equals(type)) {
+        return cb.or(ps);
+      }
+    }
+    return null;
+  }
+
+  private <T> Predicate buildSingleCondition(SingleCondition<T> condition, Root<Task> task, CriteriaBuilder cb, CriteriaQuery query) {
+    String type = condition.getType();
+    String field = condition.getField();
+    T value = condition.getValue();
+
+    Join join = null;
+    if (field.indexOf('.') > 0) {
+      String[] arr = field.split("\\.");
+      for (int i = 0; i < arr.length - 1; i++) {
+        String s = arr[i];
+        if (join == null) {
+          join = task.join(s, JoinType.INNER);
+        } else {
+          join = join.join(s, JoinType.INNER);
+        }
+      }
+      field = arr[arr.length - 1];
+    }
+    Path path = join == null ? task.get(field) : join.get(field);
+
+    if (TASK_COWORKER.equals(field)) {
+      path = task.join(field, JoinType.LEFT);
+    } else if (TASK_MANAGER.equals(condition.getField())) {
+      path = join.join("manager", JoinType.LEFT);
+    } else if (TASK_PARTICIPATOR.equals(condition.getField())) {
+      path = join.join("participator", JoinType.LEFT);
+    }
+
+    if (SingleCondition.EQ.equals(condition.getType())) {
+      return cb.equal(path, value);
+    } else if (SingleCondition.LT.equals(condition.getType())) {
+      return cb.lt(path, (Integer)value);
+    } else if (SingleCondition.GT.equals(condition.getType())) {
+      return cb.gt(path, (Integer) value);
+    } else if (SingleCondition.LTE.equals(condition.getType())) {
+      return cb.lessThanOrEqualTo(path, (Integer) value);
+    } else if (SingleCondition.GTE.equals(condition.getType())) {
+      return cb.greaterThanOrEqualTo(path, (Integer) value);
+    } else if (SingleCondition.IS_NULL.equals(type)) {
+      return path.isNull();
+    } else if (SingleCondition.NOT_NULL.equals(type)) {
+      return path.isNotNull();
+    } else if (SingleCondition.LIKE.equals(type)) {
+      return cb.like(path, String.valueOf(value));
+    } else if (SingleCondition.IN.equals(type)) {
+      return path.in((Collection) value);
+    } else if (SingleCondition.IS_TRUE.equals(type)) {
+      return cb.isTrue(path);
+    } else if (SingleCondition.IS_FALSE.equals(type)) {
+      return cb.isFalse(path);
+    }
+
+    throw new RuntimeException("Condition type " + type + " is not supported");
   }
 
   private static final ListAccess<Task> EMPTY = new ListAccess<Task>() {
