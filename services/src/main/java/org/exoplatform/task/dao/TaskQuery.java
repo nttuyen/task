@@ -21,61 +21,49 @@ package org.exoplatform.task.dao;
 
 import org.exoplatform.task.dao.query.AggregateCondition;
 import org.exoplatform.task.dao.query.Condition;
+import org.exoplatform.task.dao.query.Query;
 import org.exoplatform.task.domain.Status;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import static org.exoplatform.task.dao.query.Query.*;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class TaskQuery {
+public class TaskQuery implements Cloneable {
 
   private AggregateCondition aggCondition = null;
 
-  private long taskId = 0;
-  private String title = null;
-  private String description = null;
-  private String keyword = null;
-
-  //
-  private Boolean isIncoming = null;
-  private Boolean isTodo = null;
-  private String username = null;
-
-  //
   private List<Long> projectIds;
-  private Status status = null;
-
   private String assignee = null;
-  private List<String> memberships;
-
-  private Boolean calendarIntegrated;
-
-  private Boolean completed;
-
-  private Date startDate;
-  private Date endDate;
-
-  //
-  private Date dueDateFrom = null;
-  private Date dueDateTo = null;
-
-  //
-  private String nullField = null;
   
   private List<OrderBy> orderBy = new ArrayList<OrderBy>();
-
-  private List<String> orFields = new LinkedList<String>();
 
   public TaskQuery() {
 
   }
 
-  public TaskQuery add(Condition condition) {
+  public static TaskQuery or(TaskQuery... queries) {
+    List<Condition> cond = new ArrayList<Condition>();
+    for(TaskQuery q : queries) {
+      if (q.getCondition() != null) {
+        cond.add(q.getCondition());
+      }
+    }
+    Condition c = Query.or(cond.toArray(new Condition[cond.size()]));
+    TaskQuery q = new TaskQuery();
+    q.add(c);
+    return q;
+  }
+
+  public TaskQuery add(TaskQuery taskQuery) {
+    this.add(taskQuery.getCondition());
+    return this;
+  }
+
+  TaskQuery add(Condition condition) {
     if (condition == null) return this;
 
     if (aggCondition == null) {
@@ -90,33 +78,15 @@ public class TaskQuery {
     return this.aggCondition;
   }
 
-  @Deprecated
-  public long getTaskId() {
-    return taskId;
-  }
-
   public void setTaskId(long taskId) {
-    this.taskId = taskId;
     this.add(eq(TASK_ID, taskId));
   }
 
-  @Deprecated
-  public String getTitle() {
-    return title;
-  }
-
   public void setTitle(String title) {
-    this.title = title;
     this.add(like(TASK_TITLE, '%' + title + '%'));
   }
 
-  @Deprecated
-  public String getDescription() {
-    return description;
-  }
-
   public void setDescription(String description) {
-    this.description = description;
     this.add(like(TASK_DES, '%' + description + '%'));
   }
 
@@ -140,13 +110,7 @@ public class TaskQuery {
     this.add(eq(TASK_ASSIGNEE, assignee));
   }
 
-  @Deprecated
-  public String getKeyword() {
-    return keyword;
-  }
-
   public void setKeyword(String keyword) {
-    this.keyword = keyword;
     List<Condition> conditions = new ArrayList<Condition>();
     for(String k : keyword.split(" ")) {
       if (!k.trim().isEmpty()) {
@@ -156,7 +120,7 @@ public class TaskQuery {
         conditions.add(like(TASK_ASSIGNEE, k));
       }
     }
-    add(or(conditions.toArray(new Condition[conditions.size()])));
+    add(Query.or(conditions.toArray(new Condition[conditions.size()])));
   }
 
   public List<OrderBy> getOrderBy() {
@@ -167,13 +131,7 @@ public class TaskQuery {
     this.orderBy = orderBy;
   }
 
-  @Deprecated
-  public Boolean getCompleted() {
-    return completed;
-  }
-
   public void setCompleted(Boolean completed) {
-    this.completed = completed;
     if (completed) {
       add(isTrue(TASK_COMPLETED));
     } else {
@@ -181,33 +139,15 @@ public class TaskQuery {
     }
   }
 
-  @Deprecated
-  public Date getStartDate() {
-    return startDate;
-  }
-
   public void setStartDate(Date startDate) {
-    this.startDate = startDate;
     add(gte(TASK_END_DATE, startDate));
   }
 
-  @Deprecated
-  public Date getEndDate() {
-    return endDate;
-  }
-
   public void setEndDate(Date endDate) {
-    this.endDate = endDate;
     add(lte(TASK_START_DATE, endDate));
   }
 
-  @Deprecated
-  public Boolean getCalendarIntegrated() {
-    return calendarIntegrated;
-  }
-
   public void setCalendarIntegrated(Boolean calendarIntegrated) {
-    this.calendarIntegrated = calendarIntegrated;
     if (calendarIntegrated) {
       add(isTrue(TASK_CALENDAR_INTEGRATED));
     } else {
@@ -216,146 +156,49 @@ public class TaskQuery {
   }
 
   public void setMemberships(List<String> permissions) {
-    this.memberships =  permissions;
-    add(or(in(TASK_PARTICIPATOR, permissions), in(TASK_MANAGER, permissions)));
-  }
-
-  @Deprecated
-  public List<String> getMemberships() {
-    return memberships;
-  }  
-
-  @Deprecated
-  public List<String> getOrFields() {
-    return orFields;
-  }
-
-  @Deprecated
-  public void setOrFields(List<String> orFields) {
-    this.orFields = orFields;
+    add(Query.or(in(TASK_PARTICIPATOR, permissions), in(TASK_MANAGER, permissions)));
   }
 
   public void setAssigneeOrMembership(String username, List<String> memberships) {
-    this.add(or(eq(TASK_ASSIGNEE, username), in(TASK_MANAGER, memberships), in(TASK_PARTICIPATOR, memberships)));
+    this.assignee = username;
+    this.add(Query.or(eq(TASK_ASSIGNEE, username), in(TASK_MANAGER, memberships), in(TASK_PARTICIPATOR, memberships)));
   }
 
   public void setAssigneeOrInProject(String username, List<Long> projectIds) {
-    this.add(or(eq(TASK_ASSIGNEE, username), in(TASK_PROJECT, projectIds)));
-  }
-
-  @Deprecated
-  public Status getStatus() {
-    return status;
+    this.assignee = username;
+    this.projectIds = projectIds;
+    this.add(Query.or(eq(TASK_ASSIGNEE, username), in(TASK_PROJECT, projectIds)));
   }
 
   public void setStatus(Status status) {
-    this.status = status;
     add(eq(TASK_STATUS, status));
   }
 
-  @Deprecated
-  public Date getDueDateFrom() {
-    return dueDateFrom;
-  }
-
   public void setDueDateFrom(Date dueDateFrom) {
-    this.dueDateFrom = dueDateFrom;
     add(gte(TASK_DUEDATE, dueDateFrom));
   }
 
-  @Deprecated
-  public Date getDueDateTo() {
-    return dueDateTo;
-  }
-
   public void setDueDateTo(Date dueDateTo) {
-    this.dueDateTo = dueDateTo;
     add(lte(TASK_DUEDATE, dueDateTo));
   }
 
-  @Deprecated
-  public String getUsername() {
-    return username;
-  }
-
-  @Deprecated
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  @Deprecated
-  public Boolean getIsIncoming() {
-    return isIncoming;
-  }
-
-  @Deprecated
-  public void setIsIncoming(Boolean isIncoming) {
-    this.isIncoming = isIncoming;
-  }
-
   public void setIsIncomingOf(String username) {
-    setIsIncoming(Boolean.TRUE);
-    setUsername(username);
-    add(and(or(eq(TASK_ASSIGNEE, username), eq(TASK_COWORKER, username), eq(TASK_CREATOR, username)), isNull(TASK_STATUS)));
-  }
-
-  @Deprecated
-  public Boolean getIsTodo() {
-    return isTodo;
-  }
-
-  @Deprecated
-  public void setIsTodo(Boolean isTodo) {
-    this.isTodo = isTodo;
+    add(and(Query.or(eq(TASK_ASSIGNEE, username), eq(TASK_COWORKER, username), eq(TASK_CREATOR, username)), isNull(TASK_STATUS)));
   }
 
   public void setIsTodoOf(String username) {
-    setIsTodo(Boolean.TRUE);
-    setUsername(username);
     add(eq(TASK_ASSIGNEE, username));
   }
 
-  @Deprecated
-  public String getNullField() {
-    return nullField;
-  }
-
   public void setNullField(String nullField) {
-    this.nullField = nullField;
     add(isNull(nullField));
   }
 
   public TaskQuery clone() {
-    TaskQuery q = new TaskQuery();
-    q.setTaskId(taskId);
-    q.setTitle(title);
-    q.setDescription(description);
-    q.setKeyword(keyword);
-
-    if (isIncoming) {
-      q.setIsIncomingOf(username);
-    } else if (isTodo) {
-      q.setIsTodoOf(username);
+    try {
+      return (TaskQuery) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException("clone is not supported in TaskQuery", e);
     }
-
-    q.setProjectIds(projectIds);
-    q.setStatus(status);
-    q.setAssignee(assignee);
-    q.setMemberships(memberships);
-
-    q.setCalendarIntegrated(calendarIntegrated);
-
-    q.setCompleted(completed);
-
-    q.setStartDate(startDate);
-    q.setEndDate(endDate);
-
-    q.setDueDateFrom(dueDateFrom);
-    q.setDueDateTo(dueDateTo);
-
-    q.setOrderBy(orderBy);
-    q.setOrFields(orFields);
-
-    return q;
   }
 }

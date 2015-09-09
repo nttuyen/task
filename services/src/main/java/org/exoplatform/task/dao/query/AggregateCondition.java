@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class AggregateCondition extends Condition {
+public class AggregateCondition extends Condition implements Cloneable {
   public static final String AND = "and";
   public static final String OR = "or";
 
@@ -51,5 +51,13 @@ public class AggregateCondition extends Condition {
   public AggregateCondition add(Condition cond) {
     this.conditions.add(cond);
     return this;
+  }
+
+  public AggregateCondition clone() {
+    try {
+      return (AggregateCondition) super.clone();
+    } catch (CloneNotSupportedException ex) {
+      throw new RuntimeException("Clone is not supported in Condition", ex);
+    }
   }
 }

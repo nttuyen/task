@@ -157,8 +157,9 @@ public class TaskManagement {
     //if (tasks == null) {
     if (taskId <= 0) {
       if (space_group_id != null) {
-        taskQuery.setIsTodo(Boolean.TRUE);
-        taskQuery.setUsername(username);
+        //taskQuery.setIsTodo(Boolean.TRUE);
+        //taskQuery.setUsername(username);
+        taskQuery.setIsTodoOf(username);
         taskQuery.setProjectIds(spaceProjectIds);
         //ListAccess<Task> listTasks = taskService.getTodoTasks(username, spaceProjectIds, null, null, null);
         //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getToDoTasksByUser(username, spaceProjectIds, null, null, null);
@@ -168,8 +169,9 @@ public class TaskManagement {
         //ListAccess<Task> listTasks = taskService.findTasks(taskQuery);
         //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.findTaskByQuery(taskQuery);
       } else {
-        taskQuery.setIsIncoming(Boolean.TRUE);
-        taskQuery.setUsername(username);
+        //taskQuery.setIsIncoming(Boolean.TRUE);
+        //taskQuery.setUsername(username);
+        taskQuery.setIsIncomingOf(username);
         //ListAccess<Task> listTasks = taskService.getIncomingTasks(username, new OrderBy.DESC("createdTime"));
         //tasks = Arrays.asList(ListUtil.load(listTasks, 0, -1)); //taskService.getIncomingTasksByUser(username, new OrderBy.DESC("createdTime"));
       }

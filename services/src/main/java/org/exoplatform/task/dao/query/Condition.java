@@ -22,5 +22,5 @@ package org.exoplatform.task.dao.query;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class Condition {
+public class Condition implements Cloneable {
 }

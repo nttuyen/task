@@ -22,7 +22,7 @@ package org.exoplatform.task.dao.query;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class SingleCondition<T> extends Condition {
+public class SingleCondition<T> extends Condition implements Cloneable {
 
   public static final String EQ = "eq";
   public static final String LT = "lt";

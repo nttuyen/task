@@ -400,8 +400,9 @@ public class TaskController extends AbstractController {
         order = new OrderBy.DESC(orderBy);
       }
 
-      taskQuery.setIsIncoming(Boolean.TRUE);
-      taskQuery.setUsername(currentUser);
+      //taskQuery.setIsIncoming(Boolean.TRUE);
+      //taskQuery.setUsername(currentUser);
+      taskQuery.setIsIncomingOf(currentUser);
       taskQuery.setOrderBy(Arrays.asList(order));
 
       //ListAccess<Task> listTasks = taskService.getIncomingTasks(currentUser, order);
@@ -411,8 +412,9 @@ public class TaskController extends AbstractController {
       defGroupBys = TaskUtil.resolve(Arrays.asList(TaskUtil.NONE, TaskUtil.PROJECT, TaskUtil.DUEDATE), bundle);
       defOrders = TaskUtil.resolve(Arrays.asList(TaskUtil.TITLE, TaskUtil.STATUS, TaskUtil.DUEDATE, TaskUtil.PRIORITY, TaskUtil.RANK), bundle);
 
-      taskQuery.setIsTodo(Boolean.TRUE);
-      taskQuery.setUsername(currentUser);
+      //taskQuery.setIsTodo(Boolean.TRUE);
+      //taskQuery.setUsername(currentUser);
+      taskQuery.setIsTodoOf(currentUser);
 
       //TODO: process fiter here
       Date fromDueDate = null;

@@ -85,48 +85,6 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
 
   @Override
   public ListAccess<Task> findTasks(TaskQuery query) {
-    EntityManager em = getEntityManager();
-    CriteriaBuilder cb = em.getCriteriaBuilder();
-    CriteriaQuery q = cb.createQuery();
-
-    Root<Task> task = q.from(Task.class);
-
-    List<Predicate> predicates = this.buildPredicate(query, task, cb);
-
-    if (predicates == null) {
-      return EMPTY;
-    }
-
-    if(predicates.size() > 0) {
-      Iterator<Predicate> it = predicates.iterator();
-      Predicate p = it.next();
-      while(it.hasNext()) {
-        p = cb.and(p, it.next());
-      }
-      q.where(p);
-    }
-
-    //
-    q.select(cb.count(task));
-    final TypedQuery<Long> countQuery = em.createQuery(q);
-
-    //
-    q.select(task);
-
-    if(query.getOrderBy() != null && !query.getOrderBy().isEmpty()) {
-      List<OrderBy> orderBies = query.getOrderBy();
-      Order[] orders = new Order[orderBies.size()];
-      for(int i = 0; i < orders.length; i++) {
-        OrderBy orderBy = orderBies.get(i);
-        Path p = task.get(orderBy.getFieldName());
-        orders[i] = orderBy.isAscending() ? cb.asc(p) : cb.desc(p);
-      }
-      q.orderBy(orders);
-    }
-
-    final TypedQuery<Task> selectQuery = em.createQuery(q);
-
-    //return new JPAQueryListAccess<Task>(Task.class, countQuery, selectQuery);
     return findTasks(query.getCondition(), query.getOrderBy());
   }
 
@@ -138,19 +96,11 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
 
     Root<Task> task = q.from(Task.class);
 
-    List<Predicate> predicates = this.buildPredicate(query, task, cb);
+    //List<Predicate> predicates = this.buildPredicate(query, task, cb);
+    Predicate predicate = this.buildQuery(query.getCondition(), task, cb, q);
 
-    if (predicates == null) {
-      return Collections.emptyList();
-    }
-
-    if(predicates.size() > 0) {
-      Iterator<Predicate> it = predicates.iterator();
-      Predicate p = it.next();
-      while(it.hasNext()) {
-        p = cb.and(p, it.next());
-      }
-      q.where(p);
+    if(predicate != null) {
+      q.where(predicate);
     }
 
     //
@@ -191,7 +141,7 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
     return selectQuery.getResultList();
   }
 
-  private List<Predicate> buildPredicate(TaskQuery query, Root<Task> task, CriteriaBuilder cb) {
+  /*private List<Predicate> buildPredicate(TaskQuery query, Root<Task> task, CriteriaBuilder cb) {
     List<Predicate> predicates = new ArrayList<Predicate>();
 
     // Incoming?
@@ -347,7 +297,7 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
     }
 
     return predicates;
-  }
+  }*/
 
   @Override
   public Task findTaskByActivityId(String activityId) {
@@ -460,41 +410,7 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
       update(currentTask);
   }
 
-  //TODO: just for test
-  public ListAccess<Task> findIncomingTasks(String username, String keyword) {
-    // INCOMING
-    Condition condition = or(eq(TASK_ASSIGNEE, username), eq(TASK_COWORKER, username), eq(TASK_CREATOR, username));
-
-    //TO-DO
-    if (true) {
-      condition = and(notNull(TASK_STATUS), eq(TASK_ASSIGNEE, username));
-    }
-
-    //. Today task
-    if (true) {
-      Date fromDate = new Date(), toDate = new Date();
-      Condition dateCondition = and(gte(TASK_DUEDATE, fromDate), lte(TASK_DUEDATE, toDate));
-      condition = and(condition, dateCondition);
-    }
-
-    // Project
-    if (true) {
-      List<Integer> ids = Arrays.asList(1, 2, 3);
-      Condition pCondition = in(TASK_PROJECT, ids);
-      condition = and(condition, pCondition);
-    }
-
-    if (keyword != null && !keyword.isEmpty()) {
-      String k = '%' + keyword + '%';
-      Condition keyWordCond = or(like(TASK_TITLE, k), like(TASK_DES, k), like(TASK_ASSIGNEE, k));
-
-      condition = and(condition, keyWordCond);
-    }
-
-    return findTasks(condition, null);
-  }
-
-  public ListAccess<Task> findTasks(Condition condition, List<OrderBy> orderBies) {
+  private ListAccess<Task> findTasks(Condition condition, List<OrderBy> orderBies) {
     EntityManager em = getEntityManager();
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery q = cb.createQuery();
@@ -538,6 +454,10 @@ public class TaskDAOImpl extends GenericDAOJPAImpl<Task, Long> implements TaskHa
       Predicate[] ps = new Predicate[cds.size()];
       for (int i = 0; i < ps.length; i++) {
         ps[i] = buildQuery(cds.get(i), task, cb, query);
+      }
+
+      if (ps.length == 1) {
+        return ps[0];
       }
 
       if (AggregateCondition.AND.equals(type)) {
