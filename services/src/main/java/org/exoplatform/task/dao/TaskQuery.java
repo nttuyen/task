@@ -78,10 +78,6 @@ public class TaskQuery implements Cloneable {
     return this.aggCondition;
   }
 
-  public void setTaskId(long taskId) {
-    this.add(eq(TASK_ID, taskId));
-  }
-
   public void setTitle(String title) {
     this.add(like(TASK_TITLE, '%' + title + '%'));
   }
@@ -187,7 +183,8 @@ public class TaskQuery implements Cloneable {
   }
 
   public void setIsTodoOf(String username) {
-    add(eq(TASK_ASSIGNEE, username));
+    setAssignee(username);
+    //add(eq(TASK_ASSIGNEE, username));
   }
 
   public void setNullField(String nullField) {
