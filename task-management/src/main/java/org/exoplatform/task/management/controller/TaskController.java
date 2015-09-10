@@ -656,8 +656,7 @@ public class TaskController extends AbstractController {
     if (projectId == -1) {
       //incomming
       TaskQuery taskQuery = new TaskQuery();
-      taskQuery.setIsIncoming(Boolean.TRUE);
-      taskQuery.setUsername(currentUser);
+      taskQuery.setIsIncomingOf(currentUser);
       ListAccess<Task> taskListAccess = taskService.findTasks(taskQuery);
       taskNum = ListUtil.getSize(taskListAccess);
     }
