@@ -269,18 +269,24 @@ public class Task {
     this.coworker = coworker;
   }
 
+  //TODO: get comments of task via TaskService
+  @Deprecated
   public Set<Comment> getComments() {
     return comments;
   }
 
+  @Deprecated
   public void setComments(Set<Comment> comments) {
     this.comments = comments;
   }
 
+  //TODO: get TaskLogs via TaskService
+  @Deprecated
   public Set<TaskLog> getTaskLogs() {
     return taskLogs;
   }
 
+  @Deprecated
   public void setTaskLogs(Set<TaskLog> taskLogs) {
     this.taskLogs = taskLogs;
   }

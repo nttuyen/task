@@ -144,10 +144,13 @@ public class Project {
     this.name = name;
   }
 
+  //TODO: get list status of project via StatusService
+  @Deprecated
   public Set<Status> getStatus() {
     return status;
   }
 
+  @Deprecated
   public void setStatus(Set<Status> status) {
     this.status = status;
   }
@@ -208,10 +211,12 @@ public class Project {
     this.parent = parent;
   }
 
+  @Deprecated
   public List<Project> getChildren() {
     return children;
   }
 
+  @Deprecated
   public void setChildren(List<Project> children) {
     this.children = children;
   }
@@ -224,6 +229,7 @@ public class Project {
     project.setDueDate(this.getDueDate());
     project.setParent(this.getParent());
 
+    //TODO: please implement clone status in ProjectService
     if (this.getStatus() != null) {
       for (Status st : this.getStatus()) {
         Status cloned = st.clone(cloneTask);
@@ -232,13 +238,7 @@ public class Project {
       }
     }
 
-    if (this.getChildren() != null) {
-      for (Project p : this.getChildren()) {
-        Project cloned = p.clone(cloneTask);
-        project.getChildren().add(cloned);
-        cloned.setParent(project);
-      }
-    }
+    project.children = null;
 
     return project;
   }

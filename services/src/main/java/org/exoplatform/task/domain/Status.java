@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -62,7 +63,7 @@ public class Status implements Comparable<Status>{
 
   private Integer rank;
 
-  @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "status", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<Task> tasks = new HashSet<Task>();
 
   @ManyToOne
@@ -108,10 +109,13 @@ public class Status implements Comparable<Status>{
     this.name = name;
   }
 
+  //TODO: Get Tasks of status via TaskService
+  @Deprecated
   public Set<Task> getTasks() {
     return tasks;
   }
 
+  @Deprecated
   public void setTasks(Set<Task> tasks) {
     this.tasks = tasks;
   }
@@ -134,7 +138,7 @@ public class Status implements Comparable<Status>{
 
   public Status clone(boolean cloneTask) {
     Status status = new Status(this.getName(), this.getRank(), new HashSet<Task>(), null);
-
+    //TODO: clone task in status via ProjectService
     if (cloneTask) {
       if (this.getTasks() != null) {
         for (Task t : this.getTasks()) {
