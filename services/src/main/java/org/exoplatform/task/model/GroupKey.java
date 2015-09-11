@@ -23,12 +23,12 @@ package org.exoplatform.task.model;
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public class GroupKey<T> implements Comparable<GroupKey> {
+public class GroupKey implements Comparable<GroupKey> {
   private final String name;
-  private final T value;
+  private final Object value;
   private final int rank;
 
-  public GroupKey(String name, T value, int rank) {
+  public GroupKey(String name, Object value, int rank) {
     this.name = name;
     this.value = value;
     this.rank = rank;
@@ -38,7 +38,7 @@ public class GroupKey<T> implements Comparable<GroupKey> {
     return name;
   }
 
-  public T getValue() {
+  public Object getValue() {
     return value;
   }
 

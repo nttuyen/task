@@ -198,7 +198,7 @@ public final class TaskUtil {
       Date toDueDate = null;
       TaskQuery q;
 
-      GroupKey<Date> key;
+      GroupKey key;
       ListAccess<Task> tasks;
 
       // Overdue
@@ -206,7 +206,7 @@ public final class TaskUtil {
       toDueDate = c.getTime();
       q = query.clone();
       q.setDueDateTo(toDueDate);
-      key = new GroupKey<Date>("Overdue", toDueDate, 0);
+      key = new GroupKey("Overdue", toDueDate, 0);
       tasks = taskService.findTasks(q);
       if (ListUtil.getSize(tasks) > 0) {
           maps.put(key, tasks);
@@ -223,7 +223,7 @@ public final class TaskUtil {
       q.setDueDateFrom(fromDueDate);
       q.setDueDateTo(toDueDate);
 
-      key = new GroupKey<Date>("Today", fromDueDate, 1);
+      key = new GroupKey("Today", fromDueDate, 1);
       tasks = taskService.findTasks(q);
       if (ListUtil.getSize(tasks) > 0) {
         maps.put(key, tasks);
@@ -240,7 +240,7 @@ public final class TaskUtil {
       q.setDueDateFrom(fromDueDate);
       q.setDueDateTo(toDueDate);
 
-      key = new GroupKey<Date>("Tomorrow", fromDueDate, 2);
+      key = new GroupKey("Tomorrow", fromDueDate, 2);
       tasks = taskService.findTasks(q);
       if (ListUtil.getSize(tasks) > 0) {
         maps.put(key, tasks);
@@ -255,7 +255,7 @@ public final class TaskUtil {
       q.setDueDateFrom(fromDueDate);
       q.setDueDateTo(toDueDate);
 
-      key = new GroupKey<Date>("Upcoming", fromDueDate, 3);
+      key = new GroupKey("Upcoming", fromDueDate, 3);
       tasks = taskService.findTasks(q);
       if (ListUtil.getSize(tasks) > 0) {
         maps.put(key, tasks);
@@ -265,7 +265,7 @@ public final class TaskUtil {
       // No Due date
       q = query.clone();
       q.setNullField(DUEDATE);
-      key = new GroupKey<Date>("No Due date", null, 4);
+      key = new GroupKey("No Due date", null, 4);
       tasks = taskService.findTasks(q);
       if (ListUtil.getSize(tasks) > 0) {
         maps.put(key, tasks);
@@ -275,7 +275,7 @@ public final class TaskUtil {
       List<Project> projects = taskService.selectTaskField(selectFieldQuery, "status.project");
       for (int i = 0; i < projects.size(); i++) {
         Project p = projects.get(i);
-        GroupKey<Project> key = new GroupKey<Project>(p.getName(), p, i);
+        GroupKey key = new GroupKey(p.getName(), p, i);
         TaskQuery q = query.clone();
         q.setProjectIds(Arrays.asList(p.getId()));
         ListAccess<Task> tasks = taskService.findTasks(q);
@@ -286,7 +286,7 @@ public final class TaskUtil {
 
       //
       if (query.getProjectIds() == null || query.getProjectIds().isEmpty()) {
-        GroupKey<Project> key = new GroupKey<Project>("No Project", null, Integer.MAX_VALUE);
+        GroupKey key = new GroupKey("No Project", null, Integer.MAX_VALUE);
         TaskQuery q = query.clone();
         q.setNullField(STATUS);
         ListAccess<Task> tasks = taskService.findTasks(q);
@@ -298,13 +298,13 @@ public final class TaskUtil {
     } else if (STATUS.equalsIgnoreCase(groupBy)) {
       List<Status> statuses = taskService.selectTaskField(selectFieldQuery, STATUS);
       TaskQuery q;
-      GroupKey<Status> key;
+      GroupKey key;
       ListAccess<Task> tasks;
 
       for (Status st : statuses) {
         q = query.clone();
         q.setStatus(st);
-        key = new GroupKey<Status>(st.getName(), st, st.getRank());
+        key = new GroupKey(st.getName(), st, st.getRank());
         tasks = taskService.findTasks(q);
         if (ListUtil.getSize(tasks) > 0) {
           maps.put(key, tasks);
@@ -313,7 +313,7 @@ public final class TaskUtil {
       if (query.getProjectIds() == null || query.getProjectIds().isEmpty()) {
         q = query.clone();
         q.setNullField(STATUS);
-        key = new GroupKey<Status>("No Status", null, Integer.MAX_VALUE);
+        key = new GroupKey("No Status", null, Integer.MAX_VALUE);
         tasks = taskService.findTasks(q);
         if (ListUtil.getSize(tasks) > 0) {
           maps.put(key, tasks);
@@ -322,7 +322,7 @@ public final class TaskUtil {
 
     } else if (ASSIGNEE.equalsIgnoreCase(groupBy)) {
       List<String> assignees = taskService.selectTaskField(selectFieldQuery, ASSIGNEE);
-      GroupKey<org.exoplatform.task.model.User> key;
+      GroupKey key;
       ListAccess<Task> tasks;
       TaskQuery q;
 
@@ -332,7 +332,7 @@ public final class TaskUtil {
         q = query.clone();
         q.setAssignee(assignee);
         org.exoplatform.task.model.User user = userService.loadUser(assignee);
-        key = new GroupKey<org.exoplatform.task.model.User>(user.getDisplayName(), user, i);
+        key = new GroupKey(user.getDisplayName(), user, i);
         tasks = taskService.findTasks(q);
         if (ListUtil.getSize(tasks) > 0) {
           maps.put(key, tasks);
@@ -342,7 +342,7 @@ public final class TaskUtil {
       if (query.getAssignee() == null) {
         q = query.clone();
         q.setNullField(ASSIGNEE);
-        key = new GroupKey<org.exoplatform.task.model.User>("Unassigned", null, Integer.MAX_VALUE);
+        key = new GroupKey("Unassigned", null, Integer.MAX_VALUE);
         tasks = taskService.findTasks(q);
         if (ListUtil.getSize(tasks) > 0) {
           maps.put(key, tasks);
@@ -495,32 +495,32 @@ public final class TaskUtil {
     if("project".equalsIgnoreCase(groupBy)) {
       Status s = task.getStatus();
       if(s == null) {
-        return new GroupKey[] {new GroupKey<Project>("No Project", null, Integer.MAX_VALUE)};
+        return new GroupKey[] {new GroupKey("No Project", null, Integer.MAX_VALUE)};
       } else {
-        return new GroupKey[] {new GroupKey<Project>(s.getProject().getName(), s.getProject(), s.hashCode())};
+        return new GroupKey[] {new GroupKey(s.getProject().getName(), s.getProject(), s.hashCode())};
       }
     } else if("status".equalsIgnoreCase(groupBy)) {
       Status s = task.getStatus();
       if(s == null) {
-        return new GroupKey[] {new GroupKey<Status>("TODO", null, Integer.MIN_VALUE)};
+        return new GroupKey[] {new GroupKey("TODO", null, Integer.MIN_VALUE)};
       } else {
-        return new GroupKey[] {new GroupKey<Status>(s.getName(), s, s.getRank())};
+        return new GroupKey[] {new GroupKey(s.getName(), s, s.getRank())};
       }
     } else if("tag".equalsIgnoreCase(groupBy)) {
       Set<String> tags = task.getTag();
       GroupKey[] keys = new GroupKey[tags != null && tags.size() > 0 ? tags.size() : 1];
       if (tags == null || tags.size() == 0) {
-        keys[0] = new GroupKey<String>("Un tagged", null, Integer.MAX_VALUE);
+        keys[0] = new GroupKey("Un tagged", null, Integer.MAX_VALUE);
       } else {
         int index = 0;
         for (String tag : tags) {
-          keys[index++] = new GroupKey<String>(tag, tag, tag.hashCode());
+          keys[index++] = new GroupKey(tag, tag, tag.hashCode());
         }
       }
       return keys;
     } else if ("assignee".equalsIgnoreCase(groupBy)) {
       String assignee = task.getAssignee();
-      return assignee != null ? new GroupKey[]{new GroupKey<String>(assignee, assignee, assignee.hashCode())} : new GroupKey[]{new GroupKey<String>("Unassigned", "", Integer.MAX_VALUE)};
+      return assignee != null ? new GroupKey[]{new GroupKey(assignee, assignee, assignee.hashCode())} : new GroupKey[]{new GroupKey("Unassigned", "", Integer.MAX_VALUE)};
     } else if ("dueDate".equalsIgnoreCase(groupBy)) {
       Date dueDate = task.getDueDate();
       Calendar calendar = null;
@@ -528,9 +528,9 @@ public final class TaskUtil {
         calendar = Calendar.getInstance(userTimezone);
         calendar.setTime(dueDate);
       }
-      return new GroupKey[] {new GroupKey<Date>(DateUtil.getDueDateLabel(calendar, bundle), dueDate, dueDate != null ? dueDate.hashCode() : Integer.MAX_VALUE)};
+      return new GroupKey[] {new GroupKey(DateUtil.getDueDateLabel(calendar, bundle), dueDate, dueDate != null ? dueDate.hashCode() : Integer.MAX_VALUE)};
     }
-    return new GroupKey<?>[0];
+    return new GroupKey[0];
   }
 
   public static Event buildEvent(Event event, Task task) {
