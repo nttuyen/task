@@ -22,9 +22,16 @@ package org.exoplatform.task.dao.jpa;
 import java.lang.reflect.Array;
 import java.util.List;
 
+import javax.lang.model.element.Element;
 import javax.persistence.TypedQuery;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.task.domain.Comment;
+import org.exoplatform.task.domain.Project;
+import org.exoplatform.task.domain.Status;
+import org.exoplatform.task.domain.Task;
+import org.exoplatform.task.domain.TaskLog;
+import org.exoplatform.task.domain.UserSetting;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
@@ -53,7 +60,11 @@ public class JPAQueryListAccess<E> implements ListAccess<E> {
     List<E> list = selectQuery.getResultList();
 
     E[] e = (E[])Array.newInstance(clazz, list.size());
-    return list.toArray(e);
+    for (int i = 0; i < e.length; i++) {
+      E clone = clone(list.get(i));
+      e[i] = clone != null ? clone : list.get(i);
+    }
+    return e;
   }
 
   @Override
@@ -62,5 +73,30 @@ public class JPAQueryListAccess<E> implements ListAccess<E> {
       size = countQuery.getSingleResult();
     }
     return (int)size;
+  }
+
+  //TODO: This method is need to improvement
+  private <E> E clone(E element) {
+    if (element == null) {
+      return element;
+    } else if (element instanceof Project) {
+      return (E)((Project)element).clone(false);
+    }
+    /*if (element == null) return null;
+    if (element instanceof Task) {
+      return (E)((Task)element).clone();
+    } else if (element instanceof Status) {
+      return (E)((Status)element).clone();
+    } else if (element instanceof Project) {
+      return (E)((Project)element).clone(false);
+    } else if (element instanceof Comment) {
+      return (E)((Comment)element).clone();
+    } else if (element instanceof TaskLog) {
+      return (E)((TaskLog)element).clone();
+    } else if (element instanceof UserSetting) {
+      return (E)((UserSetting)element).clone();
+    }*/
+
+    return element;
   }
 }

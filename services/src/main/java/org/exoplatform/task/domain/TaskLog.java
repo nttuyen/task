@@ -69,4 +69,14 @@ public class TaskLog implements Comparable<TaskLog> {
   public int compareTo(TaskLog o) {
     return (int)(getCreatedTime() - o.getCreatedTime());
   }
+
+  @Override
+  public TaskLog clone() {
+    TaskLog log = new TaskLog();
+    log.setAuthor(getAuthor());
+    log.setMsg(getMsg());
+    log.setCreatedTime(getCreatedTime());
+
+    return log;
+  }
 }

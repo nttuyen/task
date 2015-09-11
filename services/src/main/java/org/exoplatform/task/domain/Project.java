@@ -225,19 +225,13 @@ public class Project {
     Project project = new Project(PREFIX_CLONE + this.getName(), this.getDescription(), new HashSet<Status>(),
         new HashSet<String>(this.getManager()), new HashSet<String>(this.getParticipator()));
 
+    project.setId(getId());
     project.setColor(this.getColor());
     project.setDueDate(this.getDueDate());
     project.setParent(this.getParent());
 
-    //TODO: please implement clone status in ProjectService
-    if (this.getStatus() != null) {
-      for (Status st : this.getStatus()) {
-        Status cloned = st.clone(cloneTask);
-        project.getStatus().add(cloned);
-        cloned.setProject(project);
-      }
-    }
-
+    //
+    project.status = null;
     project.children = null;
 
     return project;

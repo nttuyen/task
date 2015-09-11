@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.util.ProjectUtil;
 
@@ -305,11 +306,11 @@ public class ProjectServiceTest {
     project.setName("Tib Project");
     project.setId(3L);
 
-    Set<Task> tasks1 = new HashSet<Task>();
+    final Set<Task> tasks1 = new HashSet<Task>();
     tasks1.add(TestUtils.getDefaultTask());
     tasks1.add(TestUtils.getDefaultTask());
 
-    Set<Task> tasks2 = new HashSet<Task>();
+    final Set<Task> tasks2 = new HashSet<Task>();
     tasks2.add(TestUtils.getDefaultTask());
     tasks2.add(TestUtils.getDefaultTask());
 
@@ -323,11 +324,44 @@ public class ProjectServiceTest {
     project.setStatus(statuses);
 
     when(projectHandler.find(3L)).thenReturn(project);
+    when(statusHandler.getStatuses(3L)).thenReturn(new ArrayList<Status>(statuses));
+
+    TaskQuery query1 = new TaskQuery();
+    query1.setStatus(status1);
+
+    TaskQuery query2 = new TaskQuery();
+    query2.setStatus(status2);
+
+    when(taskHandler.findTasks(query1)).thenReturn(new ListAccess<Task>() {
+      @Override
+      public Task[] load(int index, int length) throws Exception, IllegalArgumentException {
+        return tasks1.toArray(new Task[0]);
+      }
+
+      @Override
+      public int getSize() throws Exception {
+        return 2;
+      }
+    });
+
+    when(taskHandler.findTasks(query2)).thenReturn(new ListAccess<Task>() {
+      @Override
+      public Task[] load(int index, int length) throws Exception, IllegalArgumentException {
+        return tasks2.toArray(new Task[0]);
+      }
+
+      @Override
+      public int getSize() throws Exception {
+        return 2;
+      }
+    });
 
     projectService.cloneProject(3L, false);
     verify(projectHandler, times(1)).create(projectCaptor.capture());
 
     assertEquals("Copy of "+project.getName(), projectCaptor.getValue().getName());
+
+    //TODO: how to assert status and task is cloned
     assertEquals(project.getStatus().size(), projectCaptor.getValue().getStatus().size());
     for (Status status : projectCaptor.getValue().getStatus()) {
       assertEquals(0, status.getTasks().size());

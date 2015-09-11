@@ -313,6 +313,7 @@ public class Task {
         .build();
     newTask.setCoworker(new HashSet<String>(this.getCoworker()));
     newTask.setTag(new HashSet<String>(this.getTag()));
+    newTask.setId(getId());
     return newTask;
   }
 

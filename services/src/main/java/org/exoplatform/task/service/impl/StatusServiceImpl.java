@@ -92,6 +92,11 @@ public class StatusServiceImpl implements StatusService {
   }
 
   @Override
+  public List<Status> getStatuses(long projectId) {
+    return daoHandler.getStatusHandler().getStatuses(projectId);
+  }
+
+  @Override
   @ExoTransactional
   public Status createStatus(Project project, String name) {
     if (name == null || (name = name.trim()).isEmpty() || project == null) {

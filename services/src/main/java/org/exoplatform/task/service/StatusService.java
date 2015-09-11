@@ -14,6 +14,8 @@ public interface StatusService {
   Status getStatus(long statusId);
 
   Status getDefaultStatus(long projectId);
+
+  List<Status> getStatuses(long projectId);
     
   Status createStatus(Project project, String status);
   

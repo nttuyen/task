@@ -75,6 +75,7 @@ public class UserSetting {
     this.hiddenProjects = hiddenProjects;
   }
 
+  //TODO: This method does not work any more, re-implement it in ProjectService
   public boolean isHiddenProject(Project project) {
     if (project == null) return false;
 
@@ -84,5 +85,13 @@ public class UserSetting {
       }
     }
     return false;
+  }
+
+  @Override
+  public UserSetting clone() {
+    UserSetting setting = new UserSetting(getUsername());
+    setting.setShowHiddenProject(isShowHiddenProject());
+    setting.setHiddenProjects(null);
+    return setting;
   }
 }

@@ -51,7 +51,9 @@ import javax.persistence.Table;
             query = "SELECT s FROM Status s WHERE s.rank = (SELECT MAX(s2.rank) FROM Status s2 " +
                 "WHERE s2.project.id = :projectId) AND s.project.id = :projectId)"),
     @NamedQuery(name = "Status.findByName",
-                query = "SELECT s FROM Status s WHERE s.name = :name AND s.project.id = :projectID)")
+                query = "SELECT s FROM Status s WHERE s.name = :name AND s.project.id = :projectID"),
+    @NamedQuery(name = "Status.findStatusByProject",
+                query = "SELECT s FROM Status s WHERE s.project.id = :projectId ORDER BY s.rank ASC")
 })
 public class Status implements Comparable<Status>{
   @Id
@@ -136,19 +138,9 @@ public class Status implements Comparable<Status>{
     this.project = project;
   }
 
-  public Status clone(boolean cloneTask) {
-    Status status = new Status(this.getName(), this.getRank(), new HashSet<Task>(), null);
-    //TODO: clone task in status via ProjectService
-    if (cloneTask) {
-      if (this.getTasks() != null) {
-        for (Task t : this.getTasks()) {
-          if(t.isCompleted()) continue;
-          Task cloned = t.clone();
-          status.getTasks().add(cloned);
-          cloned.setStatus(status);
-        }
-      }
-    }
+  public Status clone() {
+    Status status = new Status(getId(), getName(), getRank(), null, getProject().clone(false));
+
     return status;
   }
 

@@ -30,17 +30,21 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.dao.OrderBy;
+import org.exoplatform.task.dao.TaskQuery;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
+import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.exception.ParameterEntityException;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
+import org.exoplatform.task.util.ListUtil;
 
 /**
  * Created by The eXo Platform SAS
@@ -134,7 +138,30 @@ public class ProjectServiceImpl implements ProjectService {
     Project project = getProject(id); //Can throw ProjectNotFoundException
 
     Project newProject = project.clone(cloneTask);
-    createProject(newProject);
+    newProject = createProject(newProject);
+
+    //. Get all Status of project
+    List<Status> statuses = statusService.getStatuses(id);
+    ListAccess<Task> tasks;
+    TaskQuery taskQuery;
+    if (statuses != null) {
+      for(Status st : statuses) {
+        Status s = statusService.createStatus(newProject, st.getName());
+        if (cloneTask) {
+          taskQuery = new TaskQuery();
+          taskQuery.setStatus(st);
+          tasks = taskService.findTasks(taskQuery);
+          if (tasks != null) {
+            for (Task t : ListUtil.load(tasks, 0, -1)) {
+              Task newTask = t.clone();
+              newTask.setId(0);
+              newTask.setStatus(s);
+              taskService.createTask(newTask);
+            }
+          }
+        }
+      }
+    }
 
     return newProject;
 
