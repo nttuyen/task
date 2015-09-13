@@ -138,6 +138,8 @@ public class ProjectServiceImpl implements ProjectService {
     Project project = getProject(id); //Can throw ProjectNotFoundException
 
     Project newProject = project.clone(cloneTask);
+    newProject.setId(0);
+    newProject.setName(Project.PREFIX_CLONE + newProject.getName());
     newProject = createProject(newProject);
 
     //. Get all Status of project
@@ -156,6 +158,7 @@ public class ProjectServiceImpl implements ProjectService {
               Task newTask = t.clone();
               newTask.setId(0);
               newTask.setStatus(s);
+              newTask.setTitle(Task.PREFIX_CLONE + newTask.getTitle());
               taskService.createTask(newTask);
             }
           }

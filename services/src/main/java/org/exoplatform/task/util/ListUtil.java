@@ -20,6 +20,7 @@
 package org.exoplatform.task.util;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.task.dao.jpa.JPAQueryListAccess;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
@@ -35,7 +36,15 @@ public class ListUtil {
 
   public static <E> E[] load(ListAccess<E> list, int start, int limit) {
     try {
-      return list.load(start, limit);
+      if (list instanceof JPAQueryListAccess) {
+        return list.load(start, limit);
+      } else {
+        if (limit < 0) {
+          start = 0;
+          limit = list.getSize();
+        }
+        return list.load(start, limit);
+      }
     } catch (Exception ex) {
       return (E[])(new Object[0]);
     }

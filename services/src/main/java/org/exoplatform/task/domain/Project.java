@@ -77,7 +77,7 @@ import org.exoplatform.services.security.MembershipEntry;
 })
 public class Project {
 
-  private static final String PREFIX_CLONE = "Copy of ";
+  public static final String PREFIX_CLONE = "Copy of ";
 
   @Id
   @GeneratedValue
@@ -222,7 +222,7 @@ public class Project {
   }
 
   public Project clone(boolean cloneTask) {
-    Project project = new Project(PREFIX_CLONE + this.getName(), this.getDescription(), new HashSet<Status>(),
+    Project project = new Project(this.getName(), this.getDescription(), new HashSet<Status>(),
         new HashSet<String>(this.getManager()), new HashSet<String>(this.getParticipator()));
 
     project.setId(getId());

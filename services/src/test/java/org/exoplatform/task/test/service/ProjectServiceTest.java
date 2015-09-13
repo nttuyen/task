@@ -18,26 +18,21 @@ package org.exoplatform.task.test.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.ListAccessImpl;
 import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.util.ProjectUtil;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +40,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import org.exoplatform.task.dao.ProjectHandler;
@@ -61,6 +57,7 @@ import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.impl.ProjectServiceImpl;
 import org.exoplatform.task.test.TestUtils;
+import org.mockito.stubbing.Answer;
 
 /**
  * Created by The eXo Platform SAS
@@ -324,48 +321,24 @@ public class ProjectServiceTest {
     project.setStatus(statuses);
 
     when(projectHandler.find(3L)).thenReturn(project);
-    when(statusHandler.getStatuses(3L)).thenReturn(new ArrayList<Status>(statuses));
 
-    TaskQuery query1 = new TaskQuery();
-    query1.setStatus(status1);
-
-    TaskQuery query2 = new TaskQuery();
-    query2.setStatus(status2);
-
-    when(taskHandler.findTasks(query1)).thenReturn(new ListAccess<Task>() {
-      @Override
-      public Task[] load(int index, int length) throws Exception, IllegalArgumentException {
-        return tasks1.toArray(new Task[0]);
-      }
-
-      @Override
-      public int getSize() throws Exception {
-        return 2;
-      }
-    });
-
-    when(taskHandler.findTasks(query2)).thenReturn(new ListAccess<Task>() {
-      @Override
-      public Task[] load(int index, int length) throws Exception, IllegalArgumentException {
-        return tasks2.toArray(new Task[0]);
-      }
-
-      @Override
-      public int getSize() throws Exception {
-        return 2;
-      }
-    });
+    when(statusService.getStatuses(3L)).thenReturn(new ArrayList<Status>(statuses));
 
     projectService.cloneProject(3L, false);
     verify(projectHandler, times(1)).create(projectCaptor.capture());
 
     assertEquals("Copy of "+project.getName(), projectCaptor.getValue().getName());
 
-    //TODO: how to assert status and task is cloned
-    assertEquals(project.getStatus().size(), projectCaptor.getValue().getStatus().size());
-    for (Status status : projectCaptor.getValue().getStatus()) {
-      assertEquals(0, status.getTasks().size());
-    }
+    // Verify 2 status were created
+    ArgumentCaptor<String> statusNameCaptor = ArgumentCaptor.forClass(String.class);
+    verify(statusService, times(2)).createStatus(projectCaptor.capture(), statusNameCaptor.capture());
+    List<String> statusNames = statusNameCaptor.getAllValues();
+    Assert.assertEquals(2, statusNames.size());
+    assertEquals(status1.getName(), statusNames.get(0));
+    assertEquals(status2.getName(), statusNames.get(1));
+
+    // Verify task is not created
+    verify(taskService, times(0)).createTask(taskCaptor.capture());
   }
 
   @Test
@@ -386,7 +359,7 @@ public class ProjectServiceTest {
     Status status1 = new Status(3, "ToDo", 1, tasks1, project);
     Status status2 = new Status(4, "On Progress", 2, tasks2, project);
 
-    Set<Status> statuses = new HashSet<Status>();
+    Set<Status> statuses = new TreeSet<Status>();
     statuses.add(status1);
     statuses.add(status2);
 
@@ -394,17 +367,41 @@ public class ProjectServiceTest {
 
     when(projectHandler.find(3L)).thenReturn(project);
 
+    when(statusService.getStatuses(3L)).thenReturn(new ArrayList<Status>(statuses));
+
+    //Mock create new status
+    when(statusService.createStatus(any(Project.class), any(String.class))).thenAnswer(new Answer<Status>() {
+      @Override
+      public Status answer(InvocationOnMock invocationOnMock) throws Throwable {
+        String statusName = invocationOnMock.getArgumentAt(1, String.class);
+        return new Status(0, statusName);
+      }
+    });
+
+    when(taskService.findTasks(any(TaskQuery.class)))
+              .thenReturn(new ListAccessImpl<Task>(Task.class, new ArrayList<Task>(tasks1)))
+              .thenReturn(new ListAccessImpl<Task>(Task.class, new ArrayList<Task>(tasks2)));
+
     projectService.cloneProject(3L, true);
     verify(projectHandler, times(1)).create(projectCaptor.capture());
 
-    assertEquals(project.getStatus().size(), projectCaptor.getValue().getStatus().size());
-    Iterator<Status> statusIterator = projectCaptor.getValue().getStatus().iterator();
-    for (Status status : projectCaptor.getValue().getStatus()) {
-      //status1 with id = 3 contains 2 tasks
-      if (status.getId() == 3) assertEquals(2, statusIterator.next().getTasks().size());
-      //status2 with id = 4 contains 3 tasks
-      else if (status.getId() == 4) assertEquals(3, statusIterator.next().getTasks().size());
-    }
+    // Verify 2 status were created
+    ArgumentCaptor<String> statusNameCaptor = ArgumentCaptor.forClass(String.class);
+    verify(statusService, times(2)).createStatus(projectCaptor.capture(), statusNameCaptor.capture());
+    List<String> statusNames = statusNameCaptor.getAllValues();
+    Assert.assertEquals(2, statusNames.size());
+    assertEquals(status1.getName(), statusNames.get(0));
+    assertEquals(status2.getName(), statusNames.get(1));
+
+    // Verify 5 task were created
+    verify(taskService, times(5)).createTask(taskCaptor.capture());
+    List<Task> tasks = taskCaptor.getAllValues();
+    assertEquals(status1.getName(), tasks.get(0).getStatus().getName());
+    assertEquals(status1.getName(), tasks.get(1).getStatus().getName());
+
+    assertEquals(status2.getName(), tasks.get(2).getStatus().getName());
+    assertEquals(status2.getName(), tasks.get(3).getStatus().getName());
+    assertEquals(status2.getName(), tasks.get(4).getStatus().getName());
   }
 
   /*@Test

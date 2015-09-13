@@ -54,7 +54,7 @@ import java.util.Set;
 })
 public class Task {
 
-  private static final String PREFIX_CLONE = "Copy of ";
+  public static final String PREFIX_CLONE = "Copy of ";
 
   @Id
   @GeneratedValue
@@ -300,7 +300,7 @@ public class Task {
   }
 
   public Task clone() {
-    Task newTask = new TaskBuilder().withTitle(PREFIX_CLONE+this.getTitle())
+    Task newTask = new TaskBuilder().withTitle(this.getTitle())
         .withAssignee(this.getAssignee())
         .withContext(this.getContext())
         .withCreatedBy(this.getCreatedBy())
@@ -309,7 +309,7 @@ public class Task {
         .withPriority(this.getPriority())
         .withStartDate(this.getStartDate())
         .withEndDate(this.getEndDate())
-        .withStatus(this.status)
+        .withStatus(this.getStatus() != null ? this.getStatus().clone() : null)
         .build();
     newTask.setCoworker(new HashSet<String>(this.getCoworker()));
     newTask.setTag(new HashSet<String>(this.getTag()));
