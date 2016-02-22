@@ -66,6 +66,7 @@ public class TaskFilterData implements Serializable {
     private static final long        serialVersionUID = -1199208518296375306L;
 
     private boolean enabled = false;
+    private ViewType viewType = ViewType.LIST;
     private Map<FILTER_NAME, Object> data             = new ConcurrentHashMap<FILTER_NAME, Object>();
 
     public boolean isEnabled() {
@@ -160,6 +161,14 @@ public class TaskFilterData implements Serializable {
 
     public void setShowCompleted(boolean showCompleted) {
       data.put(FILTER_NAME.SHOW_COMPLETE, showCompleted);
+    }
+
+    public ViewType getViewType() {
+      return viewType;
+    }
+
+    public void setViewType(ViewType viewType) {
+      this.viewType = viewType;
     }
 
     public void updateFilterData(String filterLabelIds,
