@@ -23,6 +23,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.domain.Comment;
 import org.exoplatform.task.domain.Project;
+import org.exoplatform.task.domain.ProjectPreference;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.ChangeLog;
@@ -50,6 +51,7 @@ public class DAOHandlerJPAImpl extends AbstractDAOHandler implements DAOHandler 
     uHandler = new UserSettingDAO();
     lHandler = new LabelDAOImpl();
     ltmHandler = new LabelTaskMappingDAOImpl();
+    prjPrefHandler = new ProjectPreferenceDAOImpl();
     LOG.info("DAOHandlerJPAImpl is created");
   }
   static <E> E clone(E e) {
@@ -66,6 +68,8 @@ public class DAOHandlerJPAImpl extends AbstractDAOHandler implements DAOHandler 
       return (E)((ChangeLog)e).clone();
     } else if (e instanceof UserSetting) {
       return (E)((UserSetting)e).clone();
+    } else if (e instanceof ProjectPreference) {
+      return (E)((ProjectPreference)e).clone();
     }
 
     return e;

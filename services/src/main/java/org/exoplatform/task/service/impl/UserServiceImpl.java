@@ -37,6 +37,7 @@ import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.task.dao.DAOHandler;
 import org.exoplatform.task.domain.Project;
+import org.exoplatform.task.domain.ProjectPreference;
 import org.exoplatform.task.domain.UserSetting;
 import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
@@ -192,5 +193,19 @@ public class UserServiceImpl implements UserService {
       LOG.error("Can't retrieve timezone", e);
     }
     return null;
+  }
+
+  @Override
+  public ProjectPreference getProjectPreference(String username, ProjectPreference.Type type, long id) {
+    return daoHandler.getProjectPreferenceHandler().find(username, type, id);
+  }
+
+  @Override
+  public void saveProjectPreference(ProjectPreference projectPreference) {
+    if (projectPreference.getId() > 0) {
+      daoHandler.getProjectPreferenceHandler().update(projectPreference);
+    } else {
+      daoHandler.getProjectPreferenceHandler().create(projectPreference);
+    }
   }
 }

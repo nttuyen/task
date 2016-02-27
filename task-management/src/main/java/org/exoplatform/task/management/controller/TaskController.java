@@ -62,11 +62,11 @@ import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
 import org.exoplatform.task.exception.ParameterEntityException;
 import org.exoplatform.task.exception.UnAuthorizedOperationException;
 import org.exoplatform.task.management.model.Paging;
-import org.exoplatform.task.management.model.TaskFilterData;
 import org.exoplatform.task.management.model.TaskFilterData.Filter;
 import org.exoplatform.task.management.model.TaskFilterData.FilterKey;
 import org.exoplatform.task.management.model.ViewType;
 import org.exoplatform.task.management.util.JsonUtil;
+import org.exoplatform.task.management.util.TaskFilterUtil;
 import org.exoplatform.task.model.CommentModel;
 import org.exoplatform.task.model.GroupKey;
 import org.exoplatform.task.model.TaskModel;
@@ -140,9 +140,6 @@ public class TaskController extends AbstractController {
   @Inject
   @Path("confirmDeleteTask.gtmpl")
   org.exoplatform.task.management.templates.confirmDeleteTask confirmDeleteTask;
-  
-  @Inject
-  TaskFilterData filterData;
 
   @Resource
   @Ajax
@@ -508,11 +505,13 @@ public class TaskController extends AbstractController {
     if (labelId != null && labelId != -1L) {
       filterKey = FilterKey.withLabel(labelId);
     }
-    Filter fd = filterData.getFilter(filterKey);
+    Filter fd = TaskFilterUtil.getFilter(securityContext.getRemoteUser(), filterKey, userService);
+    boolean filterUpdated = false;
 
     boolean advanceSearch = fd.isEnabled();
     if (advanceSearch) {
       fd.updateFilterData(filterLabelIds, tags, statusId, dueDate, priority, assignee, showCompleted, keyword);
+      filterUpdated = true;
     }
     
     Identity currIdentity = ConversationState.getCurrent().getIdentity();
@@ -522,8 +521,14 @@ public class TaskController extends AbstractController {
     } else {
       vType = ViewType.getViewType(viewType);
       fd.setViewType(vType);
+      filterUpdated = true;
     }
     boolean isBoardView = (ViewType.BOARD == vType);
+
+    // Save filter data if need
+    if (filterUpdated) {
+      TaskFilterUtil.saveFilter(securityContext.getRemoteUser(), filterKey, fd, userService);
+    }
 
     Project project = null;
     boolean noProjPermission = false;

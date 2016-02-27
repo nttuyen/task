@@ -403,4 +403,46 @@
             constraintName="UQ_TASK_LABEL_TASK"
             tableName="TASK_LABEL_TASK"/>
   </changeSet>
+
+  <!-- Definition of TASK_PROJECT_PREFERENCE table -->
+  <changeSet author="task" id="1.0.0-26">
+    <createTable tableName="TASK_PROJECT_PREFERENCE">
+      <column name="PROJECT_PREFERENCE_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TASK_TASK_PROJECT_PREFERENCE"/>
+      </column>
+      <column name="USERNAME" type="NVARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REFERENCE_TYPE" type="NVARCHAR(30)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REFERENCE_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+    </modifySql>
+  </changeSet>
+  <changeSet author="task" id="1.0.0-27" dbms="oracle,postgresql">
+    <createSequence sequenceName="SEQ_TASK_PROJECT_PREFERENCE_ID" startValue="1"/>
+  </changeSet>
+  <changeSet author="task" id="1.0.0-28">
+    <createTable tableName="PROJECT_PREFERENCE_ATTRIBUTE">
+      <column name="PROJECT_PREFERENCE_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_PROJECT_PREFERENCE_ATTRIBUTE" references="TASK_PROJECT_PREFERENCE(PROJECT_PREFERENCE_ID)" nullable="false"/>
+      </column>
+      <column name="NAME" type="NVARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="VALUE" type="NVARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+    </modifySql>
+  </changeSet>
+
+
 </databaseChangeLog>

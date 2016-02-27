@@ -32,34 +32,11 @@ import juzu.SessionScoped;
 import org.exoplatform.task.domain.Priority;
 import org.exoplatform.task.util.TaskUtil.DUE;
 
-@SessionScoped
 public class TaskFilterData implements Serializable {
   private static final long      serialVersionUID = 3251730267730418354L;
 
-  private Map<FilterKey, Filter> filters          = new HashMap<FilterKey, Filter>();
-
-  private boolean                enabled;
-
   public enum FILTER_NAME {
     KEYWORD, LABEL, TAG, STATUS, ASSIGNEE, DUE, PRIORITY, SHOW_COMPLETE
-  }
-
-  public Filter getFilter(FilterKey key) {
-    Filter filter = filters.get(key);
-    if (filter == null) {
-      synchronized (this) {
-        filter = filters.get(key);
-        if (filter == null) {
-          filter = new Filter();
-          filters.put(key, filter);
-        }
-      }
-    }
-    return filter;
-  }
-
-  public void clear() {
-    filters.clear();
   }
 
   public static class Filter implements Serializable {
@@ -87,7 +64,11 @@ public class TaskFilterData implements Serializable {
     }
 
     public void setKeyword(String keyword) {
-      data.put(FILTER_NAME.KEYWORD, keyword);
+      if (keyword == null || keyword.isEmpty()) {
+        data.remove(FILTER_NAME.KEYWORD);
+      } else {
+        data.put(FILTER_NAME.KEYWORD, keyword);
+      }
     }
 
     public List<Long> getLabel() {
@@ -95,7 +76,11 @@ public class TaskFilterData implements Serializable {
     }
 
     public void setLabel(List<Long> labels) {
-      data.put(FILTER_NAME.LABEL, labels);
+      if (labels == null || labels.isEmpty()) {
+        data.remove(FILTER_NAME.LABEL);
+      } else {
+        data.put(FILTER_NAME.LABEL, labels);
+      }
     }
 
     public List<String> getTag() {
@@ -103,7 +88,11 @@ public class TaskFilterData implements Serializable {
     }
 
     public void setTag(List<String> tags) {
-      data.put(FILTER_NAME.TAG, tags);
+      if (tags == null || tags.isEmpty()) {
+        data.remove(FILTER_NAME.TAG);
+      } else {
+        data.put(FILTER_NAME.TAG, tags);
+      }
     }
 
     public Long getStatus() {
@@ -123,7 +112,11 @@ public class TaskFilterData implements Serializable {
     }
 
     public void setAssignee(List<String> assignees) {
-      data.put(FILTER_NAME.ASSIGNEE, assignees);
+      if (assignees == null || assignees.isEmpty()) {
+        data.remove(FILTER_NAME.ASSIGNEE);
+      } else {
+        data.put(FILTER_NAME.ASSIGNEE, assignees);
+      }
     }
 
     public DUE getDue() {
@@ -279,6 +272,18 @@ public class TaskFilterData implements Serializable {
 
     public static FilterKey withProject(Long projectId, DUE dueDate) {
       return new FilterKey(projectId, dueDate, null);
+    }
+
+    public Long getProjectId() {
+      return projectId;
+    }
+
+    public Long getLabelId() {
+      return labelId;
+    }
+
+    public DUE getDueDate() {
+      return dueDate;
     }
 
     @Override

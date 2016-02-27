@@ -21,6 +21,7 @@ package org.exoplatform.task.service;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.task.domain.ProjectPreference;
 import org.exoplatform.task.domain.UserSetting;
 import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
@@ -52,4 +53,7 @@ public interface UserService {
   void hideProject(Identity identity, Long projectId, boolean hide) throws EntityNotFoundException, NotAllowedOperationOnEntityException;
 
   TimeZone getUserTimezone(String username);
+
+  ProjectPreference getProjectPreference(String username, ProjectPreference.Type type, long id);
+  void saveProjectPreference(ProjectPreference projectPreference);
 }

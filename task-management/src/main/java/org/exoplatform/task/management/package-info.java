@@ -21,7 +21,6 @@
 @Portlet
 @Bindings({
     @Binding(value = NavigationState.class),
-    @Binding(value = TaskFilterData.class),
     @Binding(value = TaskParser.class),
     @Binding(value = DAOHandler.class),
     @Binding(value = TaskService.class),
@@ -93,5 +92,4 @@ import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskParser;
 import org.exoplatform.task.service.TaskService;
 import org.exoplatform.task.service.UserService;
-import org.exoplatform.task.management.model.TaskFilterData;
 

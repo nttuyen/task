@@ -19,25 +19,12 @@
 
 package org.exoplatform.task.dao;
 
+import org.exoplatform.commons.api.persistence.GenericDAO;
+import org.exoplatform.task.domain.ProjectPreference;
+
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
-public interface DAOHandler {
-  public ProjectHandler getProjectHandler();
-
-  public TaskHandler getTaskHandler();
-  
-  public LabelHandler getLabelHandler();
-  
-  public LabelTaskMappingHandler getLabelTaskMappingHandler();
-
-  public CommentHandler getCommentHandler();
-
-  public TaskLogHandler getTaskLogHandler();
-
-  public StatusHandler getStatusHandler();
-
-  public UserSettingHandler getUserSettingHandler();
-
-  public ProjectPreferenceHandler getProjectPreferenceHandler();
+public interface ProjectPreferenceHandler extends GenericDAO<ProjectPreference, Long> {
+  ProjectPreference find(String username, ProjectPreference.Type type, long id);
 }
