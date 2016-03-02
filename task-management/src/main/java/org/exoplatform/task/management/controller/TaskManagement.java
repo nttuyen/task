@@ -56,10 +56,10 @@ import org.exoplatform.task.domain.Task;
 import org.exoplatform.task.domain.UserSetting;
 import org.exoplatform.task.exception.EntityNotFoundException;
 import org.exoplatform.task.management.model.Paging;
-import org.exoplatform.task.management.model.TaskFilterData;
 import org.exoplatform.task.management.model.TaskFilterData.Filter;
 import org.exoplatform.task.management.model.TaskFilterData.FilterKey;
 import org.exoplatform.task.management.model.ViewType;
+import org.exoplatform.task.management.service.TaskFilterDataStorage;
 import org.exoplatform.task.model.GroupKey;
 import org.exoplatform.task.model.TaskModel;
 import org.exoplatform.task.service.ParserContext;
@@ -99,6 +99,9 @@ public class TaskManagement {
   StatusService statusService;
 
   @Inject
+  TaskFilterDataStorage taskFilterDataStorage;
+
+  @Inject
   @Path("index.gtmpl")
   org.exoplatform.task.management.templates.index index;
 
@@ -110,9 +113,6 @@ public class TaskManagement {
   
   @Inject
   NavigationState navState;
-  
-  @Inject
-  TaskFilterData filterData;
 
   @View
   public Response.Content index(String space_group_id, SecurityContext securityContext) throws EntityNotFoundException {        
@@ -213,7 +213,7 @@ public class TaskManagement {
     }
 
     FilterKey filterKey = FilterKey.withProject(currProject, null);
-    Filter fd = filterData.getFilter(filterKey);
+    Filter fd = taskFilterDataStorage.getFilter(username, filterKey);
     ViewType viewType = fd.getViewType();
 
     //
@@ -473,7 +473,7 @@ public class TaskManagement {
     if (labelId != null && labelId != -1L) {
       filterKey = FilterKey.withLabel(labelId);
     }
-    Filter fd = filterData.getFilter(filterKey);
+    Filter fd = taskFilterDataStorage.getFilter(username, filterKey);
     boolean advanceSearch = fd.isEnabled();
     boolean showCompleted = false;
     String keyword = "";

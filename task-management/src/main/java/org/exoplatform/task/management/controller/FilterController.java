@@ -39,9 +39,9 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.task.domain.Project;
 import org.exoplatform.task.domain.Status;
 import org.exoplatform.task.exception.EntityNotFoundException;
-import org.exoplatform.task.management.model.TaskFilterData;
 import org.exoplatform.task.management.model.TaskFilterData.Filter;
 import org.exoplatform.task.management.model.TaskFilterData.FilterKey;
+import org.exoplatform.task.management.service.TaskFilterDataStorage;
 import org.exoplatform.task.service.ProjectService;
 import org.exoplatform.task.service.StatusService;
 import org.exoplatform.task.service.TaskService;
@@ -65,12 +65,12 @@ public class FilterController {
   
   @Inject
   StatusService statusService;
+
+  @Inject
+  TaskFilterDataStorage taskFilterDataStorage;
   
   @Inject
   ResourceBundle bundle;
-  
-  @Inject
-  TaskFilterData filterData;
   
   @Inject
   @Path("taskFilter.gtmpl")
@@ -85,10 +85,12 @@ public class FilterController {
     if (labelId != null && labelId != -1L) {
       filterKey = FilterKey.withLabel(labelId);
     }
-    Filter fd = filterData.getFilter(filterKey);
+    Filter fd = taskFilterDataStorage.getFilter(securityContext.getRemoteUser(), filterKey);
 
     //
     fd.setEnabled(!fd.isEnabled());
+
+    taskFilterDataStorage.saveFilter(securityContext.getRemoteUser(), filterKey, fd);
 
     //
     if (fd.isEnabled()) {

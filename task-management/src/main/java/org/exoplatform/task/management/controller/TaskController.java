@@ -62,10 +62,10 @@ import org.exoplatform.task.exception.NotAllowedOperationOnEntityException;
 import org.exoplatform.task.exception.ParameterEntityException;
 import org.exoplatform.task.exception.UnAuthorizedOperationException;
 import org.exoplatform.task.management.model.Paging;
-import org.exoplatform.task.management.model.TaskFilterData;
 import org.exoplatform.task.management.model.TaskFilterData.Filter;
 import org.exoplatform.task.management.model.TaskFilterData.FilterKey;
 import org.exoplatform.task.management.model.ViewType;
+import org.exoplatform.task.management.service.TaskFilterDataStorage;
 import org.exoplatform.task.management.util.JsonUtil;
 import org.exoplatform.task.model.CommentModel;
 import org.exoplatform.task.model.GroupKey;
@@ -117,6 +117,9 @@ public class TaskController extends AbstractController {
   ResourceBundle bundle;
 
   @Inject
+  TaskFilterDataStorage taskFilterDataStorage;
+
+  @Inject
   @Path("detail.gtmpl")
   org.exoplatform.task.management.templates.detail detail;
   
@@ -140,9 +143,6 @@ public class TaskController extends AbstractController {
   @Inject
   @Path("confirmDeleteTask.gtmpl")
   org.exoplatform.task.management.templates.confirmDeleteTask confirmDeleteTask;
-  
-  @Inject
-  TaskFilterData filterData;
 
   @Resource
   @Ajax
@@ -508,11 +508,15 @@ public class TaskController extends AbstractController {
     if (labelId != null && labelId != -1L) {
       filterKey = FilterKey.withLabel(labelId);
     }
-    Filter fd = filterData.getFilter(filterKey);
+
+    String username = securityContext.getRemoteUser();
+    boolean filterUpdated = false;
+    Filter fd = taskFilterDataStorage.getFilter(username, filterKey);
 
     boolean advanceSearch = fd.isEnabled();
     if (advanceSearch) {
       fd.updateFilterData(filterLabelIds, tags, statusId, dueDate, priority, assignee, showCompleted, keyword);
+      filterUpdated = true;
     }
     
     Identity currIdentity = ConversationState.getCurrent().getIdentity();
@@ -522,7 +526,13 @@ public class TaskController extends AbstractController {
     } else {
       vType = ViewType.getViewType(viewType);
       fd.setViewType(vType);
+      filterUpdated = true;
     }
+
+    if (filterUpdated) {
+      taskFilterDataStorage.saveFilter(username, filterKey, fd);
+    }
+
     boolean isBoardView = (ViewType.BOARD == vType);
 
     Project project = null;

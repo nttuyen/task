@@ -19,10 +19,8 @@
 
 package org.exoplatform.task.management.model;
 
-import javax.swing.text.View;
-
 /**
- * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
+ * The enum constant for type of viewing tasks in project.
  */
 public enum ViewType {
   LIST, BOARD;

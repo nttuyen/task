@@ -32,34 +32,11 @@ import juzu.SessionScoped;
 import org.exoplatform.task.domain.Priority;
 import org.exoplatform.task.util.TaskUtil.DUE;
 
-@SessionScoped
 public class TaskFilterData implements Serializable {
   private static final long      serialVersionUID = 3251730267730418354L;
 
-  private Map<FilterKey, Filter> filters          = new HashMap<FilterKey, Filter>();
-
-  private boolean                enabled;
-
   public enum FILTER_NAME {
     KEYWORD, LABEL, TAG, STATUS, ASSIGNEE, DUE, PRIORITY, SHOW_COMPLETE
-  }
-
-  public Filter getFilter(FilterKey key) {
-    Filter filter = filters.get(key);
-    if (filter == null) {
-      synchronized (this) {
-        filter = filters.get(key);
-        if (filter == null) {
-          filter = new Filter();
-          filters.put(key, filter);
-        }
-      }
-    }
-    return filter;
-  }
-
-  public void clear() {
-    filters.clear();
   }
 
   public static class Filter implements Serializable {
@@ -315,5 +292,19 @@ public class TaskFilterData implements Serializable {
       return true;
     }
 
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      if (labelId != null) {
+        sb.append("label.").append(labelId);
+      } else if (projectId != null) {
+        sb.append("project.").append(projectId);
+        if (dueDate != null) {
+          sb.append(".").append(dueDate.name());
+        }
+      }
+
+      return sb.toString();
+    }
   }
 }
